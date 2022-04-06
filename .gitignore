@@ -1,0 +1,9 @@
+data/csv/
+reports/
+trade_logic/
+*.log
+*.pyc
+config.json
+saved_data.json
+test2.py
+test3.py

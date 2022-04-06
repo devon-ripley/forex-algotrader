@@ -1,0 +1,17 @@
+{
+	"apikey": "Bearer 123456789abcd",
+	"maxrisk": 0.01,
+	"maxuseday": 0.20,
+	"wkndshut": "False",
+	"currencypairs": "USD_JPY,EUR_USD,GBP_USD",
+	"gran": "M15,M1,H1",
+	"dailychart": "True",
+	"maxusetrend": 0.10,
+	"marginrate": 20,
+	"csvstart": 2016,
+	"mysql": {"user": "test", "password": "1234", "database": "test"},
+	"notifications": {"receive_phone_num": "5555555555@tmomail.net", 
+	"receive_email": "test@gmail.com",
+	 "sender_email":"testsend@gmail.com", "sender_email_pass":"abcd"
+	 }
+}
