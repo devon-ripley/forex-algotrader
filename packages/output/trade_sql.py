@@ -1,3 +1,5 @@
+import logging
+
 import mysql.connector as mysql
 import datetime
 from packages.oanda_api import oanda_api
@@ -13,6 +15,7 @@ def get_config_info():
 
 
 def setup():
+    logger = logging.getLogger('forexlogger')
     mysql_info = get_config_info()
     create_long_table = """
     CREATE TABLE IF NOT EXISTS long_term_active (
@@ -61,7 +64,7 @@ def setup():
             password=mysql_info['password'],
             database=mysql_info['database']
     ) as connection:
-        print(datetime.datetime.now(), connection)
+        logger.info(connection)
 
         with connection.cursor() as cursor:
             for x in query:
@@ -70,6 +73,7 @@ def setup():
 
 
 def add_active_trade(trade_id, date, currency_pair, direction, stop_loss, take_profit, table):
+    logger = logging.getLogger('forexlogger')
     mysql_info = get_config_info()
     insert_active = f"""
     INSERT INTO {table}(trade_id, date, currency_pair, direction, stop_loss, take_profit, status)
@@ -88,7 +92,7 @@ def add_active_trade(trade_id, date, currency_pair, direction, stop_loss, take_p
             password=mysql_info['password'],
             database=mysql_info['database']
     ) as connection:
-        print(datetime.datetime.now(), connection)
+        logger.info(connection)
         with connection.cursor() as cursor:
             cursor.execute(insert_active)
             connection.commit()
@@ -98,6 +102,7 @@ def add_active_trade(trade_id, date, currency_pair, direction, stop_loss, take_p
 
 def update_complete_trade(trade_id, trade_type, units,
                        margin_used, price, profit):
+    logger = logging.getLogger('forexlogger')
     mysql_info = get_config_info()
 
     update_complete = f"""
@@ -119,7 +124,7 @@ def update_complete_trade(trade_id, trade_type, units,
             password=mysql_info['password'],
             database=mysql_info['database']
     ) as connection:
-        print(datetime.datetime.now(), connection)
+        logger.info(connection)
         with connection.cursor() as cursor:
             cursor.execute(update_complete)
             connection.commit()
@@ -127,6 +132,7 @@ def update_complete_trade(trade_id, trade_type, units,
 
 def all_active_trades():
     mysql_info = get_config_info()
+    logger = logging.getLogger('forexlogger')
     long_term = """
     SELECT *
     FROM long_term_active
@@ -142,7 +148,7 @@ def all_active_trades():
             password=mysql_info['password'],
             database=mysql_info['database']
     ) as connection:
-        print(datetime.datetime.now(), connection)
+        logger.info(connection)
         with connection.cursor() as cursor:
             cursor.execute(long_term)
             for line in cursor.fetchall():
@@ -155,6 +161,7 @@ def all_active_trades():
 
 def all_complete_trades_from(start_date):
     mysql_info = get_config_info()
+    logger = logging.getLogger('forexlogger')
     complete_all = f"""
     SELECT *
     FROM complete
@@ -167,7 +174,7 @@ def all_complete_trades_from(start_date):
             password=mysql_info['password'],
             database=mysql_info['database']
     ) as connection:
-        print(datetime.datetime.now(), connection)
+        logger.info(connection)
         with connection.cursor() as cursor:
             cursor.execute(complete_all)
             for line in cursor.fetchall():
@@ -178,6 +185,7 @@ def all_complete_trades_from(start_date):
 
 def get_trade_info(trade_id, table):
     mysql_info = get_config_info()
+    logger = logging.getLogger('forexlogger')
     select_trade = f"""
     SELECT *
     FROM {table}
@@ -190,7 +198,7 @@ def get_trade_info(trade_id, table):
             password=mysql_info['password'],
             database=mysql_info['database']
     ) as connection:
-        print(datetime.datetime.now(), connection)
+        logger.info(connection)
         with connection.cursor() as cursor:
             cursor.execute(select_trade)
             row = cursor.fetchone()
@@ -199,6 +207,7 @@ def get_trade_info(trade_id, table):
 
 def delete_active_trade(trade_id, table):
     mysql_info = get_config_info()
+    logger = logging.getLogger('forexlogger')
     delete_trade = f"""
     DELETE FROM {table}
     WHERE trade_id = {trade_id}
@@ -210,7 +219,7 @@ def delete_active_trade(trade_id, table):
             password=mysql_info['password'],
             database=mysql_info['database']
     ) as connection:
-        print(datetime.datetime.now(), connection)
+        logger.info(connection)
         with connection.cursor() as cursor:
             cursor.execute(delete_trade)
             connection.commit()
@@ -218,6 +227,7 @@ def delete_active_trade(trade_id, table):
 
 def drop_all_tables():
     mysql_info = get_config_info()
+    logger = logging.getLogger('forexlogger')
     drop_tables = """
     DROP TABLE complete
 """
@@ -234,7 +244,7 @@ def drop_all_tables():
             password=mysql_info['password'],
             database=mysql_info['database']
     ) as connection:
-        print(datetime.datetime.now(), connection)
+        logger.info(connection)
         with connection.cursor() as cursor:
             cursor.execute(drop_tables)
             connection.commit()
@@ -246,6 +256,7 @@ def drop_all_tables():
 
 def update_pending_complete(apikey, account_id):
     mysql_info = get_config_info()
+    logger = logging.getLogger('forexlogger')
     check_complete = """
         SELECT *
         FROM complete
@@ -258,13 +269,12 @@ def update_pending_complete(apikey, account_id):
             password=mysql_info['password'],
             database=mysql_info['database']
     ) as connection:
-        print(datetime.datetime.now(), connection)
+        logger.info(connection)
         with connection.cursor() as cursor:
             cursor.execute(check_complete)
             for line in cursor.fetchall():
                 trade_ids.append(line[1])
     for trade_id in trade_ids:
-        print(trade_id)
         trade_info = oanda_api.trade_info(apikey, account_id, trade_id)
         if trade_info is not False:
             closed_trade_info = trade_info['trade']
@@ -280,6 +290,7 @@ def update_pending_complete(apikey, account_id):
 
 def close_all_short_term(apikey, account_id):
     all_active = all_active_trades()
+    logger = logging.getLogger('forexlogger')
     short_term = all_active['short_term']
     for x in short_term:
         trade_id = x[0]

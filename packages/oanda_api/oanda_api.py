@@ -4,11 +4,10 @@ import time
 from datetime import datetime
 from datetime import timedelta
 from decimal import *
-
+logger = logging.getLogger('forexlogger')
 
 def account_get_init(apikey):
-    print(datetime.utcnow(), 'Running OandaApi initial connection')
-    logging.info('Running OandaApi initial connection')
+    logger.info('Running OandaApi initial connection')
     # Connect to oanda api, account get
     url = 'https://api-fxpractice.oanda.com/v3/accounts'
     headers = {'Authorization': apikey}
@@ -16,12 +15,10 @@ def account_get_init(apikey):
     req = requests.get(url, headers=headers)
     req.json()
 
-    print(datetime.utcnow(), 'Oanda Api Authentication Check: ', req.status_code)
-    print(datetime.utcnow(), req.json())
-    logging.info(req.json())
+    logger.info(f'Oanda Api Authentication Check: {req.status_code}')
+    logger.info('req.json()')
     if req.status_code == 200:
-        print(datetime.utcnow(), 'Oanda Api connection successful')
-        logging.info('Oanda Api connection successful')
+        logger.info('Oanda Api connection successful')
         acc_info = req.json()
         account_id = acc_info['accounts']
         account_id = account_id[0]
@@ -29,8 +26,7 @@ def account_get_init(apikey):
         return account_id
     # !!!!Error connecting loop 5 times with 5 sec wait
     if req.status_code != 200:
-        logging.warning('First attempt at initial Oanda connection failed, retrying')
-        print(datetime.now(), 'First attempt at initial Oanda connection failed, retrying')
+        logger.warning('First attempt at initial Oanda connection failed, retrying')
         for c in range(6):
             time.sleep(5)
             url = 'https://api-fxpractice.oanda.com/v3/accounts'
@@ -39,14 +35,11 @@ def account_get_init(apikey):
             req = requests.get(url, headers=headers)
             req.json()
 
-            print(datetime.utcnow(), 'Oanda Api Authentication Check: ', req.status_code)
-            print(datetime.utcnow(), req.json())
+            logger.info(f'Oanda Api Authentication Check: {req.status_code}')
             if req.status_code == 200:
-                print(datetime.utcnow(), 'Oanda Api connection successful')
-                logging.info('Oanda Api connection successful')
+                logger.info('Oanda Api connection successful')
                 return ()
-        logging.critical('Unable to connect to Oanda')
-        print(datetime.now(), 'Unable to connect to Oanda')
+        logger.critical('Unable to connect to Oanda')
 
 
         #######################################################################################################################
@@ -62,18 +55,15 @@ def instrument_candles(apikey, pair, gran, start, end):
 
         # !!!!Error connecting loop 5 times with 5 sec wait
     if req.status_code != 200:
-        logging.warning('Oanda connection failed, instrument_candles, retrying')
-        print(datetime.now(), 'Oanda connection failed, instrument_candles, retrying', pair, gran, ' Status code:',
-              req.status_code)
+        logger.warning(f'Oanda connection failed, instrument_candles, retrying: {pair} {gran}: {req.status_code}')
         for c in range(6):
             time.sleep(5)
             req = requests.get(url, headers=headers)
             req.json()
             if req.status_code == 200:
-                logging.info('Oanda Api connection successful, instrument_candles')
+                logger.info('Oanda Api connection successful, instrument_candles')
                 return req.json()
-        logging.critical('Unable to connect to Oanda: ' + url)
-        print(datetime.now(), '!!!ERROR Unable to connect to Oanda API ERROR!!!', pair, gran)
+        logger.critical('Unable to connect to Oanda: ' + url)
 
 
 def instrument_candles_current(apikey, pair, gran, start):
@@ -92,17 +82,15 @@ def instrument_candles_current(apikey, pair, gran, start):
 
         # !!!!Error connecting loop 5 times with 5 sec wait
     if req.status_code != 200:
-        logging.warning('Oanda connection failed, instrument_candles, retrying')
-        print(datetime.now(), 'Oanda connection failed, instrument_candles, retrying', pair, gran, req.status_code)
+        logger.warning(f'Oanda connection failed, instrument_candles, retrying: {pair} {gran}: {req.status_code}')
         for c in range(6):
             time.sleep(5)
             req = requests.get(url, headers=headers)
             req.json()
             if req.status_code == 200:
-                logging.info('Oanda Api connection successful, instrument_candles')
+                logger.info(f'Oanda Api connection successful, instrument_candles: {pair} {gran}: {req.status_code}')
                 return req.json()
-        logging.critical('Unable to connect to Oanda: ' + url)
-        print(datetime.now(), '!!!ERROR Unable to connect to Oanda API ERROR!!!', pair, gran)
+        logger.critical('Unable to connect to Oanda: ' + url)
 
 
 def date_convert(date):
@@ -121,9 +109,10 @@ def current_price(apikey, account_id, currency_pairs):
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/pricing?instruments=' + formated
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339'}
     req = requests.get(url, headers=headers)
-    print(datetime.now(), 'current_price:', req.status_code)
+    logger.info(f'current_price: {req.status_code}')
     return req.json()
 ######################### Make a order
+
 
 def market_order_trend(apikey, account_id, units, currency_pair, trailing_stop):
     units = round(units)
@@ -146,8 +135,7 @@ def market_order_trend(apikey, account_id, units, currency_pair, trailing_stop):
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/orders'
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339', 'Content-Type': 'application/json'}
     req = requests.post(url, headers=headers, json=order_info)
-    print(datetime.now(), 'market_order:', req.status_code)
-    logging.info(req.json())
+    logger.info(f'market order: {req.json()}')
     return req.json()
 
 
@@ -194,8 +182,7 @@ def market_order(apikey, account_id, units, currency_pair, stop_loss, take_profi
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/orders'
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339', 'Content-Type': 'application/json'}
     req = requests.post(url, headers=headers, json=order_info)
-    print(datetime.now(), 'market_order:', req.status_code)
-    logging.info(req.json())
+    logger.info(f'market order: {req.json()}')
     return req.json()
 
 
@@ -264,8 +251,7 @@ def stop_order(apikey, account_id, units, currency_pair, price, stop_loss, take_
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/orders'
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339', 'Content-Type': 'application/json'}
     req = requests.post(url, headers=headers, json=order_info)
-    logging.info(req.json())
-    logging.info(req.status_code)
+    logger.info(f'stop order: {req.json()}')
     return req.json()
     #ADD ERROR HANDLING
 
@@ -278,8 +264,7 @@ def edit_stop_loss(apikey, account_id, order_id, stop_loss):
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/trades/' + order_id + '/orders'
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339'}
     req = requests.put(url, headers=headers, json=edit_info)
-    print(req.status_code)
-    logging.info(req.json())
+    logger.info(f'edit stop loss: {req.json()}')
     return req.json()
 
 
@@ -287,8 +272,7 @@ def cancel_order(apikey, account_id, order_id):
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/orders/' + order_id + '/cancel'
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339'}
     req = requests.put(url, headers=headers)
-    print(req.status_code)
-    logging.info(req.json())
+    logger.info(f'cancel order: {req.json()}')
     return req.status_code
 
 
@@ -296,8 +280,7 @@ def close_trade(apikey, account_id, trade_id):
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/trades/' + trade_id + '/close'
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339'}
     req = requests.put(url, headers=headers)
-    print(req.status_code)
-    logging.info(req.json())
+    logger.info(f'close trade: {req.json()}')
     return req.status_code
 
 
@@ -308,8 +291,7 @@ def order_info(apikey, account_id, order_id):
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/orders/' + order_id
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339'}
     req = requests.get(url, headers=headers)
-    print(datetime.now(), 'order_info:', req.status_code)
-    logging.info(req.json())
+    logger.info(f'order info: {req.json()}')
     return req.json()
 
 
@@ -317,8 +299,7 @@ def account_summary(apikey, account_id):
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/summary'
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339'}
     req = requests.get(url, headers=headers)
-    print(datetime.now(), 'account_summery:', req.status_code)
-    logging.info(req.json())
+    logger.info(f'account summary: {req.json()}')
     return req.json()
 
 
@@ -326,8 +307,7 @@ def open_trades(apikey, account_id):
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/openTrades'
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339'}
     req = requests.get(url, headers=headers)
-    print(datetime.now(), 'account_summery:', req.status_code)
-    logging.info(req.json())
+    logger.info(f'open trades: {req.json()}')
     return req.json()
 
 
@@ -335,10 +315,9 @@ def trade_info(apikey, account_id, trade_id):
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/trades/' + trade_id
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339'}
     req = requests.get(url, headers=headers)
-    print(datetime.now(), 'account_summery:', req.status_code)
     if req.status_code == 404:
         return False
-    logging.info(req.json())
+    logging.info(f'trade info: {req.json()}')
     return req.json()
 
 
@@ -346,8 +325,7 @@ def all_instrument_info(apikey, account_id):
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/instruments'
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339'}
     req = requests.get(url, headers=headers)
-    print(datetime.now(), 'account_summery:', req.status_code)
     if req.status_code == 404:
         return False
-    logging.info(req.json())
+    logging.info(f'all instrument info: {req.json()}')
     return req.json()

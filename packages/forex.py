@@ -17,22 +17,17 @@ import json
 import logging
 import time
 from packages.oanda_api import oanda_api as oanda_api
-from packages.tech import trading
+from packages.tech import trading, day_trade
 from packages.output import trade_sql, notification, market_csv, reports
 from packages.misc import helpers
 
 
 def setup():
-    # logging format
-    logging.basicConfig(filename='log/test.log', format='%(asctime)s %(levelname)s:%(message)s', level=logging.INFO)
+    logger = logging.getLogger('forexlogger')
     # Initial start
-    print('FTBv0.5')
-    logging.info('New System Start')
-    utc_time = datetime.datetime.utcnow()
-    system_time = now.now()
-    print(utc_time, 'Current UTC Date/Time')
-    print(system_time, ' Current System Date/Time')
-    print(now.now(), 'Current UNIX: ', time.time())
+    logger.info('forex_algotrader v0.5')
+    logger.info('New System Start')
+    logger.info('Current UTC Date/Time')
     # check if system time is UTC
     if True:
         print(now.now(), 'System is set to UTC time')
@@ -42,10 +37,10 @@ def setup():
     #    logging.critical('System is NOT set to UCT time')
     #    exit()
     # system profile load
-    f = open('data/config.json', )
+    f = open('data/config.json', 'r')
     profile = json.load(f)
     f.close()
-    print(now.now(), profile)
+    logger.info(str(profile))
     # load variables
     apikey = profile['apikey']
     currency_pairs = profile['currencypairs']
@@ -83,9 +78,8 @@ def setup():
         for x_gran in range(len(gran)):
             result = market_csv.current_year_check(currency_pairs[x], gran[x_gran])
             if not result:
-                print(now.now(), 'Current year csv file does not exist', currency_pairs[x], gran[x_gran])
-                print(now.now(), 'Creating current year csv file for', currency_pairs[x], gran[x_gran])
-                logging.debug('Creating current year csv file for ' + currency_pairs[x] + gran[x_gran])
+                logger.info(f'Current year csv file does not exist {currency_pairs[x]}_{gran[x_gran]}')
+                logger.info(f'Creating current year csv file for {currency_pairs[x]}_{gran[x_gran]}')
                 # ERROR when running on sunday, monday at 00:00 works
                 market_csv.current_year_setup(apikey, currency_pairs[x], gran[x_gran])
     # check existing current year csv files if complete, complete them if not
@@ -100,6 +94,7 @@ def setup():
 
 
 def trading_loop(profile):
+    logger = logging.getLogger('forexlogger')
     # get current day
     run = True
     system_time = now.now()
@@ -127,32 +122,50 @@ def trading_loop(profile):
     max_use_trend = profile['maxusetrend']
     margin_rate = profile['marginrate']
     account_id = oanda_api.account_get_init(apikey)
-    while run:
-        # check hr and day
-        system_time = now.now()
-        current_hr = int(system_time.strftime("%H"))
-        current_day = int(system_time.strftime("%w"))
-        # logging.info('Running trend trade check')
-        # print(now.now(), 'Running trend trade check')
-        # trading.trend(apikey, account_id, currency_pairs, max_risk, max_use_trend, margin_rate)
-        logging.info('Running regular hours trading')
-        res = trading.regular(apikey, account_id, currency_pairs, gran, max_risk, max_use_day, margin_rate)
+    # check hr and day
+    system_time = now.now()
+    current_hr = int(system_time.strftime("%H"))
+    current_day = int(system_time.strftime("%w"))
+    # logging.info('Running trend trade check')
+    # print(now.now(), 'Running trend trade check')
+    # trading.trend(apikey, account_id, currency_pairs, max_risk, max_use_trend, margin_rate)
+    loop = True
+    logger.info('Running trading loop')
+    trade_check_ob = []
+    for x in currency_pairs:
+        for t in gran:
+            trade_check_ob.append(day_trade.Live(x, t))
+    f = open('data/weights.json', 'r')
+    weights = json.load(f)
+    f.close()
+    first_run = True
+    trade_wait = 300
+    while loop:
+        # update market csv
+        for x in range(len(currency_pairs)):
+            for x_gran in range(len(gran)):
+                market_csv.current_year_complete(apikey, currency_pairs[x], gran[x_gran])
+
+        res = trading.regular(apikey, account_id, currency_pairs, gran, max_risk, max_use_day,
+                              margin_rate, trade_check_ob, first_run, weights)
+        first_run = False
         if res:
-            print(now.now(), 'Regular hours trading complete, trades closed')
-            logging.info('Regular hours trading complete, trades closed')
+            logger.info('Day complete')
             system_time = now.now()
             current_hr = int(system_time.strftime("%H"))
+            # loop = False
         if not res:
-            print(now.now(), '!!!Error in regular hours trading!!!')
-            logging.critical('error in regular hours trading')
+            logger.critical('Error trading loop')
             system_time = now.now()
             current_hr = int(system_time.strftime("%H"))
+            # loop = False
+        logger.info(trade_wait)
+        time.sleep(trade_wait)
         # check if week is over
         if current_day == 5 and current_hr == 20:
-            run = False
+            loop = False
             trade_sql.close_all_short_term(apikey, account_id)
-            print(now.now(), 'All short term trades closed, end of week')
-            logging.info('All short term trades closed, end of week')
+            logger.info('All short term trades closed, end of week')
 
 
 def end_week():

@@ -13,7 +13,7 @@ def get_config_info():
 
 def send(message, subject='Forex Notification'):
     notifications_info = get_config_info()
-    receiver = notifications_info['receive_phone']
+    receiver = notifications_info['receive_phone_num']
 
     yag = yagmail.SMTP(notifications_info['sender_email'], password=notifications_info['sender_email_pass'])
     try:

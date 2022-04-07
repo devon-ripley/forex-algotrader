@@ -1,7 +1,8 @@
 import json
-
+import logging
 
 def run():
+    logger = logging.getLogger('forexlogger')
     input('this will erase your current weights json file')
     f = open('data/config.json', 'r')
     profile = json.load(f)
@@ -27,3 +28,4 @@ def run():
     json_final = {'currency_pairs': currency_dict}
     with open('data/weights.json', 'w') as fp:
         json.dump(json_final, fp,  indent=4)
+    logger.info('weights.json reset')
