@@ -23,6 +23,23 @@ from packages.misc import helpers
 
 
 def setup():
+    # system profile load
+    f = open('data/config.json', 'r')
+    profile = json.load(f)
+    f.close()
+
+    # load variables
+    apikey = profile['apikey']
+    currency_pairs = profile['currencypairs']
+    currency_pairs = list(currency_pairs.split(','))
+    gran = profile['gran']
+    gran = list(gran.split(','))
+    daily_chart = profile['dailychart']
+    daily_chart = bool(daily_chart)
+    csv_start = int(profile['csvstart'])
+
+    # set up folders if needed
+    helpers.folder_setup(currency_pairs, gran)
     helpers.set_logger()
     logger = logging.getLogger('forexlogger')
     # Initial start
@@ -37,22 +54,7 @@ def setup():
     #    print(now.now(), '!!!ERROR System is NOT set to UCT time!!!')
     #    logging.critical('System is NOT set to UCT time')
     #    exit()
-    # system profile load
-    f = open('data/config.json', 'r')
-    profile = json.load(f)
-    f.close()
-    logger.info(str(profile))
-    # load variables
-    apikey = profile['apikey']
-    currency_pairs = profile['currencypairs']
-    currency_pairs = list(currency_pairs.split(','))
-    gran = profile['gran']
-    gran = list(gran.split(','))
-    daily_chart = profile['dailychart']
-    daily_chart = bool(daily_chart)
-    csv_start = int(profile['csvstart'])
-    # set up folders if needed
-    helpers.folder_setup(currency_pairs, gran)
+
     # API connection test
     # MAX LENGTH OF API CALL 500
     account_id = oanda_api.account_get_init(apikey)
