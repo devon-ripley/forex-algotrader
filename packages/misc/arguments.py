@@ -1,11 +1,9 @@
 import sys
 import datetime
-import logging
 from packages.misc import weights_json_gen
 from packages.output import trade_sql
 
 def controller(arg):
-    logger = logging.getLogger('forexlogger')
     # argument handling
     if len(arg) > 2:
         print(datetime.datetime.now(), 'ERROR only one argument is allowed')

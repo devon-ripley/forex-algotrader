@@ -23,6 +23,7 @@ from packages.misc import helpers
 
 
 def setup():
+    helpers.set_logger()
     logger = logging.getLogger('forexlogger')
     # Initial start
     logger.info('forex_algotrader v0.5')

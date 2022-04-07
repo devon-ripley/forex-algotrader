@@ -1,10 +1,9 @@
 import logging
 import sys
 from packages import forex
-from packages.misc import arguments, helpers
+from packages.misc import arguments
 from packages.output import notification
-helpers.set_logger()
-logger = logging.getLogger('forexlogger')
+
 # check run arguments
 arguments.controller(sys.argv)
 # start program
