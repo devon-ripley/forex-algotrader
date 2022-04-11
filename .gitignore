@@ -6,5 +6,4 @@ trade_logic/
 *.prof
 config.json
 saved_data.json
-temp_test2.py
 temp_test*
