@@ -8,8 +8,5 @@ import logging
 arguments.controller(sys.argv)
 # start program
 profile = forex.setup()
-logger = logging.getLogger('forexlogger')
-
 forex.trading_loop(profile)
-
 forex.end_week()

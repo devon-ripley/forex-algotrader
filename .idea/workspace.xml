@@ -1,20 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="logger start bug fixed">
-      <change afterPath="$PROJECT_DIR$/packages/backtest/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/backtest/backtest.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/backtest/backtest_csv.py" afterDir="false" />
+    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="logger fixed, backtest added, trading object instead of function">
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/forex.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/forex.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/misc/arguments.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/misc/arguments.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/misc/helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/misc/helpers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/oanda_api/oanda_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/oanda_api/oanda_api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/output/market_csv.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/output/market_csv.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tech/candle.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tech/candle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tech/day_trade.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tech/day_trade.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tech/trading.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tech/trading.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,7 +59,7 @@
       <recent name="C:\Users\derip\Desktop\forex" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.test3">
+  <component name="RunManager" selected="Python.temp_test3">
     <configuration name="backtest" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="forex" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -133,7 +123,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="temp_test2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="forex" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -145,7 +135,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test2.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/temp_test2.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -154,7 +144,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test3" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="temp_test3" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="forex" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -166,7 +156,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test3.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/temp_test3.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -198,8 +188,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.test3" />
-        <item itemvalue="Python.test2" />
+        <item itemvalue="Python.temp_test3" />
+        <item itemvalue="Python.temp_test2" />
         <item itemvalue="Python.backtest" />
         <item itemvalue="Python.candle_test" />
         <item itemvalue="Python.weights_json_gen" />
@@ -243,7 +233,14 @@
       <option name="project" value="LOCAL" />
       <updated>1649299136007</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="logger fixed, backtest added, trading object instead of function">
+      <created>1649635281181</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1649635281181</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -261,6 +258,7 @@
     <MESSAGE value="setup" />
     <MESSAGE value="trading.regular reformatted, logger set up" />
     <MESSAGE value="logger start bug fixed" />
-    <option name="LAST_COMMIT_MESSAGE" value="logger start bug fixed" />
+    <MESSAGE value="logger fixed, backtest added, trading object instead of function" />
+    <option name="LAST_COMMIT_MESSAGE" value="logger fixed, backtest added, trading object instead of function" />
   </component>
 </project>

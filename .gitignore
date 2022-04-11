@@ -6,5 +6,5 @@ trade_logic/
 *.prof
 config.json
 saved_data.json
-test2.py
-test3.py
+temp_test2.py
+temp_test*
