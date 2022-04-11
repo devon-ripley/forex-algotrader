@@ -278,7 +278,7 @@ def past_years_check(apikey, currency_pair, gran, start_year):
             start_year += 1
             continue
         else:
-            logger.info(f'past_years, file does not exist for: {csv_file_path}')
+            logger.info(f'past_years, file does not exist for: {csv_file_path}, setting up file')
             # set up file
             first_of_year = datetime.date(year=start_year, month=1, day=1)
             first_of_year_week = first_of_year.weekday()
@@ -328,32 +328,32 @@ def past_years_check(apikey, currency_pair, gran, start_year):
                 if nextday == last_of_year:
                     last_week = True
             start_year += 1
+        logger.info(f'{csv_file_path} is setup')
 
-
-def daily_check(currency_pair):
+def daily_check(currency_pair, year):
     logger = logging.getLogger('forexlogger')
-    current_day = now.now()
-    year = current_day.year
     year_str = str(year)
     #check for files
     path_to_file = 'data/csv/' + currency_pair + '/D/' + currency_pair + 'D' + '_' + year_str + '.csv'
     path = Path(path_to_file)
     if path.is_file():
-        logger.debug(f'last_week_check, file exists: {path_to_file}')
+        logger.debug(f'D1 file exists: {path_to_file}')
         return True
     else:
-        logging.info(f'last_week_check, file does not exist: {path_to_file}')
+        logging.info(f'D1 file does not exist: {path_to_file}')
         return False
 
 
-def daily_setup(apikey, currency_pair):
+def daily_setup(apikey, currency_pair, year):
     logger = logging.getLogger('forexlogger')
-    current_day = now.now()
-    year = current_day.year
+    current_year = datetime.datetime.now().year
     year_str = str(year)
     csv_file_path = 'data/csv/' + currency_pair + '/D/' + currency_pair + 'D' + '_' + year_str + '.csv'
     start = year_str + '-01-01T00%3A00%3A00Z'
-    day_data = oanda_api.instrument_candles_current(apikey, currency_pair, 'D', start)
+    if current_year == year:
+        day_data = oanda_api.instrument_candles_current(apikey, currency_pair, 'D', start)
+    else:
+        day_data = oanda_api.instrument_candles(apikey, currency_pair, 'D', start, str(year+1)+'-01-01T00%3A00%3A00Z')
     day_data = day_data['candles']
     # build list for each line and add to csv file
     complete = True
@@ -373,10 +373,9 @@ def daily_setup(apikey, currency_pair):
     logger.info(f'current day file complete: {csv_file_path}')
 
 
-def daily_current(apikey, currency_pair):
+def daily_current(apikey, currency_pair, year):
     logger = logging.getLogger('forexlogger')
     current_day = now.now()
-    year = current_day.year
     year_str = str(year)
     csv_file_path = 'data/csv/' + currency_pair + '/D/' + currency_pair + 'D' + '_' + year_str + '.csv'
     # get last date in file
@@ -402,8 +401,12 @@ def daily_current(apikey, currency_pair):
     start = frm_end + datetime.timedelta(days=1)
     start_rfc = oanda_api.date_convert(start)
 
-    logger.debug(f'Current year csv file is within 24 hrs of current time, {currency_pair}, D')
-    today_data = oanda_api.instrument_candles_current(apikey, currency_pair, 'D', start_rfc)
+    if current_day.year == year:
+        logger.debug(f'Current year file updating, {currency_pair}, D')
+        today_data = oanda_api.instrument_candles_current(apikey, currency_pair, 'D', start_rfc)
+    else:
+        today_data = oanda_api.instrument_candles(apikey, currency_pair, 'D',
+                                                  start_rfc, str(year+1)+'-01-01T00%3A00%3A00Z')
     today_data = today_data['candles']
     for j in range(len(today_data)):
         day_data_strip = today_data[j]

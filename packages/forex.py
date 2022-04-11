@@ -59,16 +59,17 @@ def setup():
     # MAX LENGTH OF API CALL 500
     account_id = oanda_api.account_get_init(apikey)
     ###### MARKET DATA CSV FILE SET UP
-
+    now_year = datetime.datetime.now().year
     # Daily chart setup
     if daily_chart:
         for num_cur in range(len(currency_pairs)):
-            result = market_csv.daily_check(currency_pairs[num_cur])
-            if not result:
-                print(now.now(), 'Creating csv file for D1', currency_pairs[num_cur])
-                market_csv.daily_setup(apikey, currency_pairs[num_cur])
-            if result:
-                market_csv.daily_current(apikey, currency_pairs[num_cur])
+            for x in range((now_year + 1) - csv_start):
+                result = market_csv.daily_check(currency_pairs[num_cur], csv_start + x)
+                if not result:
+                    logger.info(f'Creating csv file for D1, {currency_pairs[num_cur]}, {csv_start + x}')
+                    market_csv.daily_setup(apikey, currency_pairs[num_cur], csv_start + x)
+                if result:
+                    market_csv.daily_current(apikey, currency_pairs[num_cur], csv_start + x)
 
     # set up csv files starting at csv start year
 
