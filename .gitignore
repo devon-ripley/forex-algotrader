@@ -1,6 +1,7 @@
 data/csv/
 reports/
 trade_logic/
+.idea/
 *.log
 *.pyc
 *.prof
