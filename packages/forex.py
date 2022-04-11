@@ -134,35 +134,35 @@ def trading_loop(profile):
     # trading.trend(apikey, account_id, currency_pairs, max_risk, max_use_trend, margin_rate)
     loop = True
     logger.info('Running trading loop')
-    trade_check_ob = []
-    for x in currency_pairs:
-        for t in gran:
-            trade_check_ob.append(day_trade.Live(x, t))
+
     f = open('data/weights.json', 'r')
     weights = json.load(f)
     f.close()
     first_run = True
     trade_wait = 300
+    trader = trading.LiveTrader(True, currency_pairs, gran, max_risk, max_use_day,
+                            margin_rate, weights, apikey, account_id)
+    count = 0
     while loop:
+        count += 1
         # update market csv
         for x in range(len(currency_pairs)):
             for x_gran in range(len(gran)):
                 market_csv.current_year_complete(apikey, currency_pairs[x], gran[x_gran])
 
-        res = trading.regular(apikey, account_id, currency_pairs, gran, max_risk, max_use_day,
-                              margin_rate, trade_check_ob, first_run, weights)
+        res = trader.trade(first_run)
+
         first_run = False
         if res:
-            logger.info('Day complete')
+            logger.info(f'loop #{count} complete')
             system_time = now.now()
             current_hr = int(system_time.strftime("%H"))
-            # loop = False
         if not res:
             logger.critical('Error trading loop')
             system_time = now.now()
             current_hr = int(system_time.strftime("%H"))
-            # loop = False
-        logger.info(trade_wait)
+            # loop = False????
+        logger.info(f'sleep {trade_wait} seconds')
         time.sleep(trade_wait)
         # check if week is over
         if current_day == 5 and current_hr == 20:

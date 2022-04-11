@@ -473,9 +473,8 @@ def csv_read(frame, currency_pair, gran, week_back):
     return data_final
 
 
-def csv_read_full(currency_pair, gran):
-    today = datetime.datetime.now()
-    year = today.year
+def csv_read_full(currency_pair, gran, year):
+
     year_str = str(year)
     csv_file_path = 'data/csv/' + currency_pair + '/' + gran + '/' + currency_pair + gran + '_' + year_str + '.csv'
     with open(csv_file_path, newline='') as f:

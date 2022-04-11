@@ -47,6 +47,8 @@ def single_candle(data, weights, direction, gran, pair):
     price = data[-1]
     date = data[-1][2]
     ratios = candle_ratio_single(price)
+    if ratios is False:
+        return None
     if ratios['bottom_stick_ratio'] >= 0.6666 and\
             ratios['top_stick_ratio'] <= 0.166 and\
             ratios['middle_box_location'] >= 65.0:

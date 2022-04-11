@@ -2,6 +2,8 @@ import sys
 import datetime
 from packages.misc import weights_json_gen
 from packages.output import trade_sql
+from packages.backtest import backtest
+
 
 def controller(arg):
     # argument handling
@@ -18,6 +20,7 @@ def controller(arg):
         print('(w) To reset weights.json file')
         print('(s) To reset mysql tables')
         print('(m) To start manual machine learning program')
+        print('(b) To run backtest')
         print('(h), Help menu')
         arg = input('Enter (x) to exit or any other letter to run')
         arg = str(arg).lower()
@@ -40,4 +43,10 @@ def controller(arg):
     elif arg == 's':
         trade_sql.drop_all_tables()
         trade_sql.setup()
+        exit()
+
+    elif arg == 'b':
+        start_date = input('Enter start date for back test (DD/MM/YYYY) ')
+        start_balance = int(input('Enter starting balance, no decimals '))
+        backtest.start(start_date, start_balance)
         exit()

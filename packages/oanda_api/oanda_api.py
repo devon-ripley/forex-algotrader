@@ -16,7 +16,7 @@ def account_get_init(apikey):
     req.json()
 
     logger.info(f'Oanda Api Authentication Check: {req.status_code}')
-    logger.info('req.json()')
+    logger.info(req.json())
     if req.status_code == 200:
         logger.info('Oanda Api connection successful')
         acc_info = req.json()
@@ -299,7 +299,7 @@ def account_summary(apikey, account_id):
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/summary'
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339'}
     req = requests.get(url, headers=headers)
-    logger.info(f'account summary: {req.json()}')
+    logger.info(f'api call account summary: {req.status_code}')
     return req.json()
 
 
@@ -307,7 +307,7 @@ def open_trades(apikey, account_id):
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/openTrades'
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339'}
     req = requests.get(url, headers=headers)
-    logger.info(f'open trades: {req.json()}')
+    logger.info(f'api call open trades: {req.status_code}')
     return req.json()
 
 
@@ -315,9 +315,9 @@ def trade_info(apikey, account_id, trade_id):
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/trades/' + trade_id
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339'}
     req = requests.get(url, headers=headers)
-    if req.status_code == 404:
+    if req.status_code != 200:
         return False
-    logging.info(f'trade info: {req.json()}')
+    logger.info(f'api call trade info: {req.status_code}')
     return req.json()
 
 
@@ -327,5 +327,5 @@ def all_instrument_info(apikey, account_id):
     req = requests.get(url, headers=headers)
     if req.status_code == 404:
         return False
-    logging.info(f'all instrument info: {req.json()}')
+    logger.info(f'all instrument info: {req.json()}')
     return req.json()

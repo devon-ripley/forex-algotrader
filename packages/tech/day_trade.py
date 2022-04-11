@@ -2,7 +2,7 @@ from packages.output import market_csv
 from packages.tech import candle
 import json
 import numpy as np
-
+from packages.backtest import backtest
 
 def current_trend(prices):
     combined = []
@@ -77,6 +77,7 @@ class TradeCheck():
         # candle vars
         self.wait_confirmation = []
         self.trend_list = []
+
     def indicator_setup(self):
         pass
 
@@ -136,3 +137,18 @@ class Live(TradeCheck):
         # load most recent candles from csv
         data = market_csv.csv_read_recent(currency_pair=self.currency_pair, gran=self.gran, periods=periods)
         return self.candle_check(data=data, periods=periods)
+
+
+class Past(TradeCheck):
+    def back_candles(self, market_reader_obs, track_year):
+        periods = self.weights['periods']
+        market_read = market_reader_obs[track_year][self.currency_pair][self.gran]
+        if not market_read.go:
+            return None
+        data = market_read.output_backchunk(periods)
+        if data[0] == 'split_year':
+            past_market_read = market_reader_obs[track_year-1][self.currency_pair][self.gran]
+            past_year_data = past_market_read.split_year(data[1])
+            current_year_data = market_read.new_year(periods - data[1])
+            data = past_year_data + current_year_data
+        return self.candle_check(data, periods)

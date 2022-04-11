@@ -1,6 +1,6 @@
 import os
 import logging
-
+import json
 
 # set up folder org if not setup
 
@@ -44,3 +44,21 @@ def set_logger():
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
 
+
+def get_config():
+    # system profile load
+    f = open('data/config.json', 'r')
+    profile = json.load(f)
+    f.close()
+
+    # load variables
+    apikey = profile['apikey']
+    max_risk = profile['maxrisk']
+    max_use_day = profile['maxuseday']
+    wknd_shut = profile['wkndshut']
+    currency_pairs = profile['currencypairs']
+    currency_pairs = list(currency_pairs.split(','))
+    gran = profile['gran']
+    gran = list(gran.split(','))
+    max_use_trend = profile['maxusetrend']
+    margin_rate = profile['marginrate']
