@@ -2,7 +2,6 @@ import datetime
 from packages.tech import trading
 from packages.backtest import backtest_csv
 import json
-import cProfile
 
 
 def runner(track_datetime, track_year, currency_pairs, gran, market_reader_obs, trader, min_step, end_date):
@@ -20,7 +19,8 @@ def runner(track_datetime, track_year, currency_pairs, gran, market_reader_obs, 
                     track_year = track_year + 1
                     m_ob = market_reader_obs[track_year][p][g]
                 m_ob.go_check(track_datetime)
-        trader.trade_past(track_year, track_datetime)
+        if market_reader_obs[track_year][currency_pairs[0]]['M1'].go:
+            trader.trade_past(track_year, track_datetime)
         # next step
         track_datetime = track_datetime + min_step
         if trader.active_data['balance'] <= 0:
@@ -83,3 +83,17 @@ def setup(start_date_str='2018-05-15', start_balance=10000):
     min_step = min(min_step_lst)
     track_year = track_datetime.year
     runner(track_datetime, track_year, currency_pairs, gran, market_reader_obs, trader, min_step, end_date)
+
+
+if __name__ == '__main__':
+    # system profile load
+    f = open('data/config.json', 'r')
+    profile = json.load(f)
+    f.close()
+    earliest_year = int(profile['csvstart'])
+    earliest_year += 1
+    print('Enter start date for back test (YYYY/MM/DD)')
+    print(f'Earliest year allowed: {earliest_year}')
+    start_date = input()
+    start_balance = int(input('Enter starting balance, no decimals '))
+    setup(start_date, start_balance)

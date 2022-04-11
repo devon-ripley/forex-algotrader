@@ -1,9 +1,7 @@
-import logging
 import sys
 from packages import forex
 from packages.misc import arguments
-from packages.output import notification
-import logging
+
 # check run arguments
 arguments.controller(sys.argv)
 # start program

@@ -93,13 +93,16 @@ class BacktestMarketReader:
 
     def go_check(self, track_datetime):
         track_date = self.data[self.start_index][2]
-        # track_date = datetime.datetime.strptime(track_date, '%Y-%m-%d %H:%M:%S')
         track_date = track_date + self.step
         line = self.data[self.start_index]
         self.current_price = [float(line[4]), float(line[5])]  # high, low
+
         if track_date <= track_datetime:
             self.go = True
         if track_date + self.step <= track_datetime:
+            if self.data[self.start_index][2] > track_datetime + datetime.timedelta(days=1):
+                # end of week
+                self.go = False
             self.start_index = self.start_index + 1
 
     def split_year(self, periods_back):
@@ -115,10 +118,3 @@ class BacktestMarketReader:
         for x in range(periods):
             split_data.append(self.data[x])
         return split_data
-
-    def new_year_check(self):
-        if self.start_index > self.total_length: # change back to greater then
-            return True
-
-        else:
-            return False

@@ -1,5 +1,5 @@
-yagmail~=0.14.260
+numpy~=1.22.2
+mysql-connector-python~=8.0.28
+yagmail~=0.14.261
 requests~=2.25.1
 matplotlib~=3.5.1
-numpy~=1.22.1
-mysql-connector-python~=8.0.28

@@ -47,9 +47,9 @@ def setup():
     logger.info('New System Start')
     logger.info('Current UTC Date/Time')
     # check if system time is UTC
-    if True:
-        print(now.now(), 'System is set to UTC time')
-        logging.info('System is set to UTC time')
+    # if True:
+        # print(now.now(), 'System is set to UTC time')
+        # logging.info('System is set to UTC time')
     # else:
     #    print(now.now(), '!!!ERROR System is NOT set to UCT time!!!')
     #    logging.critical('System is NOT set to UCT time')

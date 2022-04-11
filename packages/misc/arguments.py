@@ -1,5 +1,6 @@
 import sys
 import datetime
+import json
 from packages.misc import weights_json_gen
 from packages.output import trade_sql
 from packages.backtest import backtest
@@ -46,7 +47,15 @@ def controller(arg):
         exit()
 
     elif arg == 'b':
-        start_date = input('Enter start date for back test (DD/MM/YYYY) ')
+        # system profile load
+        f = open('data/config.json', 'r')
+        profile = json.load(f)
+        f.close()
+        earliest_year = int(profile['csvstart'])
+        earliest_year += 1
+        print('Enter start date for back test (YYYY/MM/DD)')
+        print(f'Earliest year allowed: {earliest_year}')
+        start_date = input()
         start_balance = int(input('Enter starting balance, no decimals '))
-        backtest.start(start_date, start_balance)
+        backtest.setup(start_date, start_balance)
         exit()

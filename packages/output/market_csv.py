@@ -424,6 +424,8 @@ def daily_current(apikey, currency_pair, year):
     return
 # read
 # change for new system
+
+
 def csv_read(frame, currency_pair, gran, week_back):
     current_unix = time.time()
     current_week = time.strftime('%U', time.localtime(current_unix))

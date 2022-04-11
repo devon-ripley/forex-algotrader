@@ -1,5 +1,4 @@
 import logging
-
 from packages.oanda_api import oanda_api
 from packages.tech import day_trade
 from packages.tech import indicator_calc
@@ -11,6 +10,7 @@ from decimal import Decimal
 import decimal
 import json
 import os
+import talib
 
 
 class Trader:
