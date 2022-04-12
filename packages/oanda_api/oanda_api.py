@@ -56,6 +56,7 @@ def instrument_candles(apikey, pair, gran, start, end):
         # !!!!Error connecting loop 5 times with 5 sec wait
     if req.status_code != 200:
         logger.warning(f'Oanda connection failed, instrument_candles, retrying: {pair} {gran}: {req.status_code}')
+        logger.warning(f'url: {url}')
         for c in range(6):
             time.sleep(5)
             req = requests.get(url, headers=headers)
