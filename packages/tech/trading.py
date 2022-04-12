@@ -41,11 +41,14 @@ class Trader:
         self.margin_rate = margin_rate
         self.weights = weights
 
-    def unit_calc(self, current_price, stop_loss, unit_mult, risk_amount, max_units):
+    def unit_calc(self, current_price, stop_loss, unit_mult, risk_amount, max_units, margin_used, margin_rate, max_use_day):
         # calculate units
         units = risk_amount / abs(current_price - stop_loss)
-        if units > max_units:
-            units = max_units
+        trade_margin_used = units / margin_rate
+        if trade_margin_used + margin_used >= max_use_day:
+            return False
+        if units > max_units / 2:
+            units = max_units / 2
         units = units * unit_mult
         return units
 
@@ -124,10 +127,12 @@ class LiveTrader(Trader):
             # get account info from oanda_api
             info = oanda_api.account_summary(self.apikey, self.account_id)
             info = info['account']
+            margin_used = float(info['marginUsed'])
             balance = float(info['balance'])
             risk_amount = float(self.max_risk) * balance
-            max_use = float(self.max_use_day) * balance
-            max_units = float(self.margin_rate) * max_use
+            max_use_day = float(self.max_use_day) * balance
+            max_units = float(self.margin_rate) * max_use_day
+            margin_rate = self.margin_rate
 
             active_pairs = []
 
@@ -186,32 +191,32 @@ class LiveTrader(Trader):
             # calculate units
 
             units = self.unit_calc(run_info['current_price'], run_info['stop_loss'],
-                                   run_info['unit_mult'], risk_amount, max_units)
-
-            # execute trade
-            trade_info = oanda_api.market_order(self.apikey, self.account_id, units,
-                                                run_info['top_trade']['pair'],
-                                                run_info['stop_loss'], run_info['take_profit'])
-            if 'orderCancelTransaction' in trade_info:
-                reason = trade_info['orderCancelTransaction']['reason']
-                logger.error('Error market order, ' + reason)
-                notification.send('Error market order, ' + reason)
-                pass
-            else:
-                trade_id = trade_info['orderFillTransaction']['id']
-                logging.info('Market order complete' + trade_id)
-                notification.send('Market order complete' + trade_id)
-                # margin_used = trade_info['orderFillTransaction']['tradeOpened']['initialMarginRequired']
-                if units >= 0:
-                    direction = 'LONG'
+                                   run_info['unit_mult'], risk_amount, max_units, margin_used, margin_rate, max_use_day)
+            if units is not False:
+                # execute trade
+                trade_info = oanda_api.market_order(self.apikey, self.account_id, units,
+                                                    run_info['top_trade']['pair'],
+                                                    run_info['stop_loss'], run_info['take_profit'])
+                if 'orderCancelTransaction' in trade_info:
+                    reason = trade_info['orderCancelTransaction']['reason']
+                    logger.error('Error market order, ' + reason)
+                    notification.send('Error market order, ' + reason)
+                    pass
                 else:
-                    direction = 'SHORT'
-                trade_sql.add_active_trade(trade_id, run_info['top_trade']['date'],
-                                           run_info['top_trade']['pair'], direction, run_info['stop_loss'],
-                                           run_info['take_profit'], 'short_term_active')
-                reports.trade_logic_csv(
-                    [trade_id, units, run_info['current_price'], run_info['stop_loss'], run_info['take_profit'],
-                     run_info['top_trade']])
+                    trade_id = trade_info['orderFillTransaction']['id']
+                    logging.info('Market order complete' + trade_id)
+                    notification.send('Market order complete' + trade_id)
+                    # margin_used = trade_info['orderFillTransaction']['tradeOpened']['initialMarginRequired']
+                    if units >= 0:
+                        direction = 'LONG'
+                    else:
+                        direction = 'SHORT'
+                    trade_sql.add_active_trade(trade_id, run_info['top_trade']['date'],
+                                               run_info['top_trade']['pair'], direction, run_info['stop_loss'],
+                                               run_info['take_profit'], 'short_term_active')
+                    reports.trade_logic_csv(
+                        [trade_id, units, run_info['current_price'], run_info['stop_loss'], run_info['take_profit'],
+                         run_info['top_trade']])
             return True
 
     def trend(self, apikey, account_id, currency_pairs, max_risk, max_use_trend, margin_rate):
@@ -265,7 +270,7 @@ class PastTrader(Trader):
         self.market_reader_obs = None
         self.active_trades = []
         self.active_pairs = []
-        self.active_data = {'balance': 0}
+        self.active_data = {'balance': 0, 'margin_used': 0}
 
     def add_market_readers(self, market_reader_obs):
         self.market_reader_obs = market_reader_obs
@@ -295,6 +300,7 @@ class PastTrader(Trader):
                     # loss
                     profit = price[0] - x['price']
             if profit is not None:
+                self.active_data['margin_used'] -= x['margin_used']
                 apply_profit = self.calc_profit(profit, x['units'])
                 self.active_data['balance'] += apply_profit
                 self.active_pairs.remove(x['pair'])
@@ -304,8 +310,8 @@ class PastTrader(Trader):
         # logger = logging.getLogger('backtestlogger')
         balance = self.active_data['balance']
         risk_amount = float(self.max_risk) * balance
-        max_use = float(self.max_use_day) * balance
-        max_units = float(self.margin_rate) * max_use
+        max_use_day = float(self.max_use_day) * balance
+        max_units = float(self.margin_rate) * max_use_day
         price_data = []
         # get track price
         for p in self.currency_pairs:
@@ -322,11 +328,13 @@ class PastTrader(Trader):
             return True
         # calculate units
         units = self.unit_calc(run_info['current_price'], run_info['stop_loss'],
-                               run_info['unit_mult'], risk_amount, max_units)
+                               run_info['unit_mult'], risk_amount, max_units, self.active_data['margin_used'], self.margin_rate, max_use_day)
         # execute trade
         top_trade_price = self.market_reader_obs[track_year][run_info['top_trade']['pair']]['M1'].current_price
         top_trade_price = (top_trade_price[0] + top_trade_price[1]) / 2
+        margin_used_trade = units / self.margin_rate
+        self.active_data['margin_used'] += margin_used_trade
         self.active_trades.append(
-            {'price': top_trade_price, 'units': units, 'pair': run_info['top_trade']['pair'],
+            {'price': top_trade_price, 'units': units, 'margin_used': margin_used_trade, 'pair': run_info['top_trade']['pair'],
              'stop_loss': run_info['stop_loss'], 'take_profit': run_info['take_profit']})
         self.active_pairs.append(run_info['top_trade']['pair'])
