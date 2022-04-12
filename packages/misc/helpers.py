@@ -32,7 +32,7 @@ def folder_setup(currency_pairs, grans):
 
 def set_logger():
     logger = logging.getLogger('forexlogger')
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
     logger.propagate = False
     formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(message)s')
