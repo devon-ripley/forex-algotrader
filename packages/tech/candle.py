@@ -87,10 +87,13 @@ def all_candles(data, weights, direction, gran, pair):
     last_line = data[-1]
     # separate data
     date = last_line[2]
-    s_candle = np.array([last_line[3], last_line[4], last_line[5], last_line[6]])
+    open_price = np.array([last_line[3]])
+    high_price = np.array([last_line[4]])
+    low_price = np.array([last_line[5]])
+    close_price = np.array([last_line[6]])
     # check candles
-    hammer = talib.CDLHAMMER(s_candle)
-    hanging_man = talib.CDLHANGINGMAN(s_candle)
+    hammer = talib.CDLHAMMER(open_price, high_price, low_price, close_price)
+    hanging_man = talib.CDLHANGINGMAN(open_price, high_price, low_price, close_price)
     # check directions
     if direction == 0:
         if hammer:
