@@ -398,10 +398,10 @@ def daily_current(apikey, currency_pair, year):
     frm_end = frm_end.split('.', 1)
     frm_end = frm_end[0]
     frm_end = datetime.datetime.strptime(frm_end, '%Y-%m-%d %H:%M:%S')
-    if frm_end.year > year:
-        return
     start = frm_end + datetime.timedelta(days=1)
     start_rfc = oanda_api.date_convert(start)
+    if start.year > year:
+        return
 
     if current_day.year == year:
         logger.debug(f'Current year file updating, {currency_pair}, D')
