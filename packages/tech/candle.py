@@ -1,4 +1,7 @@
 import numpy as np
+import talib
+
+
 def candle_ratio_single(price):
     open_point = price[3]
     close_point = price[6]
@@ -49,8 +52,8 @@ def single_candle(data, weights, direction, gran, pair):
     ratios = candle_ratio_single(price)
     if ratios is False:
         return None
-    if ratios['bottom_stick_ratio'] >= 0.6666 and\
-            ratios['top_stick_ratio'] <= 0.166 and\
+    if ratios['bottom_stick_ratio'] >= 0.6666 and \
+            ratios['top_stick_ratio'] <= 0.166 and \
             ratios['middle_box_location'] >= 65.0:
         if direction == 0:
             # Hammer
@@ -73,4 +76,49 @@ def single_candle(data, weights, direction, gran, pair):
                    'direction': direction, 'gran': gran, 'pair': pair, 'ratios': ratios}
             results.append(dic)
 
+    return results
+
+
+## New candle check
+
+
+def all_candles(data, weights, direction, gran, pair):
+    results = []
+    last_line = data[-1]
+    # separate data
+    date = last_line[2]
+    open_price = last_line[3]
+    high_price = last_line[4]
+    low_price = last_line[5]
+    close_price = last_line[6]
+    # check candles
+    hammer = talib.CDLHAMMER(open_price, high_price, low_price, close_price)
+    hanging_man = talib.CDLHANGINGMAN(open_price, high_price, low_price, close_price)
+    # check directions
+    if direction == 0:
+        if hammer:
+            # Hammer
+            # make a function to do all score and advanced math for all single candles!!!!!
+            score = 100
+            # mult = weights['hammer']['weight']
+            # score = score * mult
+            # check from divergence
+            dic = {'pattern': 'hammer', 'execute': True, 'score': score,
+                   'date': date, 'conformation': weights['hammer']['conformation'],
+                   'direction': direction, 'gran': gran, 'pair': pair}
+            results.append(dic)
+
+    if direction == 1:
+        if hanging_man:
+            # hanging man
+            score = 100
+            # mult = weights['hanging_man']['weight']
+            # score = score * mult
+            dic = {'pattern': 'hanging_man', 'execute': True, 'score': score,
+                   'date': date, 'conformation': weights['hanging_man']['conformation'],
+                   'direction': direction, 'gran': gran, 'pair': pair}
+            results.append(dic)
+
+    if results is not True:
+        return None
     return results

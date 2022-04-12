@@ -41,12 +41,21 @@ class Trader:
         self.margin_rate = margin_rate
         self.weights = weights
 
+    def unit_calc(self, current_price, stop_loss, unit_mult, risk_amount, max_units):
+        # calculate units
+        units = risk_amount / abs(current_price - stop_loss)
+        if units > max_units:
+            units = max_units
+        units = units * unit_mult
+        return units
+
     def regular(self, price_data, active_pairs, market_reader_obs=None, track_year=None):
 
         # check for possible trades
         # trade ob check and run
         check_results = []
-
+        if self.live:
+            logger = logging.getLogger('forex_logger')
         for x in self.trade_check_ob:
             abort = False
             for pair in active_pairs:
@@ -81,12 +90,16 @@ class Trader:
                 else:
                     pass
             local_range = local_trend['range']
+            current_price = 0
             for x in price_data:
                 if x['instrument'] == top_trade['pair']:
                     if self.live:
                         current_price = float(x['closeoutAsk'])
                     elif not self.live:
                         current_price = x[top_trade['pair']]
+            # no price info error
+            if current_price == 0 and self.live:
+                logger.error('price data not obtained from api')
             if top_trade['direction'] == 0:
                 # short
                 stop_loss = current_price + local_range
@@ -171,10 +184,10 @@ class LiveTrader(Trader):
             if run_info is False:
                 return True
             # calculate units
-            units = risk_amount / run_info['local_range']
-            if units > max_units:
-                units = max_units
-            units = units * run_info['unit_mult']
+
+            units = self.unit_calc(run_info['current_price'], run_info['stop_loss'],
+                                   run_info['unit_mult'], risk_amount, max_units)
+
             # execute trade
             trade_info = oanda_api.market_order(self.apikey, self.account_id, units,
                                                 run_info['top_trade']['pair'],
@@ -308,10 +321,8 @@ class PastTrader(Trader):
         if run_info is False:
             return True
         # calculate units
-        units = risk_amount / run_info['local_range']
-        if units > max_units:
-            units = max_units
-        units = units * run_info['unit_mult']
+        units = self.unit_calc(run_info['current_price'], run_info['stop_loss'],
+                               run_info['unit_mult'], risk_amount, max_units)
         # execute trade
         top_trade_price = self.market_reader_obs[track_year][run_info['top_trade']['pair']]['M1'].current_price
         top_trade_price = (top_trade_price[0] + top_trade_price[1]) / 2

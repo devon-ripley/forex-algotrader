@@ -2,7 +2,8 @@ from packages.output import market_csv
 from packages.tech import candle
 import json
 import numpy as np
-from packages.backtest import backtest
+import talib
+
 
 def current_trend(prices):
     combined = []
@@ -77,9 +78,20 @@ class TradeCheck():
         # candle vars
         self.wait_confirmation = []
         self.trend_list = []
+        self.indicator_dict = {}
 
-    def indicator_setup(self):
-        pass
+    def indicator_setup(self, data):
+        data_list = []
+        for line in data:
+            close = line[6]
+            data_list.append(close)
+        data_close = np.array(data_list)
+        # SMA
+        sma = talib.SMA(data_close)
+        self.indicator_dict['sma'] = sma
+        # EMA
+        ema = talib.EMA(data_close)
+        self.indicator_dict['ema'] = ema
 
     def candle_check(self, data, periods):
         # set up candle single weights
@@ -108,7 +120,7 @@ class TradeCheck():
         else:
             direction = 1
         # compare candles on latest complete candle
-        results = candle.single_candle(data, candle_single_dict_weights, direction, self.gran, self.currency_pair)
+        results = candle.all_candles(data, candle_single_dict_weights, direction, self.gran, self.currency_pair)
         if not results:
             return None
         for x in results:
@@ -147,7 +159,7 @@ class Past(TradeCheck):
             return None
         data = market_read.output_backchunk(periods)
         if data[0] == 'split_year':
-            past_market_read = market_reader_obs[track_year-1][self.currency_pair][self.gran]
+            past_market_read = market_reader_obs[track_year - 1][self.currency_pair][self.gran]
             past_year_data = past_market_read.split_year(data[1])
             current_year_data = market_read.new_year(periods - data[1])
             data = past_year_data + current_year_data
