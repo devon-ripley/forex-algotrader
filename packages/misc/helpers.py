@@ -38,7 +38,7 @@ def set_logger():
 
     logger.propagate = False
     formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(message)s')
-    file_handler = logging.FileHandler('log/out.log')
+    file_handler = logging.FileHandler('log/main.log')
     file_handler.setFormatter(formatter)
 
     stream_handler = logging.StreamHandler()

@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="trade_check_ob list changed to dict for easier access">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/backtest/backtest.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/backtest/backtest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/backtest/backtest_csv.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/backtest/backtest_csv.py" afterDir="false" />
+    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="logger added to backtest.py, backtest logger setup added to helpers.py">
       <change beforePath="$PROJECT_DIR$/packages/misc/helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/misc/helpers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tech/trading.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tech/trading.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -375,7 +371,14 @@
       <option name="project" value="LOCAL" />
       <updated>1650148618746</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="logger added to backtest.py, backtest logger setup added to helpers.py">
+      <created>1650152104768</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1650152104768</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -412,6 +415,7 @@
     <MESSAGE value="Loading spinner added to market data csv saving" />
     <MESSAGE value="Table delete input check added to mysql table delete in arguments" />
     <MESSAGE value="trade_check_ob list changed to dict for easier access" />
-    <option name="LAST_COMMIT_MESSAGE" value="trade_check_ob list changed to dict for easier access" />
+    <MESSAGE value="logger added to backtest.py, backtest logger setup added to helpers.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="logger added to backtest.py, backtest logger setup added to helpers.py" />
   </component>
 </project>
