@@ -17,7 +17,7 @@ import json
 import logging
 import time
 from packages.oanda_api import oanda_api as oanda_api
-from packages.tech import trading, day_trade
+from packages.tech import trading, temp_test_day_trade
 from packages.output import trade_sql, notification, market_csv, reports
 from packages.misc import helpers
 
@@ -40,7 +40,6 @@ def setup():
 
     # set up folders if needed
     helpers.folder_setup(currency_pairs, gran)
-    helpers.set_logger()
     logger = logging.getLogger('forexlogger')
     # Initial start
     logger.info('forex_algotrader v0.5')

@@ -3,3 +3,4 @@ mysql-connector-python~=8.0.28
 yagmail~=0.14.261
 requests~=2.25.1
 matplotlib~=3.5.1
+TA-Lib~=0.4.24

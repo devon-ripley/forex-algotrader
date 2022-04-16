@@ -1,6 +1,7 @@
+import time
+
 import numpy as np
 import talib
-
 
 def candle_ratio_single(price):
     open_point = price[3]
@@ -84,19 +85,13 @@ def single_candle(data, weights, direction, gran, pair):
 
 def all_candles(data, weights, direction, gran, pair):
     results = []
-    last_line = data[-1]
-    # separate data
-    date = last_line[2]
-    open_price = np.array([last_line[3]])
-    high_price = np.array([last_line[4]])
-    low_price = np.array([last_line[5]])
-    close_price = np.array([last_line[6]])
     # check candles
-    hammer = talib.CDLHAMMER(open_price, high_price, low_price, close_price)
-    hanging_man = talib.CDLHANGINGMAN(open_price, high_price, low_price, close_price)
+    hammer = talib.CDLHAMMER(data['open'], data['high'], data['low'], data['close'])
+    hanging_man = talib.CDLHANGINGMAN(data['open'], data['high'], data['low'], data['close'])
+    #print(data)
     # check directions
     if direction == 0:
-        if hammer:
+        if 1 in hammer or -1 in hammer:
             # Hammer
             # make a function to do all score and advanced math for all single candles!!!!!
             score = 100
@@ -104,18 +99,18 @@ def all_candles(data, weights, direction, gran, pair):
             # score = score * mult
             # check from divergence
             dic = {'pattern': 'hammer', 'execute': True, 'score': score,
-                   'date': date, 'conformation': weights['hammer']['conformation'],
+                   'date': data['date'], 'conformation': weights['hammer']['conformation'],
                    'direction': direction, 'gran': gran, 'pair': pair}
             results.append(dic)
 
     if direction == 1:
-        if hanging_man:
+        if 1 in hanging_man or -1 in hammer:
             # hanging man
             score = 100
             # mult = weights['hanging_man']['weight']
             # score = score * mult
             dic = {'pattern': 'hanging_man', 'execute': True, 'score': score,
-                   'date': date, 'conformation': weights['hanging_man']['conformation'],
+                   'date': data['date'], 'conformation': weights['hanging_man']['conformation'],
                    'direction': direction, 'gran': gran, 'pair': pair}
             results.append(dic)
 

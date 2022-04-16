@@ -71,7 +71,7 @@ class Trader:
                     res = x.live_candles()
                 else:
                     res = x.back_candles(market_reader_obs, track_year)
-                if res:
+                if res is not None:
                     check_results.append(res)
                 else:
                     pass
@@ -79,12 +79,16 @@ class Trader:
         if check_results:
             # nonempty list
             score_list = []
-            check_results_com = [j for i in check_results for j in i]
-            for y in range(len(check_results_com)):
-                score = check_results_com[y]['score']
-                score_list.append(score)
+            #check_results_com = [j for i in check_results for j in i]
+            #print(check_results_com)
+            #for y in range(len(check_results_com)):
+            #    score = check_results_com[y]['score']
+            #    score_list.append(score)
+            for pos_trade in check_results:
+                score_list.append(pos_trade['score'])
+
             top_index = score_list.index(max(score_list))
-            top_trade = check_results_com[top_index]
+            top_trade = check_results[top_index]
             # calculate stop_loss, take_profit
             local_trend = {'range': 0}
             for x in self.trade_check_ob:
@@ -105,13 +109,13 @@ class Trader:
                 logger.error('price data not obtained from api')
             if top_trade['direction'] == 0:
                 # short
-                stop_loss = current_price + local_range
-                take_profit = current_price - local_range
+                stop_loss = current_price + local_range + 1
+                take_profit = current_price - local_range - 1
                 unit_mult = -1
             else:
                 # long
-                stop_loss = current_price - local_range
-                take_profit = current_price + local_range
+                stop_loss = current_price - local_range - 1
+                take_profit = current_price + local_range + 1
                 unit_mult = 1
             return {'current_price': current_price, 'stop_loss': stop_loss, 'take_profit': take_profit,
                     'unit_mult': unit_mult, 'local_range': local_range, 'top_trade': top_trade}
@@ -281,28 +285,28 @@ class PastTrader(Trader):
 
     def active_trade_check(self, track_year, price_data):
         for x in self.active_trades:
-            price = self.market_reader_obs[track_year][x['pair']]['M1'].current_price
+            price_current = self.market_reader_obs[track_year][x['pair']]['M1'].current_price
             profit = None
             if x['units'] > 0:
                 # long
-                if price[0] >= x['take_profit']:
+                if price_current[0] >= x['take_profit']:
                     # profit
-                    profit = price[0] - x['price']
-                elif price[1] <= x['stop_loss']:
+                    profit = price_current[0] - x['price']
+                elif price_current[1] <= x['stop_loss']:
                     # loss
-                    profit = price[1] - x['price']
+                    profit = price_current[1] - x['price']
             elif x['units'] < 0:
                 # short
-                if price[1] <= x['take_profit']:
+                if price_current[1] <= x['take_profit']:
                     # profit
-                    profit = x['price'] - price[1]
-                elif price[0] >= x['stop_loss']:
+                    profit = x['price'] - price_current[1]
+                elif price_current[0] >= x['stop_loss']:
                     # loss
-                    profit = price[0] - x['price']
+                    profit = price_current[0] - x['price']
             if profit is not None:
                 self.active_data['margin_used'] -= x['margin_used']
                 apply_profit = self.calc_profit(profit, x['units'])
-                self.active_data['balance'] += apply_profit
+                self.active_data['balance'] = round(self.active_data['balance'] + apply_profit)
                 self.active_pairs.remove(x['pair'])
                 self.active_trades.remove(x)
 

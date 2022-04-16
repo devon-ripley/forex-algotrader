@@ -1,6 +1,8 @@
 import os
+import sys
 import logging
 import json
+
 
 # set up folder org if not setup
 
@@ -17,10 +19,6 @@ def folder_setup(currency_pairs, grans):
             except FileExistsError:
                 pass
     try:
-        os.makedirs('log')
-    except FileExistsError:
-        pass
-    try:
         os.makedirs('data/reports')
     except FileExistsError:
         pass
@@ -31,6 +29,10 @@ def folder_setup(currency_pairs, grans):
 
 
 def set_logger():
+    try:
+        os.makedirs('log')
+    except FileExistsError:
+        pass
     logger = logging.getLogger('forexlogger')
     logger.setLevel(logging.INFO)
 
@@ -44,10 +46,16 @@ def set_logger():
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
 
+    def exception_handle(exc_type, exc_value, exc_traceback):
+        logger.exception("Uncaught exception: {0}".format(str(exc_value)))
+
+    # Initiate exception handler
+    # uncomment for no terminal output run, error print to file
+    #sys.excepthook = exception_handle
+
 
 def get_config():
     # system profile load
     f = open('data/config.json', 'r')
     profile = json.load(f)
     f.close()
-

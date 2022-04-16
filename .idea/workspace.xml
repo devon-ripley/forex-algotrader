@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment=".idea put in .gitignore">
+    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="market_csv daily complete fixed">
+      <change beforePath="$PROJECT_DIR$/.idea/forex.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/forex.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/backtest/backtest.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/backtest/backtest.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/backtest/backtest_csv.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/backtest/backtest_csv.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/forex.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/forex.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/misc/arguments.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/misc/arguments.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/misc/helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/misc/helpers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/oanda_api/oanda_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/oanda_api/oanda_api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/output/market_csv.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/output/market_csv.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/output/trade_sql.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/output/trade_sql.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tech/candle.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tech/candle.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tech/day_trade.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tech/day_trade.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/tech/trading.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tech/trading.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
@@ -50,7 +55,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="Python" />
     <property name="com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File" value="Python" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$USER_HOME$/PycharmProjects/project_lines" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
@@ -66,7 +71,7 @@
       <recent name="C:\Users\derip\Desktop\forex" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.temp_test3">
+  <component name="RunManager" selected="Python.temp_test_profiler">
     <configuration name="backtest" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="forex" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -80,27 +85,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/packages/backtest/backtest.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="candle_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="forex" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/candle_test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -130,7 +114,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="temp_test2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="project_lines" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="forex" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -142,7 +126,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/temp_test2.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/project_lines.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -164,6 +148,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/temp_test3.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="temp_test4" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="forex" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/temp_test4.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -195,11 +200,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.temp_test3" />
         <item itemvalue="Python.temp_test_profiler" />
+        <item itemvalue="Python.temp_test4" />
+        <item itemvalue="Python.project_lines" />
         <item itemvalue="Python.backtest" />
-        <item itemvalue="Python.temp_test2" />
-        <item itemvalue="Python.candle_test" />
+        <item itemvalue="Python.temp_test3" />
       </list>
     </recent_temporary>
   </component>
@@ -275,7 +280,70 @@
       <option name="project" value="LOCAL" />
       <updated>1649644390445</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="fixed backtest end of week issue">
+      <created>1649653637413</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1649653637413</updated>
+    </task>
+    <task id="LOCAL-00011" summary="new candle setup test. unit setup tested and updated">
+      <created>1649722911729</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1649722911729</updated>
+    </task>
+    <task id="LOCAL-00012" summary="new candle setup test. unit setup tested and updated">
+      <created>1649725056854</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1649725056854</updated>
+    </task>
+    <task id="LOCAL-00013" summary="talib passed np.array instead of float">
+      <created>1649725730759</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1649725730759</updated>
+    </task>
+    <task id="LOCAL-00014" summary="talib passed np.array instead of float">
+      <created>1649726154689</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1649726154689</updated>
+    </task>
+    <task id="LOCAL-00015" summary="add url to warning api instrument candles for debuging">
+      <created>1649726534048</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1649726534048</updated>
+    </task>
+    <task id="LOCAL-00016" summary="logger change to debug">
+      <created>1649726977609</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1649726977609</updated>
+    </task>
+    <task id="LOCAL-00017" summary="market_csv daily complete fixed">
+      <created>1649727439309</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1649727439309</updated>
+    </task>
+    <task id="LOCAL-00018" summary="market_csv daily complete fixed">
+      <created>1649727725890</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1649727725890</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -300,6 +368,12 @@
     <MESSAGE value="gitignore change" />
     <MESSAGE value="daily file setup and complete fixed" />
     <MESSAGE value=".idea put in .gitignore" />
-    <option name="LAST_COMMIT_MESSAGE" value=".idea put in .gitignore" />
+    <MESSAGE value="fixed backtest end of week issue" />
+    <MESSAGE value="new candle setup test. unit setup tested and updated" />
+    <MESSAGE value="talib passed np.array instead of float" />
+    <MESSAGE value="add url to warning api instrument candles for debuging" />
+    <MESSAGE value="logger change to debug" />
+    <MESSAGE value="market_csv daily complete fixed" />
+    <option name="LAST_COMMIT_MESSAGE" value="market_csv daily complete fixed" />
   </component>
 </project>

@@ -1,5 +1,6 @@
 # imports
 import os
+import numpy
 from datetime import datetime as now
 import csv
 import datetime
@@ -10,6 +11,28 @@ import time
 from pathlib import Path
 # New file organization
 
+
+# Print iterations progress
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
+    # Print New Line on Complete
+    if iteration == total:
+        print()
 
 
 def current_year_check(currency_pair, gran):
@@ -488,13 +511,32 @@ def csv_read_full(currency_pair, gran, year):
         reader = csv.reader(f)
         data = list(reader)
 
-    for x in data:
-        x[3] = float(x[3])
-        x[4] = float(x[4])
-        x[5] = float(x[5])
-        x[6] = float(x[6])
+    result_dict = {'date': []}
 
-    return data
+    length = len(data)
+    open_lst = []
+    high_lst = []
+    low_lst = []
+    close_lst = []
+    volume_lst = []
+    for idx, x in enumerate(data):
+        open_lst.append(float(x[3]))
+        high_lst.append(float(x[4]))
+        low_lst.append(float(x[5]))
+        close_lst.append(float(x[6]))
+        volume_lst.append(int(x[1]))
+        date = x[2]
+        date = date.replace('T', ' ')
+        date = date.split('.')
+        date = date[0]
+        date_ob = datetime.datetime.fromisoformat(date)
+        result_dict['date'].append(date_ob)
+    result_dict['open'] = numpy.array(open_lst)
+    result_dict['high'] = numpy.array(high_lst)
+    result_dict['low'] = numpy.array(low_lst)
+    result_dict['close'] = numpy.array(close_lst)
+    result_dict['volume'] = numpy.array(volume_lst)
+    return result_dict
 
 
 def csv_read_recent(currency_pair, gran, periods):
@@ -506,18 +548,27 @@ def csv_read_recent(currency_pair, gran, periods):
 
     start = len(data) - periods
     current = data[start:len(data)]
+    result_dict = {
+            'date': [],
+            'open': numpy.array([]),
+            'high': numpy.array([]),
+            'low': numpy.array([]),
+            'close': numpy.array([]),
+            'volume': numpy.array([])
+        }
     for x in current:
-        x[3] = float(x[3])
-        x[4] = float(x[4])
-        x[5] = float(x[5])
-        x[6] = float(x[6])
+        result_dict['open'] = numpy.append(result_dict['open'], float(x[3]))
+        result_dict['high'] = numpy.append(result_dict['high'], float(x[4]))
+        result_dict['low'] = numpy.append(result_dict['low'], float(x[5]))
+        result_dict['close'] = numpy.append(result_dict['close'], float(x[6]))
+        result_dict['volume'] = numpy.append(result_dict['volume'], int(x[1]))
         date = x[2]
         date = date.replace('T', ' ')
         date = date.split('.')
         date = date[0]
         date_ob = datetime.datetime.fromisoformat(date)
-        x[2] = date_ob
-    return current
+        result_dict['date'].append(date_ob)
+    return result_dict
 
 
 def csv_date_convert(date):

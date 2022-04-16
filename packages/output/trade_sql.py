@@ -57,7 +57,22 @@ def setup():
         status VARCHAR(100)
     )
     """
-    query = [create_short_table, create_long_table, create_complete]
+    create_trade_decision_info = """
+        CREATE TABLE IF NOT EXISTS trade_decision_info (
+            id VARCHAR(100),
+            candle VARCHAR(100),
+            indicator VARCHAR(100),
+            date DATETIME(6),
+            convergence VARCHAR(100),
+            score VARCHAR(100),
+            price VARCHAR(100),
+            number VARCHAR(100),
+            top_band VARCHAR(100),
+            middle_band VARCHAR(100),
+            bottom_band VARCHAR(100)
+        )
+        """
+    query = [create_short_table, create_long_table, create_complete, create_trade_decision_info]
     with mysql.connect(
             host='localhost',
             user=mysql_info['user'],
@@ -297,3 +312,9 @@ def close_all_short_term(apikey, account_id):
         oanda_api.close_trade(apikey, account_id, trade_id)
         update_complete_trade(trade_id, 'SHORT_TERM', 'N/A', 'N/A', 'N/A', 'N/A')
         delete_active_trade(trade_id, 'short_term_active')
+
+##############################Trade Decision Info###############################################
+
+
+def add_trade_decision_info(trade_id, info_dict):
+    pass

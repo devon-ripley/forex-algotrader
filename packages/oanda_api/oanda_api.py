@@ -4,7 +4,9 @@ import time
 from datetime import datetime
 from datetime import timedelta
 from decimal import *
+
 logger = logging.getLogger('forexlogger')
+
 
 def account_get_init(apikey):
     logger.info('Running OandaApi initial connection')
@@ -41,8 +43,9 @@ def account_get_init(apikey):
                 return ()
         logger.critical('Unable to connect to Oanda')
 
-
         #######################################################################################################################
+
+
 def instrument_candles(apikey, pair, gran, start, end):
     url = 'https://api-fxpractice.oanda.com/v3/instruments/' + pair + '/candles?' + '&from=' + start + '&to=' + end + '&granularity=' + gran
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339'}
@@ -75,15 +78,17 @@ def instrument_candles_current(apikey, pair, gran, start):
     try:
         req = requests.get(url, headers=headers)
     except:
-        pass
-    # fix overnight error stop???
+        logger.error(f'Oanda api request unsuccessful, url: {url}')
+        logger.error('passing complete False and slug data')
+        return {'candles': {'complete': False, 'time': 0, 'volume': 0, 'mid': {'o': 0, 'h': 0, 'l': 0, 'c': 0}}}
 
     if req.status_code == 200:
         return req.json()
 
         # !!!!Error connecting loop 5 times with 5 sec wait
     if req.status_code != 200:
-        logger.warning(f'Oanda connection failed, instrument_candles_current, retrying: {pair} {gran}: {req.status_code}')
+        logger.warning(
+            f'Oanda connection !not! 200, instrument_candles_current, retrying: {pair} {gran}: {req.status_code}')
         logger.warning(f'url: {url}')
         for c in range(6):
             time.sleep(5)
@@ -113,6 +118,8 @@ def current_price(apikey, account_id, currency_pairs):
     req = requests.get(url, headers=headers)
     logger.info(f'current_price: {req.status_code}')
     return req.json()
+
+
 ######################### Make a order
 
 
@@ -159,7 +166,7 @@ def market_order(apikey, account_id, units, currency_pair, stop_loss, take_profi
                 },
                 "units": units,
                 "instrument": currency_pair,
-                "timeInForce": "FOK",# check on timeinforce types for best
+                "timeInForce": "FOK",  # check on timeinforce types for best
                 "type": "MARKET",
                 "positionFill": "DEFAULT"
             }
@@ -255,14 +262,14 @@ def stop_order(apikey, account_id, units, currency_pair, price, stop_loss, take_
     req = requests.post(url, headers=headers, json=order_info)
     logger.info(f'stop order: {req.json()}')
     return req.json()
-    #ADD ERROR HANDLING
+    # ADD ERROR HANDLING
 
 
 def edit_stop_loss(apikey, account_id, order_id, stop_loss):
     context = Context(prec=5, rounding=ROUND_UP)
     stop_loss = context.create_decimal_from_float(stop_loss)
     stop_loss = str(stop_loss)
-    edit_info ={"stopLoss": {"price": stop_loss}}
+    edit_info = {"stopLoss": {"price": stop_loss}}
     url = 'https://api-fxpractice.oanda.com/v3/accounts/' + account_id + '/trades/' + order_id + '/orders'
     headers = {'Authorization': apikey, 'Accept-Datetime-Format': 'RFC3339'}
     req = requests.put(url, headers=headers, json=edit_info)
