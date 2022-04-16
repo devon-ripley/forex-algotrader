@@ -34,15 +34,11 @@ class BacktestMarketReader:
             # dt_file_date = datetime.datetime.strptime(file_date, '%Y-%m-%d %H:%M:%S')
             if dt >= start_date:
                 self.start_index = x
-                print(self.total_length)
-                print(self.start_index, self.pair, self.gran, self.year)
                 return
 
             else:
                 pass
         self.start_index = 0
-        print(self.total_length)
-        print(self.start_index, self.pair, self.gran, self.year)
 
 
     def output_backchunk(self, periods):

@@ -1,9 +1,13 @@
 import datetime
+import itertools
+import logging
 import os
+import sys
 import time
 from packages.output import market_csv
 from packages.tech import trading
 from packages.backtest import backtest_csv
+from packages.misc import helpers
 import json
 
 
@@ -16,15 +20,14 @@ def get_last_date(pairs, grans):
 
 
 def runner(track_datetime, track_year, currency_pairs, gran, market_reader_obs, trader, min_step, end_date):
+    logger = logging.getLogger('backtest')
+    starting_balance = trader.active_data['balance']
     running = True
     iteration = 0
-    day = track_datetime.day
+    logger.info(f'Running backtest, start: {track_datetime}, end: {end_date}...')
     while running:
         iteration += 1
         new_year_once = True
-        if day < track_datetime.day:
-            print('Day: ', track_datetime)
-            print('Balance: ', trader.active_data['balance'])
         # market reader index check
         for p in currency_pairs:
             for g in gran:
@@ -38,21 +41,24 @@ def runner(track_datetime, track_year, currency_pairs, gran, market_reader_obs, 
         if market_reader_obs[track_year][currency_pairs[0]]['M1'].go:
             trader.trade_past(track_year, track_datetime)
         # next step
-        #time.sleep(1)
-        day = track_datetime.day
         track_datetime = track_datetime + min_step
         if trader.active_data['balance'] <= 0:
-            print('Balance under or at 0')
-            print('datetime', track_datetime)
+            logger.warning('Backtest ended early!')
+            logger.warning('Balance under or at 0')
             running = False
         if track_datetime >= end_date:
-            print('Balance: ', trader.active_data['balance'])
-            print(market_reader_obs[track_year]['USD_JPY']['M1'].start_index)
+            logger.info('Backtest complete!')
+            logger.info(f'Balance: {trader.active_data["balance"]}')
+            logger.info(f'Total profit: {trader.active_data["balance"] - starting_balance}')
+            logger.info(f'Total number of trades: {trader.active_data["total_trades"]}')
             running = False
             # end of run
 
 
 def setup(start_date_str='2018-05-15', start_balance=10000):
+    # setup backtest logger
+    helpers.set_logger_backtest()
+    logger = logging.getLogger('backtest')
     # system profile load
     f = open('data/config.json', 'r')
     profile = json.load(f)
@@ -83,11 +89,10 @@ def setup(start_date_str='2018-05-15', start_balance=10000):
         for pair in currency_pairs:
             market_reader_obs[x][pair] = {}
             for g in gran:
+                logger.info(f'Loading market data for {x}, {pair}, {g}...')
                 market_reader_obs[x][pair][g] = (backtest_csv.BacktestMarketReader(x, pair, g, start_date, False))
                 if x == start_date.year:
                     market_reader_obs[x][pair][g] = (backtest_csv.BacktestMarketReader(x, pair, g, start_date, True))
-
-    #end_date = datetime.datetime(2022, 3, 15)
 
     end_date = get_last_date(currency_pairs, gran)
 
@@ -120,8 +125,7 @@ if __name__ == '__main__':
     f.close()
     earliest_year = int(profile['csvstart'])
     earliest_year += 1
-    print('Enter start date for back test (YYYY/MM/DD)')
     print(f'Earliest year allowed: {earliest_year}')
-    start_date = input()
-    start_balance = int(input('Enter starting balance, no decimals '))
+    start_date = input('Enter start date for back test (YYYY-MM-DD): ')
+    start_balance = int(input('Enter starting balance, no decimals: '))
     setup(start_date, start_balance)

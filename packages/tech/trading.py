@@ -263,13 +263,13 @@ class PastTrader(Trader):
         self.market_reader_obs = None
         self.active_trades = []
         self.active_pairs = []
-        self.active_data = {'balance': 0, 'margin_used': 0}
+        self.active_data = {'balance': 0, 'margin_used': 0, 'total_trades': 0}
 
     def add_market_readers(self, market_reader_obs):
         self.market_reader_obs = market_reader_obs
 
     def calc_profit(self, profit, units):
-        profit = profit * units
+        profit = profit * abs(units)
         return profit
 
     def active_trade_check(self, track_year, price_data):
@@ -280,24 +280,25 @@ class PastTrader(Trader):
                 # long
                 if price_current[0] >= x['take_profit']:
                     # profit
-                    profit = price_current[0] - x['price']
+                    profit = x['take_profit'] - x['price']
                 elif price_current[1] <= x['stop_loss']:
                     # loss
-                    profit = price_current[1] - x['price']
+                    profit = x['stop_loss'] - x['price']
             elif x['units'] < 0:
                 # short
                 if price_current[1] <= x['take_profit']:
                     # profit
-                    profit = x['price'] - price_current[1]
+                    profit = x['price'] - x['take_profit']
                 elif price_current[0] >= x['stop_loss']:
                     # loss
-                    profit = price_current[0] - x['price']
+                    profit = x['price'] - x['stop_loss']
             if profit is not None:
                 self.active_data['margin_used'] -= x['margin_used']
                 apply_profit = self.calc_profit(profit, x['units'])
                 self.active_data['balance'] = round(self.active_data['balance'] + apply_profit)
                 self.active_pairs.remove(x['pair'])
                 self.active_trades.remove(x)
+                self.active_data['total_trades'] += 1
 
     def trade_past(self, track_year, track_datetime):
         # logger = logging.getLogger('backtestlogger')
