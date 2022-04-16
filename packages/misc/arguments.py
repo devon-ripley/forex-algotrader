@@ -19,8 +19,8 @@ def controller(arg):
         print('Help')
         print('(r) or ()To run normally')
         print('(w) To reset weights.json file')
-        print('(s) To reset mysql tables')
-        print('(m) To start manual machine learning program')
+        print('(ms) To reset mysql tables')
+        print('(ml) To start manual machine learning program')
         print('(b) To run backtest')
         print('(h), Help menu')
         arg = input('Enter (x) to exit or any other letter to run')
@@ -37,14 +37,19 @@ def controller(arg):
         weights_json_gen.run()
         exit()
 
-    elif arg == 'm':
+    elif arg == 'ml':
         #machine learning
         pass
 
-    elif arg == 's':
-        trade_sql.drop_all_tables()
-        trade_sql.setup()
-        exit()
+    elif arg == 'ms':
+        a = input('Are you sure you want to delete all trading mysql tables (y/n) ')
+        a = str(a).lower()
+        if a == 'y':
+            trade_sql.drop_all_tables()
+            trade_sql.setup()
+            exit()
+        else:
+            exit()
 
     elif arg == 'b':
         # system profile load

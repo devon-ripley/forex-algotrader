@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="input for backtest txt changed. end of backtest date function setup.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/output/market_csv.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/output/market_csv.py" afterDir="false" />
+    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="Loading spinner added to market data csv saving">
+      <change beforePath="$PROJECT_DIR$/packages/misc/arguments.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/misc/arguments.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -351,7 +350,14 @@
       <option name="project" value="LOCAL" />
       <updated>1650082978860</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Loading spinner added to market data csv saving">
+      <created>1650085018628</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1650085018628</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -385,6 +391,7 @@
     <MESSAGE value="backtesting balance stay at start bug fixed, changed csv read to save data to var in numpy to save time. talib candles not working, switched to dummy indicator check in place" />
     <MESSAGE value="added in run = False for when markets are closed" />
     <MESSAGE value="input for backtest txt changed. end of backtest date function setup." />
-    <option name="LAST_COMMIT_MESSAGE" value="input for backtest txt changed. end of backtest date function setup." />
+    <MESSAGE value="Loading spinner added to market data csv saving" />
+    <option name="LAST_COMMIT_MESSAGE" value="Loading spinner added to market data csv saving" />
   </component>
 </project>
