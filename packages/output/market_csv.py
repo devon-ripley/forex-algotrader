@@ -1,5 +1,8 @@
 # imports
+import itertools
 import os
+import sys
+
 import numpy
 from datetime import datetime as now
 import csv
@@ -10,29 +13,6 @@ import logging
 import time
 from pathlib import Path
 # New file organization
-
-
-# Print iterations progress
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
-    """
-    Call in a loop to create terminal progress bar
-    @params:
-        iteration   - Required  : current iteration (Int)
-        total       - Required  : total iterations (Int)
-        prefix      - Optional  : prefix string (Str)
-        suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals in percent complete (Int)
-        length      - Optional  : character length of bar (Int)
-        fill        - Optional  : bar fill character (Str)
-        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
-    """
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-    filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
-    # Print New Line on Complete
-    if iteration == total:
-        print()
 
 
 def current_year_check(currency_pair, gran):
@@ -47,7 +27,7 @@ def current_year_check(currency_pair, gran):
         logger.debug(f'current_year_check, file exists: {path_to_file}')
         return True
     else:
-        logger.info(f'current_year_check, file does not exist: {path_to_file}')
+        logger.warning(f'current_year_check, file does not exist: {path_to_file}')
         return False
 
 
@@ -86,7 +66,12 @@ def current_year_setup(apikey, currency_pair, gran):
 
     check = True
     last_week = False
+    spinner = itertools.cycle(['-', '/', '|', '\\'])
+    logger.info(f'Setting up market data csv file for {currency_pair}, {gran}, {year}')
     while check:
+        sys.stdout.write(next(spinner))
+        sys.stdout.flush()
+        sys.stdout.write('\b')
         start = nextday
         end = nextday + datetime.timedelta(days=1)
         start_str = str(start)
@@ -292,7 +277,7 @@ def past_years_check(apikey, currency_pair, gran, start_year):
     # fix last sunday of year
     year = int(datetime.datetime.today().year)
     dif = year - start_year
-    for x in range(dif):
+    for x in range(dif):######????????
         year_str = str(start_year)
         csv_file_path = 'data/csv/' + currency_pair + '/' + gran + '/' + currency_pair + gran + '_' + year_str + '.csv'
         path = Path(csv_file_path)
@@ -301,7 +286,7 @@ def past_years_check(apikey, currency_pair, gran, start_year):
             start_year += 1
             continue
         else:
-            logger.info(f'past_years, file does not exist for: {csv_file_path}, setting up file')
+            logger.warning(f'past_years, file does not exist for: {csv_file_path}, setting up file')
             # set up file
             first_of_year = datetime.date(year=start_year, month=1, day=1)
             first_of_year_week = first_of_year.weekday()
@@ -320,7 +305,13 @@ def past_years_check(apikey, currency_pair, gran, start_year):
             # find end of week for first week
             check = True
             last_week = False
+            spinner = itertools.cycle(['-', '/', '|', '\\'])
+            logger.info(f'Setting up market data csv file for {currency_pair}, {gran}, {start_year}')
             while check:
+                sys.stdout.write(next(spinner))
+                sys.stdout.flush()
+                sys.stdout.write('\b')
+
                 start = nextday
                 end = nextday + datetime.timedelta(days=1)
                 start_str = str(start)
@@ -363,7 +354,7 @@ def daily_check(currency_pair, year):
         logger.debug(f'D1 file exists: {path_to_file}')
         return True
     else:
-        logging.info(f'D1 file does not exist: {path_to_file}')
+        logging.warning(f'D1 file does not exist: {path_to_file}')
         return False
 
 
@@ -380,7 +371,12 @@ def daily_setup(apikey, currency_pair, year):
     day_data = day_data['candles']
     # build list for each line and add to csv file
     complete = True
+    spinner = itertools.cycle(['-', '/', '|', '\\'])
+    logger.info(f'Setting up market data csv file for {currency_pair}, D, {year}')
     for j in range(len(day_data)):
+        sys.stdout.write(next(spinner))
+        sys.stdout.flush()
+        sys.stdout.write('\b')
         day_data_strip = day_data[j]
         complete = day_data_strip['complete']
         day_data_mid = day_data_strip['mid']

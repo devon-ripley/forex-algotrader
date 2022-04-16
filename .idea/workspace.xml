@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="added in run = False for when markets are closed">
+    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="input for backtest txt changed. end of backtest date function setup.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/backtest/backtest.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/backtest/backtest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/misc/arguments.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/misc/arguments.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/output/market_csv.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/output/market_csv.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,7 +58,7 @@
       <recent name="C:\Users\derip\Desktop\forex" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.temp_test_profiler">
+  <component name="RunManager" selected="Python.main">
     <configuration name="backtest" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="forex" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -345,7 +344,14 @@
       <option name="project" value="LOCAL" />
       <updated>1650082330059</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="input for backtest txt changed. end of backtest date function setup.">
+      <created>1650082978860</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1650082978860</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -378,6 +384,7 @@
     <MESSAGE value="market_csv daily complete fixed" />
     <MESSAGE value="backtesting balance stay at start bug fixed, changed csv read to save data to var in numpy to save time. talib candles not working, switched to dummy indicator check in place" />
     <MESSAGE value="added in run = False for when markets are closed" />
-    <option name="LAST_COMMIT_MESSAGE" value="added in run = False for when markets are closed" />
+    <MESSAGE value="input for backtest txt changed. end of backtest date function setup." />
+    <option name="LAST_COMMIT_MESSAGE" value="input for backtest txt changed. end of backtest date function setup." />
   </component>
 </project>
