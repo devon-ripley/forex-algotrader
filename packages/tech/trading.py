@@ -16,22 +16,24 @@ import talib
 class Trader:
     def __init__(self, live, currency_pairs, gran, max_risk, max_use_day,
                  margin_rate, weights, apikey=None, account_id=None):
+        trade_check_ob = {}
         if live:
             self.live = True
             self.apikey = apikey
             self.account_id = account_id
-            trade_check_ob = []
             for x in currency_pairs:
+                trade_check_ob[x] = {}
                 for t in gran:
-                    trade_check_ob.append(day_trade.Live(x, t))
+                    trade_check_ob[x][t] = day_trade.Live(x, t)
             self.trade_check_ob = trade_check_ob
 
         if not live:
             self.live = False
-            trade_check_ob = []
+            trade_check_ob = {}
             for x in currency_pairs:
+                trade_check_ob[x] = {}
                 for t in gran:
-                    trade_check_ob.append(day_trade.Past(x, t))
+                    trade_check_ob[x][t] = day_trade.Past(x, t)
             self.trade_check_ob = trade_check_ob
 
         self.currency_pairs = currency_pairs
@@ -59,18 +61,15 @@ class Trader:
         check_results = []
         if self.live:
             logger = logging.getLogger('forex_logger')
-        for x in self.trade_check_ob:
-            abort = False
-            for pair in active_pairs:
-                if x.currency_pair == pair:
-                    abort = True
-                else:
-                    pass
-            if not abort:
+        # change to dict
+        for pair in self.currency_pairs:
+            if pair in active_pairs:
+                continue
+            for g in self.grans:
                 if self.live:
-                    res = x.live_candles()
+                    res = self.trade_check_ob[pair][g].live_candles()
                 else:
-                    res = x.back_candles(market_reader_obs, track_year)
+                    res = self.trade_check_ob[pair][g].back_candles(market_reader_obs, track_year)
                 if res is not None:
                     check_results.append(res)
                 else:
@@ -79,23 +78,13 @@ class Trader:
         if check_results:
             # nonempty list
             score_list = []
-            #check_results_com = [j for i in check_results for j in i]
-            #print(check_results_com)
-            #for y in range(len(check_results_com)):
-            #    score = check_results_com[y]['score']
-            #    score_list.append(score)
             for pos_trade in check_results:
                 score_list.append(pos_trade['score'])
 
             top_index = score_list.index(max(score_list))
             top_trade = check_results[top_index]
             # calculate stop_loss, take_profit
-            local_trend = {'range': 0}
-            for x in self.trade_check_ob:
-                if x.currency_pair == top_trade['pair'] and x.gran == top_trade['gran']:
-                    local_trend = x.trend_list
-                else:
-                    pass
+            local_trend = self.trade_check_ob[top_trade['pair']][top_trade['gran']].trend_list
             local_range = local_trend['range']
             current_price = 0
             for x in price_data:

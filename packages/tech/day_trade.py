@@ -9,6 +9,7 @@ import talib
 
 class TradeCheck:
     def __init__(self, currency_pair, gran):
+        self.trend_list = None
         self.currency_pair = currency_pair
         self.gran = gran
         self.first = True

@@ -1,4 +1,5 @@
 import datetime
+import os
 import time
 from packages.output import market_csv
 from packages.tech import trading
@@ -108,6 +109,11 @@ def setup(start_date_str='2018-05-15', start_balance=10000):
 
 
 if __name__ == '__main__':
+    # change path out one
+    path_parent = os.path.dirname(os.getcwd())
+    os.chdir(path_parent)
+    path_parent = os.path.dirname(os.getcwd())
+    os.chdir(path_parent)
     # system profile load
     f = open('data/config.json', 'r')
     profile = json.load(f)

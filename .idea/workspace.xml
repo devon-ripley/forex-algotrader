@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="Loading spinner added to market data csv saving">
-      <change beforePath="$PROJECT_DIR$/packages/misc/arguments.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/misc/arguments.py" afterDir="false" />
+    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="Table delete input check added to mysql table delete in arguments">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/backtest/backtest.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/backtest/backtest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tech/trading.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tech/trading.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,7 +59,7 @@
       <recent name="C:\Users\derip\Desktop\forex" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main">
+  <component name="RunManager" selected="Python.temp_test_profiler">
     <configuration name="backtest" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="forex" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -187,9 +189,9 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.temp_test_profiler" />
+        <item itemvalue="Python.backtest" />
         <item itemvalue="Python.temp_test4" />
         <item itemvalue="Python.project_lines" />
-        <item itemvalue="Python.backtest" />
         <item itemvalue="Python.temp_test3" />
       </list>
     </recent_temporary>
@@ -357,7 +359,14 @@
       <option name="project" value="LOCAL" />
       <updated>1650085018628</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="Table delete input check added to mysql table delete in arguments">
+      <created>1650085280323</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1650085280323</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -392,6 +401,7 @@
     <MESSAGE value="added in run = False for when markets are closed" />
     <MESSAGE value="input for backtest txt changed. end of backtest date function setup." />
     <MESSAGE value="Loading spinner added to market data csv saving" />
-    <option name="LAST_COMMIT_MESSAGE" value="Loading spinner added to market data csv saving" />
+    <MESSAGE value="Table delete input check added to mysql table delete in arguments" />
+    <option name="LAST_COMMIT_MESSAGE" value="Table delete input check added to mysql table delete in arguments" />
   </component>
 </project>
