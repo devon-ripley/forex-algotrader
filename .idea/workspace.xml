@@ -1,23 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="market_csv daily complete fixed">
-      <change beforePath="$PROJECT_DIR$/.idea/forex.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/forex.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/backtest/backtest.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/backtest/backtest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/backtest/backtest_csv.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/backtest/backtest_csv.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/forex.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/forex.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/misc/helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/misc/helpers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/oanda_api/oanda_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/oanda_api/oanda_api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/output/market_csv.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/output/market_csv.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/output/trade_sql.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/output/trade_sql.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tech/candle.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tech/candle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tech/day_trade.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tech/day_trade.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tech/trading.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tech/trading.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-    </list>
+    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="backtesting balance stay at start bug fixed, changed csv read to save data to var in numpy to save time. talib candles not working, switched to dummy indicator check in place" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -343,7 +327,14 @@
       <option name="project" value="LOCAL" />
       <updated>1649727725890</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="backtesting balance stay at start bug fixed, changed csv read to save data to var in numpy to save time. talib candles not working, switched to dummy indicator check in place">
+      <created>1650081918581</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1650081918581</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -374,6 +365,7 @@
     <MESSAGE value="add url to warning api instrument candles for debuging" />
     <MESSAGE value="logger change to debug" />
     <MESSAGE value="market_csv daily complete fixed" />
-    <option name="LAST_COMMIT_MESSAGE" value="market_csv daily complete fixed" />
+    <MESSAGE value="backtesting balance stay at start bug fixed, changed csv read to save data to var in numpy to save time. talib candles not working, switched to dummy indicator check in place" />
+    <option name="LAST_COMMIT_MESSAGE" value="backtesting balance stay at start bug fixed, changed csv read to save data to var in numpy to save time. talib candles not working, switched to dummy indicator check in place" />
   </component>
 </project>

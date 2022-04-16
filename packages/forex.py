@@ -17,7 +17,7 @@ import json
 import logging
 import time
 from packages.oanda_api import oanda_api as oanda_api
-from packages.tech import trading, temp_test_day_trade
+from packages.tech import trading
 from packages.output import trade_sql, notification, market_csv, reports
 from packages.misc import helpers
 
@@ -143,6 +143,9 @@ def trading_loop(profile):
     trader = trading.LiveTrader(True, currency_pairs, gran, max_risk, max_use_day,
                             margin_rate, weights, apikey, account_id)
     count = 0
+    if run is False:
+        logger.warning('Markets currently closed, exiting program')
+        exit()
     while loop:
         count += 1
         # update market csv
