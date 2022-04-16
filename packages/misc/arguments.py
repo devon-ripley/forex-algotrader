@@ -53,9 +53,8 @@ def controller(arg):
         f.close()
         earliest_year = int(profile['csvstart'])
         earliest_year += 1
-        print('Enter start date for back test (YYYY/MM/DD)')
         print(f'Earliest year allowed: {earliest_year}')
-        start_date = input()
-        start_balance = int(input('Enter starting balance, no decimals '))
+        start_date = input('Enter start date for back test (YYYY-MM-DD): ')
+        start_balance = int(input('Enter starting balance, no decimals: $'))
         backtest.setup(start_date, start_balance)
         exit()

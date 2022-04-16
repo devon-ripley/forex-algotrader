@@ -1,9 +1,17 @@
 import datetime
 import time
-
+from packages.output import market_csv
 from packages.tech import trading
 from packages.backtest import backtest_csv
 import json
+
+
+def get_last_date(pairs, grans):
+    current_year = datetime.datetime.now().year
+    data = market_csv.csv_read_recent(pairs[0], grans[0], current_year)
+    last_date = data['date'][-1]
+    end = last_date - datetime.timedelta(days=1)
+    return end
 
 
 def runner(track_datetime, track_year, currency_pairs, gran, market_reader_obs, trader, min_step, end_date):
@@ -78,7 +86,10 @@ def setup(start_date_str='2018-05-15', start_balance=10000):
                 if x == start_date.year:
                     market_reader_obs[x][pair][g] = (backtest_csv.BacktestMarketReader(x, pair, g, start_date, True))
 
-    end_date = datetime.datetime(2022, 3, 15)
+    #end_date = datetime.datetime(2022, 3, 15)
+
+    end_date = get_last_date(currency_pairs, gran)
+
     trader = trading.PastTrader(False, currency_pairs, gran, max_risk, max_use_day, margin_rate, weights)
     trader.active_data['balance'] = start_balance
     trader.add_market_readers(market_reader_obs)

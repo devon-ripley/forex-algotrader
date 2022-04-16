@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="backtesting balance stay at start bug fixed, changed csv read to save data to var in numpy to save time. talib candles not working, switched to dummy indicator check in place" />
+    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="added in run = False for when markets are closed">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/backtest/backtest.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/backtest/backtest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/misc/arguments.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/misc/arguments.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -334,7 +338,14 @@
       <option name="project" value="LOCAL" />
       <updated>1650081918581</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="added in run = False for when markets are closed">
+      <created>1650082330059</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1650082330059</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -366,6 +377,7 @@
     <MESSAGE value="logger change to debug" />
     <MESSAGE value="market_csv daily complete fixed" />
     <MESSAGE value="backtesting balance stay at start bug fixed, changed csv read to save data to var in numpy to save time. talib candles not working, switched to dummy indicator check in place" />
-    <option name="LAST_COMMIT_MESSAGE" value="backtesting balance stay at start bug fixed, changed csv read to save data to var in numpy to save time. talib candles not working, switched to dummy indicator check in place" />
+    <MESSAGE value="added in run = False for when markets are closed" />
+    <option name="LAST_COMMIT_MESSAGE" value="added in run = False for when markets are closed" />
   </component>
 </project>
