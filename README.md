@@ -1,9 +1,11 @@
 # forex_algotrader
-forex_algotrader
-Mysql required to run. Set up database for program to use. Set up user with all permissions for that database.
-User name, password, and database name are put in data/config.json.
+For educational purposes only
 
-Put trading strategy in trade_strategy.py, format is:
+Mysql required to run. Set up database for program to use. Set up user with all permissions for that database. User name, password, and database name are put in data/config.json.
+
+Notifications use yagmail python package, gmail account is required to send notifications 
+
+# Put trading strategy in trade_strategy.py, format is:
 
 def trade_strategy(currency_pair, gran, data):
 length of data is set in weights.json as periods
