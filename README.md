@@ -18,6 +18,7 @@ I plan on adding report generation, and NEAT machine learning for for fine tunin
 # GET STARTED
 
 REMOVE TEMPLATE FROM TEMPLATE_TRADE_STRATEGY.PY BEFORE STARTING
+
 REMOVE SAMPLE FROM DATA/SAMPLE_CONFIG.JSON BEFORE STARTING
 
 Put trading strategy in trade_strategy.py, format is:
