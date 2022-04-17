@@ -1,6 +1,6 @@
 # forex trading bot
 # By Devon Ripley
-# v0.5
+# v0.6
 # add in long term trades, change system shut down to always running
 # add in saving of trade decision making data???
 # trend daily adjustment features
@@ -9,7 +9,6 @@
 # imports
 from datetime import datetime as now
 import datetime
-
 import json
 import logging
 import time
@@ -39,21 +38,18 @@ def setup():
     helpers.folder_setup(currency_pairs, gran)
     logger = logging.getLogger('forexlogger')
     # Initial start
-    logger.info('forex_algotrader v0.5')
+    logger.info('forex_algotrader v0.6')
     logger.info('New System Start')
-    logger.info('Current UTC Date/Time')
     # check if system time is UTC
-    # if True:
-        # print(now.now(), 'System is set to UTC time')
-        # logging.info('System is set to UTC time')
-    # else:
-    #    print(now.now(), '!!!ERROR System is NOT set to UCT time!!!')
-    #    logging.critical('System is NOT set to UCT time')
-    #    exit()
+    if datetime.datetime.now().strftime('%H:%M') == datetime.datetime.utcnow().strftime('%H:%M'):
+        logger.info('System is set to UTC time')
+    else:
+        logger.critical('System is NOT set to UCT time')
+        exit()
 
     # API connection test
     # MAX LENGTH OF API CALL 500
-    account_id = oanda_api.account_get_init(apikey)
+    oanda_api.account_get_init(apikey)
     ###### MARKET DATA CSV FILE SET UP
     now_year = datetime.datetime.now().year
     # Daily chart setup
@@ -127,14 +123,11 @@ def trading_loop(profile):
     max_use_trend = profile['maxusetrend']
     margin_rate = profile['marginrate']
     periods = profile['periods']
-    account_id = oanda_api.account_get_init(apikey)
+    account_id = profile['account_id']
     # check hr and day
     system_time = now.now()
     current_hr = int(system_time.strftime("%H"))
     current_day = int(system_time.strftime("%w"))
-    # logging.info('Running trend trade check')
-    # print(now.now(), 'Running trend trade check')
-    # trading.trend(apikey, account_id, currency_pairs, max_risk, max_use_trend, margin_rate)
     loop = True
     logger.info('Running trading loop')
 
@@ -174,18 +167,21 @@ def trading_loop(profile):
             logger.info('All short term trades closed, end of week')
 
 
-def end_week():
+def end_week(profile):
     # generate reports
-    reports.end_of_week()
-    notification.send_att('End of week report', 'data/reports/' + str(datetime.datetime.now().date()) + '.csv')
+    # reports.end_of_week()
+    # notification.send_att('End of week report', 'data/reports/' + str(datetime.datetime.now().date()) + '.csv')
     # safly sleep program
-    print(now.now(), 'End of week system sleeping')
     logging.info('End of week, system sleeping')
-    notification.send(message='End of week, system sleep', subject='End of week')
-    weeknd = True
-    while weeknd:
-        system_time = now.now()
-        current_hr = int(system_time.strftime("%H"))
-        current_day = int(system_time.strftime("%w"))
-        if current_day == 0 and current_hr == 20:
-            weeknd = False
+    # notification.send(message='End of week, system sleep', subject='End of week')
+    wkndshut = profile['"wkndshut"']
+    if wkndshut:
+        exit()
+    else:
+        week_end = True
+        while week_end:
+            system_time = now.now()
+            current_hr = int(system_time.strftime("%H"))
+            current_day = int(system_time.strftime("%w"))
+            if current_day == 0 and current_hr == 20:
+                week_end = False
