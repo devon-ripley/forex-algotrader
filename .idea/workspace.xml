@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="template added to trade_strategy.py">
+    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="utc check added, notification.py made optional, account_id added to weights.json">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/forex.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/forex.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/output/notification.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/output/notification.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/candle_tests/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/candle_tests/candle_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/candle_tests/plot_candle.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +61,7 @@
       <recent name="C:\Users\derip\Desktop\forex" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main">
+  <component name="RunManager" selected="Python.backtest">
     <configuration name="backtest" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="forex" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -437,7 +438,14 @@
       <option name="project" value="LOCAL" />
       <updated>1650164410040</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="utc check added, notification.py made optional, account_id added to weights.json">
+      <created>1650165884462</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1650165884462</updated>
+    </task>
+    <option name="localTasksCounter" value="35" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -455,7 +463,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="logger fixed, backtest added, trading object instead of function" />
     <MESSAGE value="gitignore change" />
     <MESSAGE value="daily file setup and complete fixed" />
     <MESSAGE value=".idea put in .gitignore" />
@@ -480,6 +487,7 @@
     <MESSAGE value="weights.json removed, periods pulled from config.json" />
     <MESSAGE value="candle_test added to gitignore" />
     <MESSAGE value="template added to trade_strategy.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="template added to trade_strategy.py" />
+    <MESSAGE value="utc check added, notification.py made optional, account_id added to weights.json" />
+    <option name="LAST_COMMIT_MESSAGE" value="utc check added, notification.py made optional, account_id added to weights.json" />
   </component>
 </project>
