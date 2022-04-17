@@ -23,6 +23,8 @@ from packages.misc import helpers
 
 
 def setup():
+    # check if config file exits, setup if not
+    helpers.check_config()
     # system profile load
     f = open('data/config.json', 'r')
     profile = json.load(f)
@@ -34,8 +36,6 @@ def setup():
     currency_pairs = list(currency_pairs.split(','))
     gran = profile['gran']
     gran = list(gran.split(','))
-    daily_chart = profile['dailychart']
-    daily_chart = bool(daily_chart)
     csv_start = int(profile['csvstart'])
 
     # set up folders if needed
@@ -60,25 +60,28 @@ def setup():
     ###### MARKET DATA CSV FILE SET UP
     now_year = datetime.datetime.now().year
     # Daily chart setup
-    if daily_chart:
-        for num_cur in range(len(currency_pairs)):
-            for x in range((now_year + 1) - csv_start):
-                result = market_csv.daily_check(currency_pairs[num_cur], csv_start + x)
-                if not result:
-                    logger.info(f'Creating csv file for D1, {currency_pairs[num_cur]}, {csv_start + x}')
-                    market_csv.daily_setup(apikey, currency_pairs[num_cur], csv_start + x)
-                if result:
-                    market_csv.daily_current(apikey, currency_pairs[num_cur], csv_start + x)
+    for num_cur in range(len(currency_pairs)):
+        for x in range((now_year + 1) - csv_start):
+            result = market_csv.daily_check(currency_pairs[num_cur], csv_start + x)
+            if not result:
+                logger.info(f'Creating csv file for D1, {currency_pairs[num_cur]}, {csv_start + x}')
+                market_csv.daily_setup(apikey, currency_pairs[num_cur], csv_start + x)
+            if result:
+                market_csv.daily_current(apikey, currency_pairs[num_cur], csv_start + x)
 
     # set up csv files starting at csv start year
 
     for num_cur in range(len(currency_pairs)):
         for x in range(len(gran)):
+            if gran[x] == 'D':
+                continue
             result = market_csv.past_years_check(apikey, currency_pairs[num_cur], gran[x], csv_start)
 
     # check if current year data csv file exists
     for x in range(len(currency_pairs)):
         for x_gran in range(len(gran)):
+            if gran[x_gran] == 'D':
+                continue
             result = market_csv.current_year_check(currency_pairs[x], gran[x_gran])
             if not result:
                 logger.info(f'Current year csv file does not exist {currency_pairs[x]}_{gran[x_gran]}')
@@ -88,6 +91,8 @@ def setup():
     # check existing current year csv files if complete, complete them if not
     for x in range(len(currency_pairs)):
         for x_gran in range(len(gran)):
+            if gran[x_gran] == 'D':
+                continue
             market_csv.current_year_complete(apikey, currency_pairs[x], gran[x_gran])
 
     # check and setup trade sql
