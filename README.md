@@ -1,4 +1,4 @@
-# forex_algotrader
+# forex-algotrader
 For educational purposes only
 
 Uses Oanda for market data and trading.
