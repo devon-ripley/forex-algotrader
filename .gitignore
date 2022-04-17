@@ -1,7 +1,6 @@
 data/csv/
 reports/
 trade_logic/
-packages/candle_tests
 .idea/
 *.log
 *.pyc
@@ -9,3 +8,4 @@ packages/candle_tests
 config.json
 saved_data.json
 temp_test*
+/packages/candle_tests/
