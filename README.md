@@ -24,6 +24,8 @@ REMOVE SAMPLE FROM DATA/SAMPLE_CONFIG.JSON BEFORE STARTING
 Put trading strategy in trade_strategy.py, format is:
 
 def trade_strategy(currency_pair, gran, data):
+
+
 length of data is set in weights.json as periods
 
 data is formated as a dictionary of numpy arrays and a list of datetime objects
