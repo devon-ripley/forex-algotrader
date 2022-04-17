@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="added in argument config.json setup">
+    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="reorganized day_trade.py">
+      <change afterPath="$PROJECT_DIR$/trade_strategy.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/forex.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/forex.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/tech/day_trade.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tech/day_trade.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tech/trading.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tech/trading.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +61,7 @@
       <recent name="C:\Users\derip\Desktop\forex" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main">
+  <component name="RunManager" selected="Python.backtest">
     <configuration name="backtest" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="forex" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -400,7 +403,14 @@
       <option name="project" value="LOCAL" />
       <updated>1650155954885</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="reorganized day_trade.py">
+      <created>1650159566030</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1650159566030</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -441,6 +451,7 @@
     <MESSAGE value="main log output changed from out.log to main.log" />
     <MESSAGE value="added in config.json builder with user inputs" />
     <MESSAGE value="added in argument config.json setup" />
-    <option name="LAST_COMMIT_MESSAGE" value="added in argument config.json setup" />
+    <MESSAGE value="reorganized day_trade.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="reorganized day_trade.py" />
   </component>
 </project>

@@ -84,8 +84,6 @@ class Trader:
             top_index = score_list.index(max(score_list))
             top_trade = check_results[top_index]
             # calculate stop_loss, take_profit
-            local_trend = self.trade_check_ob[top_trade['pair']][top_trade['gran']].trend_list
-            local_range = local_trend['range']
             current_price = 0
             for x in price_data:
                 if x['instrument'] == top_trade['pair']:
@@ -98,16 +96,12 @@ class Trader:
                 logger.error('price data not obtained from api')
             if top_trade['direction'] == 0:
                 # short
-                stop_loss = current_price + local_range + 1
-                take_profit = current_price - local_range - 1
                 unit_mult = -1
             else:
                 # long
-                stop_loss = current_price - local_range - 1
-                take_profit = current_price + local_range + 1
                 unit_mult = 1
-            return {'current_price': current_price, 'stop_loss': stop_loss, 'take_profit': take_profit,
-                    'unit_mult': unit_mult, 'local_range': local_range, 'top_trade': top_trade}
+            return {'current_price': current_price, 'stop_loss': top_trade['stop_loss'], 'take_profit': top_trade['take_profit'],
+                    'unit_mult': unit_mult, 'top_trade': top_trade}
         return False
 
 

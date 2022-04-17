@@ -1,12 +1,9 @@
 # forex trading bot
 # By Devon Ripley
 # v0.5
-# make a function to do all score and advanced math for all single candles!!!!!
 # add in long term trades, change system shut down to always running
 # add in saving of trade decision making data???
 # trend daily adjustment features
-# margin limit watch
-# trend and daily amount of account limits based of margin limits. safly within amounts, get from account info
 # add in report generation???
 # system time must be UTC
 # imports
