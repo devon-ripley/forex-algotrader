@@ -24,7 +24,7 @@ class TradeCheck:
         self.indicator_dict = {}
         self.data = {}
 
-    def indicator_check(self):
+    def trend_check(self):
 
         macd, macdsignal, macdhist = talib.MACD(self.data['close'], fastperiod=12, slowperiod=26, signalperiod=9)
         self.indicator_dict['macd'] = [macd, macdsignal, macdhist]
@@ -32,7 +32,9 @@ class TradeCheck:
         results = {'range': real[-1], 'candles': [{'increase': macd[-1]}]}
         return results
 
-    def indicator_trade_check(self, direction):
+
+    def make_trade_check(self):
+        direction = self.trend_list['direction']
         # macd check TEMP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         macd_ind = self.indicator_dict['macd']
         macd_line = macd_ind[0]
@@ -60,61 +62,18 @@ class TradeCheck:
                             'direction': direction, 'gran': self.gran, 'pair': self.currency_pair}
         return False
 
-    def make_trade_check(self):
-        # set up candle single weights
-        # self.data.append(data[-1])
-        candle_single_dict_weights = self.weights['candle_single']
-        # check indicators
-        self.trend_list = self.indicator_check()
-        # check for past confirmations needed
-        current_date = self.data['date'][-1]
-        con_result = []
-        for x in self.wait_confirmation:
-            if current_date > x['date']:
-                # check if candle is confirmed
-                if x['direction'] == 1:
-                    # check for going up
-                    if self.data['open'][-1] - self.data['close'][-1] < 0:
-                        x['conformation'] = False
-                        con_result.append(x)
-                else:
-                    # check for going down
-                    if self.data['open'][-1] - self.data['close'][-1] > 0:
-                        x['conformation'] = False
+    def trade_strategy(self):
+        self.trend_list = self.trend_check()
 
         if self.trend_list['candles'][-1]['increase'] > 0:
-            direction = 0
+            self.trend_list['direction'] = 0
         else:
-            direction = 1
-        # compare candles on latest complete candle
-        length = len(self.data['date'])
-        last_candle = {'date': self.data['date'][length - 3:], 'open': self.data['open'][length - 3:],
-                       'high': self.data['high'][length - 3:],
-                       'low': self.data['low'][length - 3:], 'close': self.data['close'][length - 3:],
-                       'volume': self.data['volume'][length - 3:]}
-        #results = candle.all_candles(last_candle, candle_single_dict_weights, direction, self.gran, self.currency_pair)
-        #if not results:
-        #    return None
-        #for x in results:
-        #    print(x)
-        #    trend_list_mot = dict(self.trend_list)
-        #    last = trend_list_mot['candles'][-1]
-        #    del trend_list_mot['candles']
-        #    trend_list_mot['candle'] = last
-        #    x['last_trend'] = trend_list_mot
-        #    if x['execute']:
-        #        if x['conformation']:
-        #            self.wait_confirmation.append(x)
-        #if con_result:
-        #    results = results + con_result
-        #else:
-        #    pass
-        # Add indicator check results into results
-        ind_results = self.indicator_trade_check(direction)
-        results = ind_results
-        if results:
-            return results
-        if not results:
+            self.trend_list['direction'] = 1
+
+        trade_strategy_results = self.make_trade_check()
+        if trade_strategy_results:
+            return trade_strategy_results
+        if not trade_strategy_results:
             return None
 
 
@@ -124,7 +83,7 @@ class Live(TradeCheck):
         data = market_csv.csv_read_recent(currency_pair=self.currency_pair, gran=self.gran, periods=self.data_periods)
         self.data = data
 
-        return self.make_trade_check()
+        return self.trade_strategy()
 
 
 class Past(TradeCheck):  ## inharit from backtest_csv???
@@ -147,7 +106,7 @@ class Past(TradeCheck):  ## inharit from backtest_csv???
             data_dict['close'] = numpy.concatenate((past_year_data['close'], current_year_data['close']))
             data_dict['volume'] = numpy.concatenate((past_year_data['volume'], current_year_data['volume']))
             self.data = data_dict
-            return self.make_trade_check()
+            return self.trade_strategy()
         else:
             self.data = mr_data['data']
-            return self.make_trade_check()
+            return self.trade_strategy()
