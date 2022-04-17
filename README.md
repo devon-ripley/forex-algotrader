@@ -3,6 +3,8 @@ For educational purposes only
 
 Uses Oanda for market data and trading.
 
+Runs on Linux, should work on windows though i will have to test it.
+
 This program does Forex trading, I plan on adding crypto and maybe stocks in the future.
 
 URL in packages/oanda_api/oanda_api.py set to practice account.
