@@ -1,7 +1,7 @@
 import sys
 import datetime
 import json
-from packages.misc import weights_json_gen
+from packages.misc import weights_json_gen, helpers
 from packages.output import trade_sql
 from packages.backtest import backtest
 
@@ -20,6 +20,7 @@ def controller(arg):
         print('(r) or ()To run normally')
         print('(w) To reset weights.json file')
         print('(ms) To reset mysql tables')
+        print('(con) To setup general config.json file')
         print('(ml) To start manual machine learning program')
         print('(b) To run backtest')
         print('(h), Help menu')
@@ -38,7 +39,7 @@ def controller(arg):
         exit()
 
     elif arg == 'ml':
-        #machine learning
+        # machine learning
         pass
 
     elif arg == 'ms':
@@ -63,3 +64,12 @@ def controller(arg):
         start_balance = int(input('Enter starting balance, no decimals: $'))
         backtest.setup(start_date, start_balance)
         exit()
+
+    elif arg == 'con':
+        name = input('Enter name of config file you would like to setup'
+                     ' (Hit enter with no input to save as general config,'
+                     ' this is the config file the program will run off of): ')
+        if name == '':
+            helpers.setup_config()
+        else:
+            helpers.setup_config(name)

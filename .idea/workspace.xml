@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="main log output changed from out.log to main.log">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/forex.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/forex.py" afterDir="false" />
+    <list default="true" id="2896947f-7fe3-45de-854f-0c90a41cbae4" name="Default Changelist" comment="added in config.json builder with user inputs">
+      <change beforePath="$PROJECT_DIR$/packages/misc/arguments.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/misc/arguments.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/misc/helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/misc/helpers.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -388,7 +386,14 @@
       <option name="project" value="LOCAL" />
       <updated>1650152316240</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="added in config.json builder with user inputs">
+      <created>1650155211016</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1650155211016</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -427,6 +432,7 @@
     <MESSAGE value="trade_check_ob list changed to dict for easier access" />
     <MESSAGE value="logger added to backtest.py, backtest logger setup added to helpers.py" />
     <MESSAGE value="main log output changed from out.log to main.log" />
-    <option name="LAST_COMMIT_MESSAGE" value="main log output changed from out.log to main.log" />
+    <MESSAGE value="added in config.json builder with user inputs" />
+    <option name="LAST_COMMIT_MESSAGE" value="added in config.json builder with user inputs" />
   </component>
 </project>
