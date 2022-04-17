@@ -15,9 +15,12 @@ Notifications use yagmail python package, gmail account is required to send noti
 
 I plan on adding report generation, and NEAT machine learning for for fine tuning strategies.
 
-REMOVE TEMPLATE FROM TEMPLATE_TRADE_STRATEGY.PY BEFORE STARTING
+# GET STARTED
 
-# Put trading strategy in trade_strategy.py, format is:
+REMOVE TEMPLATE FROM TEMPLATE_TRADE_STRATEGY.PY BEFORE STARTING
+REMOVE SAMPLE FROM DATA/SAMPLE_CONFIG.JSON BEFORE STARTING
+
+Put trading strategy in trade_strategy.py, format is:
 
 def trade_strategy(currency_pair, gran, data):
 length of data is set in weights.json as periods
