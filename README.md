@@ -47,7 +47,8 @@ data = {
 
 Put trade strategy here
 
-#return dictionary, or list of dictionaries, in this format to make a trade
+return dictionary, or list of dictionaries, in this format to make a trade
+
 
 if trade:
 return {
@@ -70,7 +71,7 @@ return {
 
 }
     
-#return None if no trades to make
+return None if no trades to make
 
 if not trade:
 
