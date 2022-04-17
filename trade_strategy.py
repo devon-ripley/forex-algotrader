@@ -1,25 +1,63 @@
-# def trade_strategy(currency_pair, gran, data):
-# length of data is set in weights.json as periods
-
-# data is formated as a dictionary of numpy arrays and a list of datetime objects
-# {
-# ['date'] = [datetime(2021, 05, 05, 20, 00), datetime(2021, 05, 05, 20, 30)]
-# ['open'] = numpy.array([112.55, 112.56])
-# ['high'] = numpy.array([112.55, 112.56])
-# ['low'] = numpy.array([112.55, 112.56])
-# ['close'] = numpy.array([112.55, 112.56])
-# ['volume'] = numpy.array([189, 114])
-# }
+import talib
 
 
-# return dictionary, or list of dictionaries, in this format to make a trade
-# {'execute': True,
-# 'score': 100, trade with the highest score gets executed
-# 'date': datetime(2021, 05, 05, 20, 06),
-# 'direction': 1, 0 for short, 1 for long
-# 'stop_loss': 112.05,
-# 'take_profit': 112.77,
-# 'gran': M30,
-# 'pair': USD_JPY}
+def trend_check(data):
+    macd, macdsignal, macdhist = talib.MACD(data['close'], fastperiod=12, slowperiod=26, signalperiod=9)
+    indicator_dict = {
+        'macd': [macd, macdsignal, macdhist]
+    }
+    real = talib.ATR(data['high'], data['low'], data['close'], timeperiod=14)
+    results = {'range': real[-1], 'indicator_dict': indicator_dict, 'candles': [{'increase': macd[-1]}]}
+    return results
 
-# return None if no trades to make
+
+def make_trade_check(currency_pair, gran, data, trend_list):
+    direction = trend_list['direction']
+    # macd check TEMP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    macd_ind = trend_list['indicator_dict']['macd']
+    macd_line = macd_ind[0]
+    macd_li = macd_line[len(macd_line) - 7:]
+    macd_signal = macd_ind[1][len(macd_line) - 7:]
+    macd_hist = macd_ind[2][len(macd_line) - 7:]
+    above = None
+    below = None
+    if direction == 0:
+        # short
+        stop_loss = ((data['close'][-1]+ data['open'][-1])/2) + trend_list['range'] + 1
+        take_profit = ((data['close'][-1]+ data['open'][-1])/2) - trend_list['range'] - 1
+    else:
+        # long
+        stop_loss = ((data['close'][-1]+ data['open'][-1])/2) - trend_list['range'] - 1
+        take_profit = ((data['close'][-1]+ data['open'][-1])/2) + trend_list['range'] + 1
+    for ite, m_line in enumerate(macd_li):
+
+        if m_line >= macd_signal[ite]:
+            # mline above
+            above = True
+            if below:
+                return {'execute': True, 'score': 100,
+                        'date': data['date'][-1],
+                        'direction': direction, 'stop_loss': stop_loss, 'take_profit': take_profit, 'gran': gran, 'pair': currency_pair}
+        if m_line <= macd_signal[ite]:
+            # mline below
+            below = True
+            if above:
+                return {'execute': True, 'score': 100,
+                        'date': data['date'][-1],
+                        'direction': direction, 'stop_loss': stop_loss, 'take_profit': take_profit, 'gran': gran, 'pair': currency_pair}
+    return False
+
+
+def trade_strategy(currency_pair, gran, data):
+    trend_list = trend_check(data)
+
+    if trend_list['candles'][-1]['increase'] > 0:
+        trend_list['direction'] = 0
+    else:
+        trend_list['direction'] = 1
+
+    trade_strategy_results = make_trade_check(currency_pair, gran, data, trend_list)
+    if trade_strategy_results:
+        return trade_strategy_results
+    if not trade_strategy_results:
+        return None
