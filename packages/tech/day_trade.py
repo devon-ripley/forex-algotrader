@@ -1,10 +1,6 @@
-import time
-
 from packages.output import market_csv
-import temp_test_trade_strategy
-import json
+import trade_strategy
 import numpy
-import talib
 
 
 class TradeCheck:
@@ -20,8 +16,7 @@ class Live(TradeCheck):
         # load most recent candles from csv
         data = market_csv.csv_read_recent(currency_pair=self.currency_pair, gran=self.gran, periods=self.data_periods)
 
-        return temp_test_trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
-        # return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
+        return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
 
 class Past(TradeCheck):
     def back_candles(self, market_reader_obs, track_year):
@@ -42,9 +37,8 @@ class Past(TradeCheck):
             data_dict['close'] = numpy.concatenate((past_year_data['close'], current_year_data['close']))
             data_dict['volume'] = numpy.concatenate((past_year_data['volume'], current_year_data['volume']))
             data = data_dict
-            return temp_test_trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
-            # return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
+
+            return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
         else:
             data = mr_data['data']
-            return temp_test_trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
-            # return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
+            return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
