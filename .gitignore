@@ -8,4 +8,3 @@ trade_logic/
 config.json
 saved_data.json
 temp_test*
-trade_strategy.py
