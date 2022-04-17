@@ -3,6 +3,8 @@ For educational purposes only
 
 Uses Oanda for market data and trading.
 
+Forex trading, I plan on adding crypto and maybe stocks in the future.
+
 URL in packages/oanda_api/oanda_api.py set to practice account.
 
 Mysql required to run. Set up database for program to use. Set up user with all permissions for that database. User name, password, and database name are put in data/config.json.
