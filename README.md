@@ -1,11 +1,15 @@
 # forex_algotrader
 For educational purposes only
 
+URL in packages/oanda_api/oanda_api.py set to practice account.
+
 Mysql required to run. Set up database for program to use. Set up user with all permissions for that database. User name, password, and database name are put in data/config.json.
 
 Notifications use yagmail python package, gmail account is required to send notifications .
 
 I plan on adding report generation, and NEAT machine learning for for fine tuning strategies.
+
+REMOVE TEMPLATE FROM TEMPLATE_TRADE_STRATEGY.PY BEFORE STARTING
 
 # Put trading strategy in trade_strategy.py, format is:
 
