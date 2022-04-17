@@ -1,11 +1,12 @@
 {
 	"apikey": "Bearer 123456789abcd",
+	"account_id": 0019082198,
 	"maxrisk": 0.01,
 	"maxuseday": 0.20,
 	"wkndshut": "False",
+	"periods": 50,
 	"currencypairs": "USD_JPY,EUR_USD,GBP_USD",
 	"gran": "M15,M1,H1",
-	"dailychart": "True",
 	"maxusetrend": 0.10,
 	"marginrate": 20,
 	"csvstart": 2016,
