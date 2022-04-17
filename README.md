@@ -21,6 +21,11 @@ REMOVE TEMPLATE FROM TEMPLATE_TRADE_STRATEGY.PY BEFORE STARTING
 
 REMOVE SAMPLE FROM DATA/SAMPLE_CONFIG.JSON BEFORE STARTING
 
+Run main.py to start trading loop
+
+Run main.py b to backtest
+
+
 Put trading strategy in trade_strategy.py, format is:
 
 def trade_strategy(currency_pair, gran, data):
