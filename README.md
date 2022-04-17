@@ -3,7 +3,9 @@ For educational purposes only
 
 Mysql required to run. Set up database for program to use. Set up user with all permissions for that database. User name, password, and database name are put in data/config.json.
 
-Notifications use yagmail python package, gmail account is required to send notifications 
+Notifications use yagmail python package, gmail account is required to send notifications .
+
+I plan on adding report generation, and NEAT machine learning for for fine tuning strategies.
 
 # Put trading strategy in trade_strategy.py, format is:
 
