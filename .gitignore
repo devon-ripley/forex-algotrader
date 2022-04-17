@@ -1,6 +1,7 @@
 data/csv/
 reports/
 trade_logic/
+packages/candle_tests
 .idea/
 *.log
 *.pyc

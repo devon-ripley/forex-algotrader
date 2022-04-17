@@ -74,6 +74,7 @@ def setup(start_date_str='2018-05-15', start_balance=10000):
     gran = list(gran.split(','))
     max_use_trend = profile['maxusetrend']
     margin_rate = profile['marginrate']
+    periods = profile['periods']
 
     start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d')
     year = start_date.year - 1
@@ -96,7 +97,7 @@ def setup(start_date_str='2018-05-15', start_balance=10000):
 
     end_date = get_last_date(currency_pairs, gran)
 
-    trader = trading.PastTrader(False, currency_pairs, gran, max_risk, max_use_day, margin_rate, weights)
+    trader = trading.PastTrader(False, currency_pairs, gran, max_risk, max_use_day, margin_rate, periods)
     trader.active_data['balance'] = start_balance
     trader.add_market_readers(market_reader_obs)
     track_datetime = start_date

@@ -86,7 +86,7 @@ def setup_config(name='config.json'):
     res = res.lower()
     if res == 'y':
         num = 0
-        final_num = 15
+        final_num = 16
         config_final = {}
         print('Press enter with no input to pass')
         print(num, '/', final_num)
@@ -107,6 +107,9 @@ def setup_config(name='config.json'):
         if out == 'n':
             shut = False
         config_final['wkndshut'] = shut
+        num += 1
+        print(f'{num}/{final_num}')
+        config_final['periods'] = input('Enter candles back to load into temp_test_trade_strategy.py, example (80): ')
         num += 1
         print(f'{num}/{final_num}')
         config_final['currencypairs'] = input('Enter currency pairs to use, '

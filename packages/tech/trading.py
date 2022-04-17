@@ -15,7 +15,7 @@ import talib
 
 class Trader:
     def __init__(self, live, currency_pairs, gran, max_risk, max_use_day,
-                 margin_rate, weights, apikey=None, account_id=None):
+                 margin_rate, periods, apikey=None, account_id=None):
         trade_check_ob = {}
         if live:
             self.live = True
@@ -24,7 +24,7 @@ class Trader:
             for x in currency_pairs:
                 trade_check_ob[x] = {}
                 for t in gran:
-                    trade_check_ob[x][t] = day_trade.Live(x, t)
+                    trade_check_ob[x][t] = day_trade.Live(x, t, periods)
             self.trade_check_ob = trade_check_ob
 
         if not live:
@@ -33,7 +33,7 @@ class Trader:
             for x in currency_pairs:
                 trade_check_ob[x] = {}
                 for t in gran:
-                    trade_check_ob[x][t] = day_trade.Past(x, t)
+                    trade_check_ob[x][t] = day_trade.Past(x, t, periods)
             self.trade_check_ob = trade_check_ob
 
         self.currency_pairs = currency_pairs
@@ -41,7 +41,6 @@ class Trader:
         self.max_risk = max_risk
         self.max_use_day = max_use_day
         self.margin_rate = margin_rate
-        self.weights = weights
 
     def unit_calc(self, current_price, stop_loss, unit_mult, risk_amount, max_units, margin_used, margin_rate, max_use_day):
         # calculate units

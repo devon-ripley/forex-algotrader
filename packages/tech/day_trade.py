@@ -1,23 +1,18 @@
 import time
 
 from packages.output import market_csv
-import trade_strategy
+import temp_test_trade_strategy
 import json
 import numpy
 import talib
 
 
 class TradeCheck:
-    def __init__(self, currency_pair, gran):
+    def __init__(self, currency_pair, gran, periods):
         self.trend_list = None
         self.currency_pair = currency_pair
         self.gran = gran
-        # get weights and ratios for just current currency_pair and gran
-        f = open('data/weights.json', 'r')
-        weights = json.load(f)
-        f.close()
-        self.data_periods = weights['currency_pairs'][currency_pair][gran]['periods']
-        self.weights = weights['currency_pairs'][currency_pair][gran]
+        self.data_periods = periods
 
 
 class Live(TradeCheck):
@@ -25,8 +20,8 @@ class Live(TradeCheck):
         # load most recent candles from csv
         data = market_csv.csv_read_recent(currency_pair=self.currency_pair, gran=self.gran, periods=self.data_periods)
 
-        return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
-
+        return temp_test_trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
+        # return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
 
 class Past(TradeCheck):
     def back_candles(self, market_reader_obs, track_year):
@@ -47,7 +42,9 @@ class Past(TradeCheck):
             data_dict['close'] = numpy.concatenate((past_year_data['close'], current_year_data['close']))
             data_dict['volume'] = numpy.concatenate((past_year_data['volume'], current_year_data['volume']))
             data = data_dict
-            return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
+            return temp_test_trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
+            # return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
         else:
             data = mr_data['data']
-            return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
+            return temp_test_trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
+            # return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)

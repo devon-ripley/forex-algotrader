@@ -126,6 +126,7 @@ def trading_loop(profile):
     gran = list(gran.split(','))
     max_use_trend = profile['maxusetrend']
     margin_rate = profile['marginrate']
+    periods = profile['periods']
     account_id = oanda_api.account_get_init(apikey)
     # check hr and day
     system_time = now.now()
@@ -137,13 +138,10 @@ def trading_loop(profile):
     loop = True
     logger.info('Running trading loop')
 
-    f = open('data/weights.json', 'r')
-    weights = json.load(f)
-    f.close()
     first_run = True
     trade_wait = 300
     trader = trading.LiveTrader(True, currency_pairs, gran, max_risk, max_use_day,
-                            margin_rate, weights, apikey, account_id)
+                            margin_rate, periods, apikey, account_id)
     count = 0
     if run is False:
         logger.warning('Markets currently closed, exiting program')
