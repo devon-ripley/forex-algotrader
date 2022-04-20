@@ -3,14 +3,10 @@ from packages.oanda_api import oanda_api
 from packages.tech import day_trade
 from packages.tech import indicator_calc
 import time
-import datetime
 from datetime import datetime as now
 from packages.output import trade_sql, notification, market_csv, reports
 from decimal import Decimal
 import decimal
-import json
-import os
-import talib
 
 
 class Trader:
@@ -187,7 +183,12 @@ class LiveTrader(Trader):
                     reason = trade_info['orderCancelTransaction']['reason']
                     logger.error('Error market order, ' + reason)
                     notification.send('Error market order, ' + reason)
-                    pass
+
+                elif 'orderRejectTransaction' in trade_info:
+                    reason = trade_info['orderRejectTransaction']['rejectReason']
+                    logger.error('Error market order, ' + reason)
+                    notification.send('Error market order, ' + reason)
+
                 else:
                     trade_id = trade_info['orderFillTransaction']['id']
                     logging.info('Market order complete' + trade_id)
