@@ -80,7 +80,7 @@ def instrument_candles_current(apikey, pair, gran, start):
     except:
         logger.error(f'Oanda api request unsuccessful, url: {url}')
         logger.error('passing complete False and slug data')
-        return {'candles': {'complete': False, 'time': 0, 'volume': 0, 'mid': {'o': 0, 'h': 0, 'l': 0, 'c': 0}}}
+        return {'candles': [{'complete': False, 'time': datetime(2000, 1, 1), 'volume': 0, 'mid': {'o': 0, 'h': 0, 'l': 0, 'c': 0}}]}
 
     if req.status_code == 200:
         return req.json()
