@@ -133,6 +133,7 @@ def trading_loop(profile):
 
     first_run = True
     trade_wait = 300
+    # setup trader object
     trader = trading.LiveTrader(True, currency_pairs, gran, max_risk, max_use_day,
                             margin_rate, periods, apikey, account_id)
     count = 0
@@ -169,11 +170,11 @@ def trading_loop(profile):
 
 def end_week(profile):
     # generate reports
-    # reports.end_of_week()
-    # notification.send_att('End of week report', 'data/reports/' + str(datetime.datetime.now().date()) + '.csv')
-    # safly sleep program
+    reports.end_of_week()
+    notification.send_att('End of week report', 'data/reports/report_' + str(datetime.datetime.now().date().year) + '.csv')
+    # sleep program
     logging.info('End of week, system sleeping')
-    # notification.send(message='End of week, system sleep', subject='End of week')
+    notification.send(message='End of week, system sleep', subject='End of week')
     wkndshut = profile['"wkndshut"']
     if wkndshut:
         exit()

@@ -1,7 +1,6 @@
 import logging
 from packages.oanda_api import oanda_api
 from packages.tech import day_trade
-from packages.tech import indicator_calc
 import time
 from datetime import datetime as now
 from packages.output import trade_sql, notification, market_csv, reports
