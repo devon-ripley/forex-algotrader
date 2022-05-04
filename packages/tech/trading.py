@@ -1,6 +1,6 @@
 import logging
 from packages.oanda_api import oanda_api
-from packages.tech import day_trade
+from packages.tech import trade_check
 import time
 from datetime import datetime as now
 from packages.output import trade_sql, notification, market_csv, reports
@@ -19,7 +19,7 @@ class Trader:
             for x in currency_pairs:
                 trade_check_ob[x] = {}
                 for t in gran:
-                    trade_check_ob[x][t] = day_trade.Live(x, t, periods)
+                    trade_check_ob[x][t] = trade_check.Live(x, t, periods)
             self.trade_check_ob = trade_check_ob
 
         if not live:
@@ -28,7 +28,7 @@ class Trader:
             for x in currency_pairs:
                 trade_check_ob[x] = {}
                 for t in gran:
-                    trade_check_ob[x][t] = day_trade.Past(x, t, periods)
+                    trade_check_ob[x][t] = trade_check.Past(x, t, periods)
             self.trade_check_ob = trade_check_ob
 
         self.currency_pairs = currency_pairs
@@ -204,48 +204,6 @@ class LiveTrader(Trader):
                         [trade_id, units, run_info['current_price'], run_info['stop_loss'], run_info['take_profit'],
                          run_info['top_trade']])
             return True
-
-    def trend(self, apikey, account_id, currency_pairs, max_risk, max_use_trend, margin_rate):
-        decimal.getcontext().prec = 4
-        info = oanda_api.account_summary(apikey, account_id)
-        info = info['account']
-        balance = float(info['balance'])
-        max_use = float(max_use_trend) * balance
-        risk_amount = float(max_risk) * balance
-        max_units = max_use * float(margin_rate)
-        info = indicator_calc.account_limits(apikey, account_id, max_use_trend, max_risk, margin_rate)
-        print(info)
-        price_data = oanda_api.current_price(apikey, account_id, currency_pairs)
-        price_data = price_data['prices']
-        currency_price = {}
-        for x in price_data:
-            pair = x['instrument']
-            bids = x['bids']
-            bids = Decimal(bids[0]['price'])
-            asks = x['asks']
-            asks = Decimal(asks[0]['price'])
-            price = (bids + asks) / 2
-            currency_price[pair] = price
-        trade_data = []
-        for x in currency_pairs:
-            # check for trend trades
-            trade_data_x = indicator_calc.trend_trade(x, currency_price, risk_amount, max_units)
-            trade_data.append(trade_data_x)
-        # find strongest trend
-        for x in trade_data:
-            print(now.now(), x)
-            if x['execute']:
-                if x['direction'] == 'LONG':
-                    units = x['units']
-                elif x['direction'] == 'SHORT':
-                    units = x['units'] * -1.0
-                dif = x['stop_loss']
-                order_info = oanda_api.market_order_trend(apikey, account_id, units, x, dif)
-                order_id = order_info['orderCreateTransaction']['id']
-                price = order_info['orderFillTransaction']['price']
-                margin_used = order_info['orderFillTransaction']['tradeOpened']['initialMarginRequired']
-                notification.send([x, units, margin_used], 'Trend oanda_api order placed')
-                # trade_csv.add_trade_trend(order_id, x, 'TREND', x['direction'], 'FILLED', units, margin_used, price, dif)
 
 
 class PastTrader(Trader):

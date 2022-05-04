@@ -4,4 +4,3 @@ yagmail~=0.14.261
 requests~=2.25.1
 matplotlib~=3.5.1
 neat-python
-visualize~=0.5.1
