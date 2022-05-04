@@ -354,7 +354,7 @@ def daily_check(currency_pair, year):
         logger.debug(f'D1 file exists: {path_to_file}')
         return True
     else:
-        logging.warning(f'D1 file does not exist: {path_to_file}')
+        logger.warning(f'D1 file does not exist: {path_to_file}')
         return False
 
 

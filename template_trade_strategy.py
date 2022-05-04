@@ -2,7 +2,6 @@
 def trade_strategy(currency_pair, gran, data):
     pass
 # length of data is set in weights.json as periods
-
 # data is formated as a dictionary of numpy arrays and a list of datetime objects
 # {
 # ['date'] = [datetime(2021, 05, 05, 20, 00), datetime(2021, 05, 05, 20, 30)]
