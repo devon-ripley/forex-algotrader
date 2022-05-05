@@ -3,7 +3,6 @@ import sys
 import logging
 import json
 
-
 # set up folder org if not setup
 
 
@@ -168,3 +167,10 @@ def check_config():
         return
     else:
         setup_config()
+
+
+def num_nodes_rawneat(pairs, grans, len_ind):
+    import trade_strategy_neat_raw
+    # outputs
+    outputs = len(pairs) * len(grans)
+    inputs = 0

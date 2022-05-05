@@ -297,6 +297,13 @@ class NeatRawPastTrader(PastTrader):
                                                 margin_rate, weights, step_str)
         self.last_pass_balance = self.active_data['balance']
 
+    def reset(self, balance):
+        self.market_reader_obs = None
+        self.active_trades = []
+        self.active_pairs = []
+        self.active_data = {'balance': balance, 'margin_used': 0, 'total_trades': 0}
+        self.last_pass_balance = balance
+
     def NEAT_raw_indicators(self, price_data, active_pairs, market_reader_obs=None, track_year=None):
         indicator_results = []
         # get indicators for only pairs with non-active trades
@@ -316,6 +323,7 @@ class NeatRawPastTrader(PastTrader):
 
     def tradeinput(self, track_year):
         balance = self.active_data['balance']
+        self.last_pass_balance = self.active_data['balance']
         risk_amount = float(self.max_risk) * balance
         max_use_day = float(self.max_use_day) * balance
         max_units = float(self.margin_rate) * max_use_day

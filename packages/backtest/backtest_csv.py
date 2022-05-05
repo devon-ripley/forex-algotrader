@@ -33,13 +33,22 @@ class BacktestMarketReader:
             # file_date = market_csv.csv_date_convert(file_date)
             # dt_file_date = datetime.datetime.strptime(file_date, '%Y-%m-%d %H:%M:%S')
             if dt >= start_date:
+                self.initial_index = x
                 self.start_index = x
                 return
 
             else:
                 pass
+        self.initial_index = 0
         self.start_index = 0
+        self.first = False
 
+    def reset(self):
+        self.last_index = -1
+        self.current_price = None
+        self.go = False
+        self.first = False
+        self.start_index = self.initial_index
 
     def output_backchunk(self, periods):
         track_index = self.start_index
