@@ -1,6 +1,6 @@
 import logging
 from packages.oanda_api import oanda_api
-from packages.tech import trade_check
+from packages.tech import trade_check, ai_neat
 import time
 from datetime import datetime as now
 from packages.output import trade_sql, notification, market_csv, reports
@@ -37,7 +37,8 @@ class Trader:
         self.max_use_day = max_use_day
         self.margin_rate = margin_rate
 
-    def unit_calc(self, current_price, stop_loss, unit_mult, risk_amount, max_units, margin_used, margin_rate, max_use_day):
+    def unit_calc(self, current_price, stop_loss, unit_mult, risk_amount, max_units, margin_used, margin_rate,
+                  max_use_day):
         # calculate units
         units = risk_amount / abs(current_price - stop_loss)
         trade_margin_used = units / margin_rate
@@ -55,7 +56,6 @@ class Trader:
         check_results = []
         if self.live:
             logger = logging.getLogger('forex_logger')
-        # change to dict
         for pair in self.currency_pairs:
             if pair in active_pairs:
                 continue
@@ -88,13 +88,15 @@ class Trader:
             # no price info error
             if current_price == 0 and self.live:
                 logger.error('price data not obtained from api')
+
             if top_trade['direction'] == 0:
                 # short
                 unit_mult = -1
             else:
                 # long
                 unit_mult = 1
-            return {'current_price': current_price, 'stop_loss': top_trade['stop_loss'], 'take_profit': top_trade['take_profit'],
+            return {'current_price': current_price, 'stop_loss': top_trade['stop_loss'],
+                    'take_profit': top_trade['take_profit'],
                     'unit_mult': unit_mult, 'top_trade': top_trade}
         return False
 
@@ -209,12 +211,13 @@ class LiveTrader(Trader):
 class PastTrader(Trader):
 
     def __init__(self, live, currency_pairs, gran, max_risk, max_use_day,
-                 margin_rate, weights, apikey=None, account_id=None):
+                 margin_rate, weights, step_str, apikey=None, account_id=None):
         super().__init__(live, currency_pairs, gran, max_risk, max_use_day, margin_rate, weights, apikey, account_id)
         self.market_reader_obs = None
         self.active_trades = []
         self.active_pairs = []
         self.active_data = {'balance': 0, 'margin_used': 0, 'total_trades': 0}
+        self.step_str = step_str
 
     def add_market_readers(self, market_reader_obs):
         self.market_reader_obs = market_reader_obs
@@ -225,7 +228,7 @@ class PastTrader(Trader):
 
     def active_trade_check(self, track_year, price_data):
         for x in self.active_trades:
-            price_current = self.market_reader_obs[track_year][x['pair']]['M1'].current_price
+            price_current = self.market_reader_obs[track_year][x['pair']][self.step_str].current_price
             profit = None
             if x['units'] > 0:
                 # long
@@ -260,7 +263,7 @@ class PastTrader(Trader):
         price_data = []
         # get track price
         for p in self.currency_pairs:
-            price = self.market_reader_obs[track_year][p]['M1'].current_price
+            price = self.market_reader_obs[track_year][p][self.step_str].current_price
             if price is None:
                 continue
             price_data.append({'instrument': p, p: (price[0] + price[1]) / 2})
@@ -273,13 +276,80 @@ class PastTrader(Trader):
             return True
         # calculate units
         units = self.unit_calc(run_info['current_price'], run_info['stop_loss'],
-                               run_info['unit_mult'], risk_amount, max_units, self.active_data['margin_used'], self.margin_rate, max_use_day)
+                               run_info['unit_mult'], risk_amount, max_units, self.active_data['margin_used'],
+                               self.margin_rate, max_use_day)
         # execute trade
-        top_trade_price = self.market_reader_obs[track_year][run_info['top_trade']['pair']]['M1'].current_price
+        top_trade_price = self.market_reader_obs[track_year][run_info['top_trade']['pair']][self.step_str].current_price
         top_trade_price = (top_trade_price[0] + top_trade_price[1]) / 2
         margin_used_trade = units / self.margin_rate
         self.active_data['margin_used'] += margin_used_trade
         self.active_trades.append(
-            {'price': top_trade_price, 'units': units, 'margin_used': margin_used_trade, 'pair': run_info['top_trade']['pair'],
+            {'price': top_trade_price, 'units': units, 'margin_used': margin_used_trade,
+             'pair': run_info['top_trade']['pair'],
+             'stop_loss': run_info['stop_loss'], 'take_profit': run_info['take_profit']})
+        self.active_pairs.append(run_info['top_trade']['pair'])
+
+
+class NeatRawPastTrader(PastTrader):
+    def __init__(self, live, currency_pairs, gran, max_risk, max_use_day,
+                 margin_rate, weights, step_str):
+        super(NeatRawPastTrader, self).__init__(self, live, currency_pairs, gran, max_risk, max_use_day,
+                                                margin_rate, weights, step_str)
+        self.last_pass_balance = self.active_data['balance']
+
+    def NEAT_raw_indicators(self, price_data, active_pairs, market_reader_obs=None, track_year=None):
+        indicator_results = []
+        # get indicators for only pairs with non-active trades
+        for pair in self.currency_pairs:
+            if pair in active_pairs:
+                continue
+            for g in self.grans:
+                # if self.live:
+                #    res = self.trade_check_ob[pair][g].live_candles()
+                # else:
+                res = self.trade_check_ob[pair][g].back_candles(market_reader_obs, track_year)
+                indicator_results.append(res)
+        if indicator_results:
+            return indicator_results
+        else:
+            return False
+
+    def tradeinput(self, track_year):
+        balance = self.active_data['balance']
+        risk_amount = float(self.max_risk) * balance
+        max_use_day = float(self.max_use_day) * balance
+        max_units = float(self.margin_rate) * max_use_day
+        price_data = []
+        # get track price
+        for p in self.currency_pairs:
+            price = self.market_reader_obs[track_year][p][self.step_str].current_price
+            if price is None:
+                continue
+            price_data.append({'instrument': p, p: (price[0] + price[1]) / 2})
+        # check active trades
+        self.active_trade_check(track_year, price_data)
+
+        # return inputs for neat, raw indicator data
+        return self.NEAT_raw_indicators(price_data, self.active_pairs, self.market_reader_obs, track_year)
+
+    def tradeoutput(self, track_year, neat_outputs):
+        balance = self.active_data['balance']
+        risk_amount = float(self.max_risk) * balance
+        max_use_day = float(self.max_use_day) * balance
+        max_units = float(self.margin_rate) * max_use_day
+        # Turn neat_outputs into run_info
+        ########################################################################
+        run_info = {}
+        units = self.unit_calc(run_info['current_price'], run_info['stop_loss'],
+                               run_info['unit_mult'], risk_amount, max_units, self.active_data['margin_used'],
+                               self.margin_rate, max_use_day)
+        # execute trade
+        top_trade_price = self.market_reader_obs[track_year][run_info['top_trade']['pair']][self.step_str].current_price
+        top_trade_price = (top_trade_price[0] + top_trade_price[1]) / 2
+        margin_used_trade = units / self.margin_rate
+        self.active_data['margin_used'] += margin_used_trade
+        self.active_trades.append(
+            {'price': top_trade_price, 'units': units, 'margin_used': margin_used_trade,
+             'pair': run_info['top_trade']['pair'],
              'stop_loss': run_info['stop_loss'], 'take_profit': run_info['take_profit']})
         self.active_pairs.append(run_info['top_trade']['pair'])

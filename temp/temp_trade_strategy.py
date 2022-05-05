@@ -1,3 +1,5 @@
+# Testing passing the raw indicator numbers to neat
+# probably wont work well, but worth a shot!
 import talib
 
 
@@ -35,18 +37,6 @@ def range(data):
     return rv_dict
 
 
-def indicators_compare(indicators):
-    # price_point
-    return assesment
-
-
-def stoploss_takeprofit_calc(indicators):
-    # aclculate base stoploss and
-
-
 def trade_strategy(currency_pair, gran, data):
-    indicator_dict = {'price_point': price_points(data), 'momentum': momentum(data), 'range': range(data)}
-    compair_dict = indicators_compare(indicator_dict)
-    stop_take = stoploss_takeprofit_calc(indicator_dict)
-    results = compair_dict + stop_take
-    return results
+    return {'price_point': price_points(data), 'momentum': momentum(data), 'range': range(data),
+            'pair': currency_pair, 'gran': gran}

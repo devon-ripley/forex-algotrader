@@ -4,11 +4,25 @@ import logging
 import os
 import sys
 import time
+import copy
 from packages.output import market_csv
 from packages.tech import trading
 from packages.backtest import backtest_csv
 from packages.misc import helpers
 import json
+
+
+def minstr(min_step):
+    days = min_step.days
+    if days != 0:
+        return 'D'
+    else:
+        hour = min_step.seconds / 3600
+        if hour >= 1:
+            return 'H' + str(int(hour))
+        else:
+            minutes = min_step.seconds / 60
+            return 'M' + str(int(minutes))
 
 
 def get_last_date(pairs, grans):
@@ -19,12 +33,16 @@ def get_last_date(pairs, grans):
     return end
 
 
-def runner(track_datetime, track_year, currency_pairs, gran, market_reader_obs, trader, min_step, end_date):
+def runner(track_datetime, track_year, currency_pairs, gran,
+           market_reader_obs, trader, min_step, min_step_str, end_date, neat_training_run=False):
     logger = logging.getLogger('backtest')
     starting_balance = trader.active_data['balance']
+    if neat_training_run:
+        traders = [copy.deepcopy(trader) for x in range(10)]
+    else:
+        logger.info(f'Running backtest, start: {track_datetime}, end: {end_date}...')
     running = True
     iteration = 0
-    logger.info(f'Running backtest, start: {track_datetime}, end: {end_date}...')
     while running:
         iteration += 1
         new_year_once = True
@@ -38,24 +56,49 @@ def runner(track_datetime, track_year, currency_pairs, gran, market_reader_obs, 
                         new_year_once = False
                     m_ob = market_reader_obs[track_year][p][g]
                 m_ob.go_check(track_datetime)
-        if market_reader_obs[track_year][currency_pairs[0]]['M1'].go:
-            trader.trade_past(track_year, track_datetime)
+        if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go:
+            if neat_training_run:
+                for t in traders:
+                    inputs = t.tradeinput(track_year)
+                    if inputs is False:
+                        continue
+
+                    # outputs = neatstuff(inputs)
+                    # t.NEATout(outputs)
+                    pass
+                pass
+            else:
+                trader.trade_past(track_year, track_datetime)
         # next step
         track_datetime = track_datetime + min_step
-        if trader.active_data['balance'] <= 0:
-            logger.warning('Backtest ended early!')
-            logger.warning('Balance under or at 0')
-            running = False
+        if neat_training_run:
+            for t in traders:
+                if t.active_data['balance'] <= 0.05 * starting_balance:
+                    # kill t
+                    pass
+                if t.last_pass_balance <= t.active_data['balance']:
+                    # increase fitness
+                    pass
+
+        else:
+            if trader.active_data['balance'] <= 0.05 * starting_balance:
+                logger.warning('Backtest ended early!')
+                logger.warning('Balance under or at 0')
+                running = False
         if track_datetime >= end_date:
             logger.info('Backtest complete!')
-            logger.info(f'Balance: {trader.active_data["balance"]}')
-            logger.info(f'Total profit: {trader.active_data["balance"] - starting_balance}')
-            logger.info(f'Total number of trades: {trader.active_data["total_trades"]}')
             running = False
+            if neat_training_run:
+                pass
+                # winner save??
+            else:
+                logger.info(f'Balance: {trader.active_data["balance"]}')
+                logger.info(f'Total profit: {trader.active_data["balance"] - starting_balance}')
+                logger.info(f'Total number of trades: {trader.active_data["total_trades"]}')
             # end of run
 
 
-def setup(start_date_str='2018-05-15', start_balance=10000):
+def setup(start_date_str='2018-05-15', start_balance=10000, neat_training_run=False):
     # setup backtest logger
     helpers.set_logger_backtest()
     logger = logging.getLogger('backtest')
@@ -97,10 +140,6 @@ def setup(start_date_str='2018-05-15', start_balance=10000):
 
     end_date = get_last_date(currency_pairs, gran)
 
-    trader = trading.PastTrader(False, currency_pairs, gran, max_risk, max_use_day, margin_rate, periods)
-    trader.active_data['balance'] = start_balance
-    trader.add_market_readers(market_reader_obs)
-    track_datetime = start_date
     min_step_lst = []
     for x in gran:
         if x[0] == 'M':
@@ -110,8 +149,19 @@ def setup(start_date_str='2018-05-15', start_balance=10000):
             temp_g = int(x.strip('H'))
             min_step_lst.append(datetime.timedelta(hours=temp_g))
     min_step = min(min_step_lst)
+    min_step_str = minstr(min_step)
+    if neat_training_run:
+        trader = trading.NeatRawPastTrader(False, currency_pairs, gran, max_risk, max_use_day,
+                                           margin_rate, periods, step_str=min_step_str)
+    else:
+        trader = trading.PastTrader(False, currency_pairs, gran, max_risk, max_use_day,
+                                    margin_rate, periods, step_str=min_step_str)
+    trader.active_data['balance'] = start_balance
+    trader.add_market_readers(market_reader_obs)
+    track_datetime = start_date
     track_year = track_datetime.year
-    runner(track_datetime, track_year, currency_pairs, gran, market_reader_obs, trader, min_step, end_date)
+    runner(track_datetime, track_year, currency_pairs, gran, market_reader_obs,
+           trader, min_step, min_step_str, end_date)
 
 
 if __name__ == '__main__':
