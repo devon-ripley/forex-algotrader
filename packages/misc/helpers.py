@@ -171,7 +171,7 @@ def check_config():
 
 
 def num_nodes_rawneat(pairs, grans, len_ind):
-    import trade_strategy_neat_raw
+    import trade_strategy_neat_raw#### change name??
     from packages.output import market_csv
     # outputs
     outputs = len(pairs)

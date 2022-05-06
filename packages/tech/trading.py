@@ -296,6 +296,7 @@ class NeatRawPastTrader(PastTrader):
         super(NeatRawPastTrader, self).__init__(self, live, currency_pairs, gran, max_risk, max_use_day,
                                                 margin_rate, weights, step_str)
         self.last_pass_balance = self.active_data['balance']
+        self.range_dict = {}
 
     def reset(self, balance):
         self.market_reader_obs = None
@@ -303,6 +304,7 @@ class NeatRawPastTrader(PastTrader):
         self.active_pairs = []
         self.active_data = {'balance': balance, 'margin_used': 0, 'total_trades': 0}
         self.last_pass_balance = balance
+        self.range_dict = {}
 
     def price_data(self, track_year):
         price_data = []
@@ -312,6 +314,19 @@ class NeatRawPastTrader(PastTrader):
                 continue
             price_data.append({'instrument': p, p: (price[0] + price[1]) / 2})
         return price_data
+
+    def calc_stop_take(self, pair,price, direction):
+        range = self.range_dict[pair]
+        if direction == 0:
+            # short
+            stop_loss = price + range
+            take_profit = price - range
+        else:
+            # long
+            stop_loss = price - range
+            take_profit = price + range
+
+        return stop_loss, take_profit
 
     def format_results(self,data, ind_len):
         indicator_res = []
@@ -327,15 +342,19 @@ class NeatRawPastTrader(PastTrader):
                 indicator_res = indicator_res + cut
         return indicator_res
 
-    def format_neat_outputs(self, outputs):
+    def format_neat_outputs(self, outputs, track_year):
         trade_results = {}
         for x, pair in enumerate(self.currency_pairs):
+            price = self.market_reader_obs[track_year][pair][self.step_str].current_price
+            price = (price[0] + price[1]) / 2
             if outputs[x] > 0.5:
                 # long
-                trade_results[pair] = {'execute': True}
+                stop, take = self.calc_stop_take(pair, price, direction=1)
+                trade_results[pair] = {'execute': True, 'price': price 'unit_mult': 1, 'stop_loss': stop, 'take_profit': take}
             elif outputs[x] < -0.5:
                 # short
-                trade_results[pair] = {'execute': True}
+                stop, take = self.calc_stop_take(pair, price, direction=0)
+                trade_results[pair] = {'execute': True, 'price': price, 'unit_mult': -1, 'stop_loss': stop, 'take_profit': take}
             else:
                 # No trade
                 trade_results[pair] = {'execute': False}
@@ -346,11 +365,13 @@ class NeatRawPastTrader(PastTrader):
         # get indicators for only pairs with non-active trades
         for pair in self.currency_pairs:
             for g in self.grans:
-                if pair in active_pairs:
-                    indicator_results.append(0 for i in per_gran_num)
+                #if pair in active_pairs:
+                #    indicator_results.append(0 for i in per_gran_num)
 
                 res = self.trade_check_ob[pair][g].back_candles(market_reader_obs, track_year)
                 ind = res['indicators']
+                if g == self.grans[-1]:
+                    self.range_dict[pair] = float(ind['atr'][-1])
                 # format results
                 formatted = self.format_results(ind, ind_len)
                 indicator_results = indicator_results + formatted
@@ -382,20 +403,20 @@ class NeatRawPastTrader(PastTrader):
         max_use_day = float(self.max_use_day) * balance
         max_units = float(self.margin_rate) * max_use_day
         # Turn neat_outputs into run_info
-        run_info = self.format_neat_outputs(neat_outputs)
+        runs_info = self.format_neat_outputs(neat_outputs, track_year)
         for x, pair in enumerate(self.currency_pairs):
-            if run_info[pair]['execute'] is False:
+            if runs_info[pair]['execute'] is False or pair in self.active_pairs:
                 continue
-            top_trade_price = self.market_reader_obs[track_year][run_info['top_trade']['pair']][self.step_str].current_price
-            units = self.unit_calc(top_trade_price, run_info['stop_loss'],
+            run_info = runs_info[pair]
+
+            units = self.unit_calc(run_info['price'], run_info['stop_loss'],
                                    run_info['unit_mult'], risk_amount, max_units, self.active_data['margin_used'],
                                    self.margin_rate, max_use_day)
             # execute trade
-            top_trade_price = (top_trade_price[0] + top_trade_price[1]) / 2
             margin_used_trade = units / self.margin_rate
             self.active_data['margin_used'] += margin_used_trade
             self.active_trades.append(
-                {'price': top_trade_price, 'units': units, 'margin_used': margin_used_trade,
-                 'pair': run_info['top_trade']['pair'],
+                {'price': run_info['price'], 'units': units, 'margin_used': margin_used_trade,
+                 'pair': pair,
                  'stop_loss': run_info['stop_loss'], 'take_profit': run_info['take_profit']})
-            self.active_pairs.append(run_info['top_trade']['pair'])
+            self.active_pairs.append(pair)
