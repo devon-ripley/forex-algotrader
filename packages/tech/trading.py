@@ -299,7 +299,6 @@ class NeatRawPastTrader(PastTrader):
         self.range_dict = {}
 
     def reset(self, balance):
-        self.market_reader_obs = None
         self.active_trades = []
         self.active_pairs = []
         self.active_data = {'balance': balance, 'margin_used': 0, 'total_trades': 0}
@@ -350,7 +349,7 @@ class NeatRawPastTrader(PastTrader):
             if outputs[x] > 0.5:
                 # long
                 stop, take = self.calc_stop_take(pair, price, direction=1)
-                trade_results[pair] = {'execute': True, 'price': price 'unit_mult': 1, 'stop_loss': stop, 'take_profit': take}
+                trade_results[pair] = {'execute': True, 'price': price, 'unit_mult': 1, 'stop_loss': stop, 'take_profit': take}
             elif outputs[x] < -0.5:
                 # short
                 stop, take = self.calc_stop_take(pair, price, direction=0)
@@ -368,7 +367,7 @@ class NeatRawPastTrader(PastTrader):
                 #if pair in active_pairs:
                 #    indicator_results.append(0 for i in per_gran_num)
 
-                res = self.trade_check_ob[pair][g].back_candles(market_reader_obs, track_year)
+                res = self.trade_check_ob[pair][g].back_candles(self.market_reader_obs, track_year)
                 ind = res['indicators']
                 if g == self.grans[-1]:
                     self.range_dict[pair] = float(ind['atr'][-1])

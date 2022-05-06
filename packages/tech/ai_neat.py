@@ -1,3 +1,5 @@
+import os.path
+
 import neat
 from packages.backtest import backtest
 from packages.misc import helpers
@@ -49,8 +51,8 @@ def runner(track_datetime, track_year, currency_pairs, gran,
                     continue
                 else:
                     # neat
-                    outputs = [0, 1, 0]
-                    # t.NEATout(outputs)
+                    outputs = #neat stuff
+                    t.tradeoutput(track_year, outputs)
                     pass
         # next step
         track_datetime = track_datetime + min_step
@@ -67,11 +69,21 @@ def runner(track_datetime, track_year, currency_pairs, gran,
             # next generation?
 
 
-def raw_indicator_training():
+def raw_indicator_training(config_path):
     rv = backtest.setup(neat_training_run=True)
-    runner(rv[0], rv[1], rv[2], rv[3], rv[4], rv[5], rv[6], rv[7], rv[8], rv[9])
+    config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet,
+                                neat.DefaultStagnation, config_path)
+    p = neat.Population(config)
+
+    p.add_reporter(neat.StdOutReporter(True))
+    stats = neat.StatisticsReporter()
+    p.add_reporter(stats)
+
+    winner = p.run(runner(rv[0], rv[1], rv[2], rv[3], rv[4], rv[5], rv[6], rv[7], rv[8], rv[9]), 50)
 
 
 
 if __name__ == 'main':
-    raw_indicator_training()
+    local_dir = os.path.dirname(__file__)
+    config_path = os.path.join(local_dir, '/data/neat_raw_config.txt')
+    raw_indicator_training(config_path)
