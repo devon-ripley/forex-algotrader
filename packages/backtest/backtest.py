@@ -140,7 +140,7 @@ def setup(start_date_str='2018-05-15', start_balance=10000, neat_training_run=Fa
     track_year = track_datetime.year
     if neat_training_run:
         return [track_datetime, track_year, currency_pairs, gran, market_reader_obs,
-           traders, min_step, min_step_str, end_date]
+           traders, min_step, min_step_str, end_date, year_lst]
     else:
         runner(track_datetime, track_year, currency_pairs, gran, market_reader_obs,
            trader, min_step, min_step_str, end_date)

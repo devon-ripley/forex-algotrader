@@ -1,3 +1,4 @@
+import datetime
 import os
 import sys
 import logging
@@ -171,6 +172,22 @@ def check_config():
 
 def num_nodes_rawneat(pairs, grans, len_ind):
     import trade_strategy_neat_raw
+    from packages.output import market_csv
     # outputs
-    outputs = len(pairs) * len(grans)
-    inputs = 0
+    outputs = len(pairs)
+    last_year = (datetime.datetime.now() - datetime.timedelta(days=365)).year
+    data = market_csv.csv_read_full(pairs[0], grans[0], last_year)
+    indicator_dict = trade_strategy_neat_raw.trade_strategy(pairs, grans, data)
+    indicator_dict = indicator_dict['indicators']
+    # inputs
+    input_count = 0
+    for k in indicator_dict.keys():
+        if type(indicator_dict[k]) == type(dict):
+            for under_k in indicator_dict[k].keys():
+                input_count += 1
+        else:
+            input_count += 1
+
+    inputs = input_count * len_ind * len(pairs) * len(grans)
+
+    return {'outputs': outputs, 'inputs': inputs, 'inputs_per_gran': input_count * len_ind}

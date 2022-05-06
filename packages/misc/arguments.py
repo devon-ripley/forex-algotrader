@@ -4,6 +4,7 @@ import json
 from packages.misc import weights_json_gen, helpers
 from packages.output import trade_sql
 from packages.backtest import backtest
+from packages.tech import ai_neat
 
 
 def controller(arg):
@@ -18,10 +19,10 @@ def controller(arg):
     if arg == 'h':
         print('Help')
         print('(r) or ()To run normally')
-        print('(w) To reset weights.json file')
         print('(ms) To reset mysql tables')
         print('(con) To setup general config.json file')
-        print('(ml) To start manual machine learning program')
+        print('(n) To start neat training')
+        print('(nrio) To return number of inputs and outputs for neat raw indicator')
         print('(b) To run backtest')
         print('(h), Help menu')
         arg = input('Enter (x) to exit or any other letter to run')
@@ -34,13 +35,20 @@ def controller(arg):
         else:
             pass
 
-    if arg == 'w':
-        weights_json_gen.run()
-        exit()
+    elif arg == 'n':
+        ai_neat.raw_indicator_training()
 
-    elif arg == 'ml':
-        # machine learning
-        pass
+    elif arg == 'nrio':
+        try:
+            f = open('data/config.json', 'r')
+            profile = json.load(f)
+            f.close()
+        except FileNotFoundError:
+            print('config file not found')
+            exit()
+        pairs = profile['currencypairs']
+        grans = profile['gran']
+        print(helpers.num_nodes_rawneat(pairs, grans, 5))
 
     elif arg == 'ms':
         a = input('Are you sure you want to delete all trading mysql tables (y/n) ')
