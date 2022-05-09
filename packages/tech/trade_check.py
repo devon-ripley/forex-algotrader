@@ -1,3 +1,4 @@
+import trade_strategy_neat_raw
 from packages.output import market_csv
 import trade_strategy
 import numpy
@@ -19,7 +20,7 @@ class Live(TradeCheck):
 
 
 class Past(TradeCheck):
-    def back_candles(self, market_reader_obs, track_year):
+    def back_candles(self, market_reader_obs, track_year, neat_raw=False):
         market_read = market_reader_obs[track_year][self.currency_pair][self.gran]
         if not market_read.go:
             return None
@@ -37,8 +38,13 @@ class Past(TradeCheck):
             data_dict['close'] = numpy.concatenate((past_year_data['close'], current_year_data['close']))
             data_dict['volume'] = numpy.concatenate((past_year_data['volume'], current_year_data['volume']))
             data = data_dict
-
-            return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
+            if neat_raw:
+                return trade_strategy_neat_raw.trade_strategy(self.currency_pair, self.gran, data)
+            else:
+                return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
         else:
             data = mr_data['data']
-            return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
+            if neat_raw:
+                return trade_strategy_neat_raw.trade_strategy(self.currency_pair, self.gran, data)
+            else:
+                return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)

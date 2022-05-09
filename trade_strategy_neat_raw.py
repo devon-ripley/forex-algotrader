@@ -13,11 +13,11 @@ def indicators(data):
     m_dict['rsi'] = rsi
 
     # Price point indicators
-    bband_upper, bband_middle, bband_lower = talib.BBANDS(data['close'], timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
-    m_dict['bband'] = {'upper': bband_upper, 'middle': bband_middle, 'lower': bband_lower}
+    #bband_upper, bband_middle, bband_lower = talib.BBANDS(data['close'], timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
+    #m_dict['bband'] = {'upper': bband_upper, 'middle': bband_middle, 'lower': bband_lower}
 
-    ema = talib.EMA(data['close'])
-    m_dict['ema'] = ema
+    #ema = talib.EMA(data['close'])
+    #m_dict['ema'] = ema
 
 
     # range indicators

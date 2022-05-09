@@ -182,7 +182,7 @@ def num_nodes_rawneat(pairs, grans, len_ind):
     # inputs
     input_count = 0
     for k in indicator_dict.keys():
-        if type(indicator_dict[k]) == type(dict):
+        if type(indicator_dict[k]) == dict:
             for under_k in indicator_dict[k].keys():
                 input_count += 1
         else:

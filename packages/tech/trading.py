@@ -1,6 +1,6 @@
 import logging
 from packages.oanda_api import oanda_api
-from packages.tech import trade_check, ai_neat
+from packages.tech import trade_check
 import time
 from datetime import datetime as now
 from packages.output import trade_sql, notification, market_csv, reports
@@ -212,7 +212,8 @@ class PastTrader(Trader):
 
     def __init__(self, live, currency_pairs, gran, max_risk, max_use_day,
                  margin_rate, weights, step_str, apikey=None, account_id=None):
-        super().__init__(live, currency_pairs, gran, max_risk, max_use_day, margin_rate, weights, apikey, account_id)
+        super(PastTrader, self).__init__(live, currency_pairs, gran, max_risk, max_use_day,
+                 margin_rate, weights, apikey, account_id)
         self.market_reader_obs = None
         self.active_trades = []
         self.active_pairs = []
@@ -293,17 +294,14 @@ class PastTrader(Trader):
 class NeatRawPastTrader(PastTrader):
     def __init__(self, live, currency_pairs, gran, max_risk, max_use_day,
                  margin_rate, weights, step_str):
-        super(NeatRawPastTrader, self).__init__(self, live, currency_pairs, gran, max_risk, max_use_day,
+        super().__init__(live, currency_pairs, gran, max_risk, max_use_day,
                                                 margin_rate, weights, step_str)
         self.last_pass_balance = self.active_data['balance']
         self.range_dict = {}
 
-    def reset(self, balance):
-        self.active_trades = []
-        self.active_pairs = []
+    def set_balance(self, balance):
         self.active_data = {'balance': balance, 'margin_used': 0, 'total_trades': 0}
         self.last_pass_balance = balance
-        self.range_dict = {}
 
     def price_data(self, track_year):
         price_data = []
@@ -314,7 +312,7 @@ class NeatRawPastTrader(PastTrader):
             price_data.append({'instrument': p, p: (price[0] + price[1]) / 2})
         return price_data
 
-    def calc_stop_take(self, pair,price, direction):
+    def calc_stop_take(self, pair, price, direction):
         range = self.range_dict[pair]
         if direction == 0:
             # short
@@ -327,17 +325,17 @@ class NeatRawPastTrader(PastTrader):
 
         return stop_loss, take_profit
 
-    def format_results(self,data, ind_len):
+    def format_results(self, data, ind_len):
         indicator_res = []
         for k in data.keys():
-            if type(data[k]) == type(dict):
+            if type(data[k]) == dict:
                 for under_k in data[k].keys():
                     temp_data = data[k][under_k]
-                    cut = temp_data[-ind_len:]
+                    cut = list(temp_data[-ind_len:])
                     indicator_res = indicator_res + cut
             else:
                 temp_data = data[k]
-                cut = temp_data[-ind_len:]
+                cut = list(temp_data[-ind_len:])
                 indicator_res = indicator_res + cut
         return indicator_res
 
@@ -361,19 +359,23 @@ class NeatRawPastTrader(PastTrader):
 
     def NEAT_raw_indicators(self, price_data, active_pairs, market_reader_obs, track_year, per_gran_num, ind_len):
         indicator_results = []
-        # get indicators for only pairs with non-active trades
+        # get indicators for all pairs
         for pair in self.currency_pairs:
             for g in self.grans:
-                #if pair in active_pairs:
-                #    indicator_results.append(0 for i in per_gran_num)
+                res = self.trade_check_ob[pair][g].back_candles(self.market_reader_obs, track_year, True)
+                if res is None:
+                    # temporary fix may mess up outputs from neat
+                    # indicator_results = indicator_results + [0 for i in range(per_gran_num)]
 
-                res = self.trade_check_ob[pair][g].back_candles(self.market_reader_obs, track_year)
-                ind = res['indicators']
-                if g == self.grans[-1]:
-                    self.range_dict[pair] = float(ind['atr'][-1])
-                # format results
-                formatted = self.format_results(ind, ind_len)
-                indicator_results = indicator_results + formatted
+                    # skip all inputs instead
+                    return False
+                else:
+                    ind = res['indicators']
+                    if g == self.grans[-1]:
+                        self.range_dict[pair] = float(ind['atr'][-1])
+                    # format results
+                    formatted = self.format_results(ind, ind_len)
+                    indicator_results = indicator_results + formatted
         return indicator_results
 
     def tradeinput(self, track_year, per_gran_num, ind_len):
