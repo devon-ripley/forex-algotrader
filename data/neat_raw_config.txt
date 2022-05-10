@@ -7,25 +7,25 @@ no_fitness_termination = True
 
 [DefaultStagnation]
 species_fitness_func = max
-max_stagnation       = 20
-species_elitism      = 2
+max_stagnation       = 2
+species_elitism      = 1
 
 [DefaultReproduction]
-elitism            = 2
-survival_threshold = 0.3
+elitism            = 0
+survival_threshold = 0.5
 
 [DefaultSpeciesSet]
-compatibility_threshold = 3.0
+compatibility_threshold = 2.0
 
 [DefaultGenome]
 # node activation options
 activation_default      = random
-activation_mutate_rate  = 0.2
+activation_mutate_rate  = 0.3
 activation_options      = tanh sin clamped abs cube
 
 # node aggregation options
 aggregation_default     = sum
-aggregation_mutate_rate = 0.0
+aggregation_mutate_rate = 0.3
 aggregation_options     = sum
 
 # node bias options
@@ -57,7 +57,7 @@ node_add_prob           = 0.2
 node_delete_prob        = 0.2
 
 # network parameters
-num_hidden              = 150
+num_hidden              = 0
 num_inputs              = 225
 num_outputs             = 3
 

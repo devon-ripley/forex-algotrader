@@ -171,13 +171,13 @@ def check_config():
 
 
 def num_nodes_rawneat(pairs, grans, len_ind):
-    import trade_strategy_neat_raw#### change name??
+    from packages.tech.trade_check import indicators
     from packages.output import market_csv
     # outputs
     outputs = len(pairs)
     last_year = (datetime.datetime.now() - datetime.timedelta(days=365)).year
     data = market_csv.csv_read_full(pairs[0], grans[0], last_year)
-    indicator_dict = trade_strategy_neat_raw.trade_strategy(pairs, grans, data)
+    indicator_dict = indicators(pairs, grans, data)
     indicator_dict = indicator_dict['indicators']
     # inputs
     input_count = 0

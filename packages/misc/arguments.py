@@ -1,3 +1,4 @@
+import os
 import sys
 import datetime
 import json
@@ -21,8 +22,8 @@ def controller(arg):
         print('(r) or ()To run normally')
         print('(ms) To reset mysql tables')
         print('(con) To setup general config.json file')
-        print('(n) To start neat training')
-        print('(nrio) To return number of inputs and outputs for neat raw indicator')
+        print('(neatraw) To start neat raw indicator data training')
+        print('(neatrawio) To return number of inputs and outputs for neat raw indicator')
         print('(b) To run backtest')
         print('(h), Help menu')
         arg = input('Enter (x) to exit or any other letter to run')
@@ -35,10 +36,14 @@ def controller(arg):
         else:
             pass
 
-    elif arg == 'n':
-        ai_neat.raw_indicator_training()
+    elif arg == 'neatraw':
+        config_path = '/data/neat_raw_config.txt'
+        cur_path = str(os.getcwd())
+        config_path = cur_path + config_path
+        ai_neat.setup()
+        ai_neat.raw_indicator_training(config_path)
 
-    elif arg == 'nrio':
+    elif arg == 'neatrawio':
         try:
             f = open('data/config.json', 'r')
             profile = json.load(f)

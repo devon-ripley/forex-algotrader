@@ -169,6 +169,7 @@ class LiveTrader(Trader):
             current_hr = int(system_time.strftime("%H"))
             # check for trades
             run_info = self.regular(price_data, active_pairs)
+
             if run_info is False:
                 return True
             # calculate units
@@ -206,6 +207,17 @@ class LiveTrader(Trader):
                         [trade_id, units, run_info['current_price'], run_info['stop_loss'], run_info['take_profit'],
                          run_info['top_trade']])
             return True
+
+
+class LiveTraderNeatRaw(LiveTrader):
+    def __init__(self, live, currency_pairs, gran, max_risk, max_use_day,
+                 margin_rate, periods, apikey, account_id):
+        super(LiveTraderNeatRaw, self).__init__(live, currency_pairs, gran, max_risk, max_use_day,
+                 margin_rate, periods, apikey, account_id)
+        # special init
+
+    def regular(self, price_data, active_pairs, market_reader_obs=None, track_year=None):
+        pass
 
 
 class PastTrader(Trader):
@@ -293,11 +305,12 @@ class PastTrader(Trader):
 
 class NeatRawPastTrader(PastTrader):
     def __init__(self, live, currency_pairs, gran, max_risk, max_use_day,
-                 margin_rate, weights, step_str):
+                 margin_rate, weights, step_str, ind_len):
         super().__init__(live, currency_pairs, gran, max_risk, max_use_day,
                                                 margin_rate, weights, step_str)
         self.last_pass_balance = self.active_data['balance']
         self.range_dict = {}
+        self.ind_len = ind_len
 
     def set_balance(self, balance):
         self.active_data = {'balance': balance, 'margin_used': 0, 'total_trades': 0}
@@ -325,17 +338,17 @@ class NeatRawPastTrader(PastTrader):
 
         return stop_loss, take_profit
 
-    def format_results(self, data, ind_len):
+    def format_results(self, data):
         indicator_res = []
         for k in data.keys():
             if type(data[k]) == dict:
                 for under_k in data[k].keys():
                     temp_data = data[k][under_k]
-                    cut = list(temp_data[-ind_len:])
+                    cut = list(temp_data[-self.ind_len:])
                     indicator_res = indicator_res + cut
             else:
                 temp_data = data[k]
-                cut = list(temp_data[-ind_len:])
+                cut = list(temp_data[-self.ind_len:])
                 indicator_res = indicator_res + cut
         return indicator_res
 
@@ -357,7 +370,7 @@ class NeatRawPastTrader(PastTrader):
                 trade_results[pair] = {'execute': False}
         return trade_results
 
-    def NEAT_raw_indicators(self, price_data, active_pairs, market_reader_obs, track_year, per_gran_num, ind_len):
+    def NEAT_raw_indicators(self, track_year):
         indicator_results = []
         # get indicators for all pairs
         for pair in self.currency_pairs:
@@ -374,11 +387,11 @@ class NeatRawPastTrader(PastTrader):
                     if g == self.grans[-1]:
                         self.range_dict[pair] = float(ind['atr'][-1])
                     # format results
-                    formatted = self.format_results(ind, ind_len)
+                    formatted = self.format_results(ind)
                     indicator_results = indicator_results + formatted
         return indicator_results
 
-    def tradeinput(self, track_year, per_gran_num, ind_len):
+    def tradeinput(self, track_year):
         balance = self.active_data['balance']
         self.last_pass_balance = self.active_data['balance']
         risk_amount = float(self.max_risk) * balance
@@ -395,8 +408,7 @@ class NeatRawPastTrader(PastTrader):
         self.active_trade_check(track_year, price_data)
 
         # return inputs for neat, raw indicator data
-        return self.NEAT_raw_indicators(price_data, self.active_pairs, self.market_reader_obs,
-                                        track_year, per_gran_num, ind_len)
+        return self.NEAT_raw_indicators(track_year)
 
     def tradeoutput(self, track_year, neat_outputs):
         balance = self.active_data['balance']

@@ -124,6 +124,9 @@ def trading_loop(profile):
     margin_rate = profile['marginrate']
     periods = profile['periods']
     account_id = profile['account_id']
+    neat_run = False
+    if 'neat' in profile:
+        neat_run = profile['neat']
     # check hr and day
     system_time = now.now()
     current_hr = int(system_time.strftime("%H"))
@@ -134,6 +137,8 @@ def trading_loop(profile):
     first_run = True
     trade_wait = 300
     # setup trader object
+    if neat_run:
+        pass
     trader = trading.LiveTrader(True, currency_pairs, gran, max_risk, max_use_day,
                             margin_rate, periods, apikey, account_id)
     count = 0

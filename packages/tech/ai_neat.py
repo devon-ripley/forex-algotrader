@@ -2,74 +2,82 @@ import os.path
 import datetime
 import json
 import neat
+from multiprocessing import Process
 from packages.backtest import backtest, backtest_csv
 from packages.misc import helpers
 from packages.tech import trading
 
 
-# setup vars
-start_balance = 10000
-start_date_str = '2022-04-24'
-# setup backtest logger
-#helpers.set_logger_backtest()
-#logger = logging.getLogger('backtest')
-# system profile load
-path_parent = os.path.dirname(os.getcwd())
-os.chdir(path_parent)
-path_parent = os.path.dirname(os.getcwd())
-os.chdir(path_parent)
-f = open('data/config.json', 'r')
-profile = json.load(f)
-f.close()
-# weights?
-weights = 0
-# load variables
-max_risk = profile['maxrisk']
-max_use_day = profile['maxuseday']
-currency_pairs = profile['currencypairs']
-currency_pairs = list(currency_pairs.split(','))
-gran = profile['gran']
-gran = list(gran.split(','))
-max_use_trend = profile['maxusetrend']
-margin_rate = profile['marginrate']
-periods = profile['periods']
-
-start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d')
-year = start_date.year - 1
-start_year = year + 1
-market_reader_obs = {}
-year_lst = []
-current_year = datetime.datetime.now().year
-while year <= current_year:
-    year_lst.append(year)
-    year += 1
-for x in year_lst:
-    market_reader_obs[x] = {}
-    for pair in currency_pairs:
-        market_reader_obs[x][pair] = {}
-        for g in gran:
-            print(f'Loading market data for {x}, {pair}, {g}...')
-            market_reader_obs[x][pair][g] = (backtest_csv.BacktestMarketReader(x, pair, g, start_date, False))
-            if x == start_date.year:
-                market_reader_obs[x][pair][g] = (backtest_csv.BacktestMarketReader(x, pair, g, start_date, True))
-
-end_date = backtest.get_last_date(currency_pairs, gran)
-
-min_step_lst = []
-for x in gran:
-    if x[0] == 'M':
-        temp_g = int(x.strip('M'))
-        min_step_lst.append(datetime.timedelta(minutes=temp_g))
-    elif x[0] == 'H':
-        temp_g = int(x.strip('H'))
-        min_step_lst.append(datetime.timedelta(hours=temp_g))
-min_step = min(min_step_lst)
-min_step_str = backtest.minstr(min_step)
-
-track_datetime = start_date
-track_year = track_datetime.year
 
 
+def setup():
+    # global declarations
+    global start_date, year_lst, currency_pairs, gran, market_reader_obs, \
+        profile, min_step, min_step_str, start_balance, end_date
+    # add user input
+    # setup vars
+    start_balance = 10000
+    start_date_str = '2022-04-24'
+
+    # setup backtest logger
+    #helpers.set_logger_backtest()
+    #logger = logging.getLogger('backtest')
+    # system profile load
+    if __name__ == '__main__':
+        path_parent = os.path.dirname(os.getcwd())
+        os.chdir(path_parent)
+        path_parent = os.path.dirname(os.getcwd())
+        os.chdir(path_parent)
+    f = open('data/config.json', 'r')
+    profile = json.load(f)
+    f.close()
+    # weights?
+    weights = 0
+    # load variables
+    max_risk = profile['maxrisk']
+    max_use_day = profile['maxuseday']
+    currency_pairs = profile['currencypairs']
+    currency_pairs = list(currency_pairs.split(','))
+    gran = profile['gran']
+    gran = list(gran.split(','))
+    max_use_trend = profile['maxusetrend']
+    margin_rate = profile['marginrate']
+    periods = profile['periods']
+
+    start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d')
+    year = start_date.year - 1
+    start_year = year + 1
+    market_reader_obs = {}
+    year_lst = []
+    current_year = datetime.datetime.now().year
+    while year <= current_year:
+        year_lst.append(year)
+        year += 1
+    for x in year_lst:
+        market_reader_obs[x] = {}
+        for pair in currency_pairs:
+            market_reader_obs[x][pair] = {}
+            for g in gran:
+                print(f'Loading market data for {x}, {pair}, {g}...')
+                market_reader_obs[x][pair][g] = (backtest_csv.BacktestMarketReader(x, pair, g, start_date, False))
+                if x == start_date.year:
+                    market_reader_obs[x][pair][g] = (backtest_csv.BacktestMarketReader(x, pair, g, start_date, True))
+
+    end_date = backtest.get_last_date(currency_pairs, gran)
+
+    min_step_lst = []
+    for x in gran:
+        if x[0] == 'M':
+            temp_g = int(x.strip('M'))
+            min_step_lst.append(datetime.timedelta(minutes=temp_g))
+        elif x[0] == 'H':
+            temp_g = int(x.strip('H'))
+            min_step_lst.append(datetime.timedelta(hours=temp_g))
+    min_step = min(min_step_lst)
+    min_step_str = backtest.minstr(min_step)
+
+    track_datetime = start_date
+    track_year = track_datetime.year
 
 
 def runner(genomes, config):
@@ -99,8 +107,8 @@ def runner(genomes, config):
         g.fitness = 0
         ge.append(g)
         # trader setup
-        trader = trading.NeatRawPastTrader(False, currency_pairs, gran, max_risk, max_use_day,
-                                           margin_rate, periods, step_str=min_step_str)
+        trader = trading.NeatRawPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
+                                           profile['marginrate'], profile['periods'], step_str=min_step_str, ind_len=ind_len)
         trader.set_balance(start_balance)
         trader.add_market_readers(market_reader_obs)
         traders.append(trader)
@@ -111,7 +119,7 @@ def runner(genomes, config):
     while running:
         # start of trading loop
         iteration += 1
-        print(f'{iteration}: {track_datetime}')
+        # print(f'{iteration}: {track_datetime.date()}')
         new_year_once = True
         # market reader index check
         for p in currency_pairs:
@@ -126,13 +134,30 @@ def runner(genomes, config):
         if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go:
         # trade if times match with market reader and track_datetime
             for i, t in enumerate(traders):
-                inputs = t.tradeinput(track_year, per_gran_num, ind_len)
+                inputs = t.tradeinput(track_year)
                 if inputs is False:
                     pass
                 else:
                     # neat
                     outputs = nets[i].activate(inputs)
                     t.tradeoutput(track_year, outputs)
+        # multiprocessing test
+            #def neat_run(trade, tk_yr, net):
+            #    inputs = trade.tradeinput(tk_yr)
+            #    if inputs is False:
+            #        return
+            #    else:
+            #        outputs = net.activate(inputs)
+            #        trade.tradeoutput(tk_yr, outputs)
+            #processes = []
+            #for y, t in enumerate(traders):
+            #    info = (t, track_year, nets[y])
+            #    pros = Process(target=neat_run, args=info)
+            #    pros.start()
+            #    processes.append(pros)
+            #for pros in processes:
+            #    pros.join()
+
 
         # next step
         track_datetime = track_datetime + min_step
@@ -148,7 +173,8 @@ def runner(genomes, config):
 
         if track_datetime >= end_date:
             running = False
-            # next generation?
+            print('\a')
+            # next generation
 
 
 def raw_indicator_training(config_path):
@@ -164,5 +190,7 @@ def raw_indicator_training(config_path):
     print(winner)
 
 
-config_path = '/home/devon/Desktop/forex-algotrader/data/neat_raw_config.txt'
-raw_indicator_training(config_path)
+if __name__ == '__main__':
+    setup()
+    config_path = '/home/devon/Desktop/forex-algotrader/data/neat_raw_config.txt'
+    raw_indicator_training(config_path)

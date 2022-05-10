@@ -1,7 +1,36 @@
-import trade_strategy_neat_raw
 from packages.output import market_csv
 import trade_strategy
 import numpy
+import talib
+
+
+def indicators(currency_pair, gran, data):
+    # Momentum indicators
+    m_dict = {}
+    macd, macdsignal, macdhist = talib.MACD(data['close'], fastperiod=12, slowperiod=26, signalperiod=9)
+    m_dict['macd'] = {'line': macd, 'signal': macdsignal, 'hist': macdhist}
+
+    rsi = talib.RSI(data['close'])
+    m_dict['rsi'] = rsi
+
+    # Price point indicators
+    #bband_upper, bband_middle, bband_lower = talib.BBANDS(data['close'], timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
+    #m_dict['bband'] = {'upper': bband_upper, 'middle': bband_middle, 'lower': bband_lower}
+
+    #ema = talib.EMA(data['close'])
+    #m_dict['ema'] = ema
+
+
+    # range indicators
+    atr = talib.ATR(data['high'], data['low'], data['close'], timeperiod=14)
+    m_dict['atr'] = atr
+
+    # volume indicators
+    # obv = talib.OBV(data['close'], data['volume'])
+    # m_dict['obv'] = obv
+
+    return {'indicators': m_dict,
+            'pair': currency_pair, 'gran': gran}
 
 
 class TradeCheck:
@@ -39,12 +68,12 @@ class Past(TradeCheck):
             data_dict['volume'] = numpy.concatenate((past_year_data['volume'], current_year_data['volume']))
             data = data_dict
             if neat_raw:
-                return trade_strategy_neat_raw.trade_strategy(self.currency_pair, self.gran, data)
+                return indicators(self.currency_pair, self.gran, data)
             else:
                 return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
         else:
             data = mr_data['data']
             if neat_raw:
-                return trade_strategy_neat_raw.trade_strategy(self.currency_pair, self.gran, data)
+                return indicators(self.currency_pair, self.gran, data)
             else:
                 return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
