@@ -19,9 +19,9 @@ compatibility_threshold = 2.0
 
 [DefaultGenome]
 # node activation options
-activation_default      = random
-activation_mutate_rate  = 0.3
-activation_options      = tanh sin clamped abs cube
+activation_default      = tanh
+activation_mutate_rate  = 0.0
+activation_options      = tanh
 
 # node aggregation options
 aggregation_default     = sum

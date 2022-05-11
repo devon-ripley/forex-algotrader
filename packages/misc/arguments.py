@@ -2,7 +2,7 @@ import os
 import sys
 import datetime
 import json
-from packages.misc import weights_json_gen, helpers
+from packages.misc import helpers
 from packages.output import trade_sql
 from packages.backtest import backtest
 from packages.tech import ai_neat

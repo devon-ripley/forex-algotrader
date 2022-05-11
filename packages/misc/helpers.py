@@ -73,11 +73,31 @@ def set_logger_backtest():
     logger.addHandler(stream_handler)
 
 
+def set_logger_neat():
+    try:
+        os.makedirs('log')
+    except FileExistsError:
+        pass
+    logger = logging.getLogger('neat')
+    logger.setLevel(logging.INFO)
+
+    logger.propagate = False
+    formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(message)s')
+    file_handler = logging.FileHandler('log/neat.log')
+    file_handler.setFormatter(formatter)
+
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
+
+
 def get_config():
     # system profile load
     f = open('data/config.json', 'r')
     profile = json.load(f)
     f.close()
+    return profile
 
 
 def setup_config(name='config.json'):
