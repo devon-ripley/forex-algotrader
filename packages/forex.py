@@ -126,7 +126,7 @@ def trading_loop(profile):
     account_id = profile['account_id']
     neat_run = False
     if 'neat' in profile:
-        neat_run = profile['neat']
+        neat_run = bool(profile['neat'])
     # check hr and day
     system_time = now.now()
     current_hr = int(system_time.strftime("%H"))
@@ -138,9 +138,11 @@ def trading_loop(profile):
     trade_wait = 300
     # setup trader object
     if neat_run:
-        pass
-    trader = trading.LiveTrader(True, currency_pairs, gran, max_risk, max_use_day,
-                            margin_rate, periods, apikey, account_id)
+        trader = trading.LiveTraderNeatRaw(True, currency_pairs, gran, max_risk, max_use_day,
+                                           margin_rate, periods, apikey, account_id, 5)
+    else:
+        trader = trading.LiveTrader(True, currency_pairs, gran, max_risk, max_use_day,
+                                    margin_rate, periods, apikey, account_id)
     count = 0
     if run is False:
         logger.warning('Markets currently closed, exiting program')
@@ -176,7 +178,8 @@ def trading_loop(profile):
 def end_week(profile):
     # generate reports
     reports.end_of_week()
-    notification.send_att('End of week report', 'data/reports/report_' + str(datetime.datetime.now().date().year) + '.csv')
+    notification.send_att('End of week report',
+                          'data/reports/report_' + str(datetime.datetime.now().date().year) + '.csv')
     # sleep program
     logging.info('End of week, system sleeping')
     notification.send(message='End of week, system sleep', subject='End of week')

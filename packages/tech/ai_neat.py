@@ -108,7 +108,6 @@ def runner_multi(genome, config):
     # trading loop
     running = True
     iteration = 0
-    logging.info('Starting Loop')
     while running:
         # start of trading loop
         iteration += 1
@@ -143,6 +142,7 @@ def runner_multi(genome, config):
         else:
             fitness_change = trader.active_data['balance'] - trader.last_pass_balance
             genome.fitness += fitness_change
+            trader.last_pass_balance = trader.active_data['balance']
 
         if track_datetime >= end_date:
             return genome.fitness
@@ -222,12 +222,14 @@ def runner(genomes, config):
         # kill traders with low balance and add fitness to other traders
         for i, t in enumerate(traders):
             if t.active_data['balance'] <= 0.05 * start_balance:
+                ge[i].fitness = 0
                 traders.pop(i)
                 nets.pop(i)
                 ge.pop(i)
             else:
                 fitness_change = t.active_data['balance'] - t.last_pass_balance
                 ge[i].fitness += fitness_change
+                t.last_pass_balance = t.active_data['balance']
 
         if track_datetime >= end_date:
             running = False
@@ -247,10 +249,10 @@ def neat_training(config_path):
     # neat multiprocessing
     if mult_pros:
         mp_run = neat.ParallelEvaluator(multiprocessing.cpu_count(), runner_multi)
-        winner = p.run(mp_run.evaluate, 6)
+        winner = p.run(mp_run.evaluate, 20)
     else:
         winner = p.run(runner, 6)
-
+    print(winner)
     with open('data/neat/winner_raw.pkl', 'wb') as f:
         pickle.dump(winner, f)
         f.close()
