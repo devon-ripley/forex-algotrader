@@ -1,3 +1,4 @@
+import multiprocessing
 import os.path
 import datetime
 import json
@@ -9,25 +10,25 @@ from packages.misc import helpers
 from packages.tech import trading
 
 
-def setup():
+def setup(s_date, s_balance, mult_p, neat_type):
     # global declarations
     global start_date, year_lst, currency_pairs, gran, market_reader_obs, \
-        profile, min_step, min_step_str, start_balance, end_date
+        profile, min_step, min_step_str, start_balance, end_date, mult_pros, training_type
     # add user input
     # setup vars
-    start_balance = 10000
-    start_date_str = '2011-04-24'
+    # start_balance = 10000
+    # start_date_str = '2022-04-24'
+    # mult_pros = False
+    start_date_str = s_date
+    start_balance = s_balance
+    mult_pros = bool(mult_p)
+    training_type = neat_type
 
     # setup neat logger
     helpers.set_logger_neat()
     logger = logging.getLogger('neat')
     logger.info('Setting up for neat backtest')
     # system profile load
-    if __name__ == '__main__':
-        path_parent = os.path.dirname(os.getcwd())
-        os.chdir(path_parent)
-        path_parent = os.path.dirname(os.getcwd())
-        os.chdir(path_parent)
     f = open('data/config.json', 'r')
     profile = json.load(f)
     f.close()
@@ -74,6 +75,80 @@ def setup():
     track_year = track_datetime.year
 
 
+def runner_multi(genome, config):
+    # set up staring vars
+    track_datetime = start_date
+    track_year = track_datetime.year
+    # reset market readers to start
+    for year in year_lst:
+        for p in currency_pairs:
+            for g in gran:
+                market_reader_obs[year][p][g].reset()
+    # temp length of indicators to pass to neat as inputs
+    ind_len = 5
+    num_in_out = helpers.num_nodes_rawneat(currency_pairs, gran, ind_len)
+    per_gran_num = num_in_out['inputs_per_gran']
+
+    # set up neat vars
+    # neat vars multiproccesing, one genome
+    net = neat.nn.FeedForwardNetwork.create(genome, config)
+    # trader setup
+    if training_type == 0:
+        trader = trading.NeatRawPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
+                                           profile['marginrate'], profile['periods'], step_str=min_step_str,
+                                           ind_len=ind_len)
+    else:
+        trader = trading.NeatRawPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
+                                           profile['marginrate'], profile['periods'], step_str=min_step_str,
+                                           ind_len=ind_len)
+    trader.set_balance(start_balance)
+    trader.add_market_readers(market_reader_obs)
+    genome.fitness = 0
+
+    # trading loop
+    running = True
+    iteration = 0
+    logging.info('Starting Loop')
+    while running:
+        # start of trading loop
+        iteration += 1
+        # print(f'{iteration}: {track_datetime.date()}')
+        new_year_once = True
+        # market reader index check
+        for p in currency_pairs:
+            for g in gran:
+                m_ob = market_reader_obs[track_year][p][g]
+                if m_ob.start_index > m_ob.total_length:
+                    if new_year_once:
+                        track_year += 1
+                        new_year_once = False
+                    m_ob = market_reader_obs[track_year][p][g]
+                m_ob.go_check(track_datetime)
+        if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go:
+            # trade if times match with market reader and track_datetime
+            inputs = trader.tradeinput(track_year)
+            if inputs is False:
+                pass
+            else:
+                # neat
+                outputs = net.activate(inputs)
+                trader.tradeoutput(track_year, outputs)
+
+        # next step
+        track_datetime = track_datetime + min_step
+        # kill traders with low balance and add fitness to other traders
+        if trader.active_data['balance'] <= 0.05 * start_balance:
+            genome.fitness = 0
+            return genome.fitness
+        else:
+            fitness_change = trader.active_data['balance'] - trader.last_pass_balance
+            genome.fitness += fitness_change
+
+        if track_datetime >= end_date:
+            return genome.fitness
+            # next generation
+
+
 def runner(genomes, config):
     # set up staring vars
     track_datetime = start_date
@@ -89,7 +164,6 @@ def runner(genomes, config):
     num_in_out = helpers.num_nodes_rawneat(currency_pairs, gran, ind_len)
     per_gran_num = num_in_out['inputs_per_gran']
 
-
     # set up neat vars
     nets = []
     ge = []
@@ -101,8 +175,14 @@ def runner(genomes, config):
         g.fitness = 0
         ge.append(g)
         # trader setup
-        trader = trading.NeatRawPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
-                                           profile['marginrate'], profile['periods'], step_str=min_step_str, ind_len=ind_len)
+        if training_type == 0:
+            trader = trading.NeatRawPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
+                                               profile['marginrate'], profile['periods'], step_str=min_step_str,
+                                               ind_len=ind_len)
+        else:
+            trader = trading.NeatRawPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
+                                               profile['marginrate'], profile['periods'], step_str=min_step_str,
+                                               ind_len=ind_len)
         trader.set_balance(start_balance)
         trader.add_market_readers(market_reader_obs)
         traders.append(trader)
@@ -127,7 +207,7 @@ def runner(genomes, config):
                     m_ob = market_reader_obs[track_year][p][g]
                 m_ob.go_check(track_datetime)
         if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go:
-        # trade if times match with market reader and track_datetime
+            # trade if times match with market reader and track_datetime
             for i, t in enumerate(traders):
                 inputs = t.tradeinput(track_year)
                 if inputs is False:
@@ -136,23 +216,6 @@ def runner(genomes, config):
                     # neat
                     outputs = nets[i].activate(inputs)
                     t.tradeoutput(track_year, outputs)
-        # multiprocessing test
-            #def neat_run(trade, tk_yr, net):
-            #    inputs = trade.tradeinput(tk_yr)
-            #    if inputs is False:
-            #        return
-            #    else:
-            #        outputs = net.activate(inputs)
-            #        trade.tradeoutput(tk_yr, outputs)
-            #processes = []
-            #for y, t in enumerate(traders):
-            #    info = (t, track_year, nets[y])
-            #    pros = Process(target=neat_run, args=info)
-            #    pros.start()
-            #    processes.append(pros)
-            #for pros in processes:
-            #    pros.join()
-
 
         # next step
         track_datetime = track_datetime + min_step
@@ -172,7 +235,7 @@ def runner(genomes, config):
             # next generation
 
 
-def raw_indicator_training(config_path):
+def neat_training(config_path):
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet,
                                 neat.DefaultStagnation, config_path)
     p = neat.Population(config)
@@ -181,13 +244,37 @@ def raw_indicator_training(config_path):
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
 
-    winner = p.run(runner, 50)
+    # neat multiprocessing
+    if mult_pros:
+        mp_run = neat.ParallelEvaluator(multiprocessing.cpu_count(), runner_multi)
+        winner = p.run(mp_run.evaluate, 6)
+    else:
+        winner = p.run(runner, 6)
+
     with open('data/neat/winner_raw.pkl', 'wb') as f:
         pickle.dump(winner, f)
         f.close()
 
 
-if __name__ == '__main__':
-    setup()
+def main():
+    f = open('data/config.json', 'r')
+    profile = json.load(f)
+    f.close()
+    earliest_year = int(profile['csvstart'])
+    earliest_year += 1
+    print(f'Earliest year allowed: {earliest_year}')
+    s_date = input('Enter start date for back test (YYYY-MM-DD): ')
+    s_balance = int(input('Enter starting balance, no decimals: '))
+    mult_p = int(input('Multiprocessing (0) for no, (1) for yes: '))
+    neat_type = int(input('Enter (0) for neat raw indicator training, or (1) for neat strategy training'))
+    setup(s_date, s_balance, mult_p, neat_type)
     config_path = '/home/devon/Desktop/forex-algotrader/data/neat_raw_config.txt'
-    raw_indicator_training(config_path)
+    neat_training(config_path)
+
+
+if __name__ == '__main__':
+    path_parent = os.path.dirname(os.getcwd())
+    os.chdir(path_parent)
+    path_parent = os.path.dirname(os.getcwd())
+    os.chdir(path_parent)
+    main()
