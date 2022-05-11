@@ -325,16 +325,22 @@ class NeatRawPastTrader(PastTrader):
             price_data.append({'instrument': p, p: (price[0] + price[1]) / 2})
         return price_data
 
-    def calc_stop_take(self, pair, price, direction):
+    def calc_stop_take(self, pair, price, output, direction):
         range = self.range_dict[pair]
         if direction == 0:
             # short
             stop_loss = price + range
-            take_profit = price - range
+            tp_mult = 1
+            if output < -1.0:
+                tp_mult = abs(output)
+            take_profit = price - (range * tp_mult)
         else:
             # long
             stop_loss = price - range
-            take_profit = price + range
+            tp_mult = 1
+            if output > 1.0:
+                tp_mult = abs(output)
+            take_profit = price + (range * tp_mult)
 
         return stop_loss, take_profit
 
@@ -359,11 +365,11 @@ class NeatRawPastTrader(PastTrader):
             price = (price[0] + price[1]) / 2
             if outputs[x] > 0.5:
                 # long
-                stop, take = self.calc_stop_take(pair, price, direction=1)
+                stop, take = self.calc_stop_take(pair, price, outputs[x], direction=1)
                 trade_results[pair] = {'execute': True, 'price': price, 'unit_mult': 1, 'stop_loss': stop, 'take_profit': take}
             elif outputs[x] < -0.5:
                 # short
-                stop, take = self.calc_stop_take(pair, price, direction=0)
+                stop, take = self.calc_stop_take(pair, price, outputs[x], direction=0)
                 trade_results[pair] = {'execute': True, 'price': price, 'unit_mult': -1, 'stop_loss': stop, 'take_profit': take}
             else:
                 # No trade
@@ -392,11 +398,7 @@ class NeatRawPastTrader(PastTrader):
         return indicator_results
 
     def tradeinput(self, track_year):
-        balance = self.active_data['balance']
         self.last_pass_balance = self.active_data['balance']
-        risk_amount = float(self.max_risk) * balance
-        max_use_day = float(self.max_use_day) * balance
-        max_units = float(self.margin_rate) * max_use_day
         price_data = []
         # get track price
         for p in self.currency_pairs:

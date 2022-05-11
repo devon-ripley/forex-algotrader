@@ -23,6 +23,10 @@ def folder_setup(currency_pairs, grans):
     except FileExistsError:
         pass
     try:
+        os.makedirs('data/neat')
+    except FileExistsError:
+        pass
+    try:
         os.makedirs('data/trade_logic')
     except FileExistsError:
         pass

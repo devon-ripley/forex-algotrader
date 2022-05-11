@@ -3,11 +3,10 @@ import datetime
 import json
 import neat
 import logging
+import pickle
 from packages.backtest import backtest, backtest_csv
 from packages.misc import helpers
 from packages.tech import trading
-
-
 
 
 def setup():
@@ -182,8 +181,10 @@ def raw_indicator_training(config_path):
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
 
-    winner = p.run(runner, 4)
-    print(winner)
+    winner = p.run(runner, 10)
+    with open('data/neat/winner.pkl', 'wb') as f:
+        pickle.dump(winner, f)
+        f.close()
 
 
 if __name__ == '__main__':

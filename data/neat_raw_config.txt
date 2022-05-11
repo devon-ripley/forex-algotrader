@@ -15,13 +15,13 @@ elitism            = 0
 survival_threshold = 0.5
 
 [DefaultSpeciesSet]
-compatibility_threshold = 2.0
+compatibility_threshold = 1.5
 
 [DefaultGenome]
 # node activation options
 activation_default      = tanh
-activation_mutate_rate  = 0.0
-activation_options      = tanh
+activation_mutate_rate  = 0.2
+activation_options      = tanh cube
 
 # node aggregation options
 aggregation_default     = sum
