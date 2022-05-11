@@ -4,7 +4,7 @@ import json
 
 
 def get_config_info():
-    f = open('data/config.json', )
+    f = open('data/config.json', 'r')
     profile = json.load(f)
     f.close()
     notifications_info = profile['notifications']

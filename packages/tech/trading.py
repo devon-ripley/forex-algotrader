@@ -267,9 +267,9 @@ class LiveTrader(Trader):
                     trade_sql.add_active_trade(trade_id, run_info['top_trade']['date'],
                                                run_info['top_trade']['pair'], direction, run_info['stop_loss'],
                                                run_info['take_profit'], 'short_term_active')
-                    reports.trade_logic_csv(
-                        [trade_id, units, run_info['current_price'], run_info['stop_loss'], run_info['take_profit'],
-                         run_info['top_trade']])
+                    #reports.trade_logic_csv(
+                    #    [trade_id, units, run_info['current_price'], run_info['stop_loss'], run_info['take_profit'],
+                    #     run_info['top_trade']])
             return True
 
 
