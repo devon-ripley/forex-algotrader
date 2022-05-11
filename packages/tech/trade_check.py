@@ -42,10 +42,13 @@ class TradeCheck:
 
 
 class Live(TradeCheck):
-    def live_candles(self):
+    def live_candles(self, neat_raw=False):
         # load most recent candles from csv
         data = market_csv.csv_read_recent(currency_pair=self.currency_pair, gran=self.gran, periods=self.data_periods)
-        return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
+        if neat_raw:
+            return indicators(self.currency_pair, self.gran, data)
+        else:
+            return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
 
 
 class Past(TradeCheck):

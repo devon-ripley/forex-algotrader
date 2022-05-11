@@ -16,7 +16,7 @@ def setup():
     # add user input
     # setup vars
     start_balance = 10000
-    start_date_str = '2022-04-24'
+    start_date_str = '2011-04-24'
 
     # setup neat logger
     helpers.set_logger_neat()
@@ -181,8 +181,8 @@ def raw_indicator_training(config_path):
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
 
-    winner = p.run(runner, 10)
-    with open('data/neat/winner.pkl', 'wb') as f:
+    winner = p.run(runner, 50)
+    with open('data/neat/winner_raw.pkl', 'wb') as f:
         pickle.dump(winner, f)
         f.close()
 

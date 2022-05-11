@@ -101,6 +101,10 @@ class Trader:
         return False
 
 
+class NeatRaw(Trader):
+    pass
+
+
 class LiveTrader(Trader):
 
     def trade(self, first_run):
@@ -214,7 +218,25 @@ class LiveTraderNeatRaw(LiveTrader):
                  margin_rate, periods, apikey, account_id):
         super(LiveTraderNeatRaw, self).__init__(live, currency_pairs, gran, max_risk, max_use_day,
                  margin_rate, periods, apikey, account_id)
-        # special init
+
+    def calc_stop_take_neat(self, pair, price, output, direction):
+        range = self.range_dict[pair]
+        if direction == 0:
+            # short
+            stop_loss = price + range
+            tp_mult = 1
+            if output < -1.0:
+                tp_mult = abs(output)
+            take_profit = price - (range * tp_mult)
+        else:
+            # long
+            stop_loss = price - range
+            tp_mult = 1
+            if output > 1.0:
+                tp_mult = abs(output)
+            take_profit = price + (range * tp_mult)
+
+        return stop_loss, take_profit
 
     def regular(self, price_data, active_pairs, market_reader_obs=None, track_year=None):
         pass
@@ -325,7 +347,7 @@ class NeatRawPastTrader(PastTrader):
             price_data.append({'instrument': p, p: (price[0] + price[1]) / 2})
         return price_data
 
-    def calc_stop_take(self, pair, price, output, direction):
+    def calc_stop_take_neat(self, pair, price, output, direction):
         range = self.range_dict[pair]
         if direction == 0:
             # short
@@ -365,11 +387,11 @@ class NeatRawPastTrader(PastTrader):
             price = (price[0] + price[1]) / 2
             if outputs[x] > 0.5:
                 # long
-                stop, take = self.calc_stop_take(pair, price, outputs[x], direction=1)
+                stop, take = self.calc_stop_take_neat(pair, price, outputs[x], direction=1)
                 trade_results[pair] = {'execute': True, 'price': price, 'unit_mult': 1, 'stop_loss': stop, 'take_profit': take}
             elif outputs[x] < -0.5:
                 # short
-                stop, take = self.calc_stop_take(pair, price, outputs[x], direction=0)
+                stop, take = self.calc_stop_take_neat(pair, price, outputs[x], direction=0)
                 trade_results[pair] = {'execute': True, 'price': price, 'unit_mult': -1, 'stop_loss': stop, 'take_profit': take}
             else:
                 # No trade
