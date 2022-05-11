@@ -110,7 +110,7 @@ def setup_config(name='config.json'):
     res = res.lower()
     if res == 'y':
         num = 0
-        final_num = 16
+        final_num = 17
         config_final = {}
         print('Press enter with no input to pass')
         print(num, '/', final_num)
@@ -142,6 +142,14 @@ def setup_config(name='config.json'):
         print(f'{num}/{final_num}')
         config_final['gran'] = input('Enter candle granulation to use, '
                                      'example (M15,H1) separated by comma no space: ')
+        num += 1
+        print(f'{num}/{final_num}')
+        out = input('Use saved neat network with live trading, (y) for yes, (n) for no: ').lower()
+        if out == 'y':
+            shut = True
+        else:
+            shut = False
+        config_final['neat'] = shut
         num += 1
         print(f'{num}/{final_num}')
         config_final['maxusetrend'] = input('Enter max amount of balance to be used in long term trades, '
