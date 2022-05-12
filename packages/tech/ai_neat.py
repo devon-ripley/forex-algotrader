@@ -98,9 +98,8 @@ def runner_multi(genome, config):
                                            profile['marginrate'], profile['periods'], step_str=min_step_str,
                                            ind_len=ind_len)
     else:
-        trader = trading.NeatRawPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
-                                           profile['marginrate'], profile['periods'], step_str=min_step_str,
-                                           ind_len=ind_len)
+        trader = trading.NeatStratPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
+                                           profile['marginrate'], profile['periods'], step_str=min_step_str)
     trader.set_balance(start_balance)
     trader.add_market_readers(market_reader_obs)
     genome.fitness = 0
@@ -180,9 +179,8 @@ def runner(genomes, config):
                                                profile['marginrate'], profile['periods'], step_str=min_step_str,
                                                ind_len=ind_len)
         else:
-            trader = trading.NeatRawPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
-                                               profile['marginrate'], profile['periods'], step_str=min_step_str,
-                                               ind_len=ind_len)
+            trader = trading.NeatStratPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
+                                                 profile['marginrate'], profile['periods'], step_str=min_step_str)
         trader.set_balance(start_balance)
         trader.add_market_readers(market_reader_obs)
         traders.append(trader)
@@ -253,7 +251,11 @@ def neat_training(config_path, generations):
     else:
         winner = p.run(runner, generations)
     print(winner)
-    with open('data/neat/winner_raw.pkl', 'wb') as f:
+    if training_type == 0:
+        path = 'data/neat/winner_raw.pkl'
+    if training_type == 1:
+        path = 'data/neat/winner_strat.pkl'
+    with open(path, 'wb') as f:
         pickle.dump(winner, f)
         f.close()
 
@@ -287,7 +289,10 @@ def main():
         helpers.save_neat_json(s_date, s_balance, mult_p, generations, neat_type)
 
     setup(s_date, s_balance, mult_p, neat_type)
-    config_path = '/data/neat_raw_config.txt'
+    if neat_type == 0:
+        config_path = '/data/neat_raw_config.txt'
+    if neat_type == 1:
+        config_path = '/data/neat_strat_config.txt'
     config_path_abs = str(os.getcwd()) + config_path
     neat_training(config_path_abs, generations)
 

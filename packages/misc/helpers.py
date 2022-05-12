@@ -225,6 +225,20 @@ def num_nodes_rawneat(pairs, grans, len_ind):
     return {'outputs': outputs, 'inputs': inputs, 'inputs_per_gran': input_count * len_ind}
 
 
+def num_nodes_stratneat(pairs, grans):
+    import trade_strategy
+    from packages.output import market_csv
+    last_year = (datetime.datetime.now() - datetime.timedelta(days=365)).year
+    data = market_csv.csv_read_full(pairs[0], grans[0], last_year)
+    one_run_len = len(trade_strategy.trade_strategy(currency_pair=pairs[0], gran=grans[0], data=data))
+    overall_len = 0
+    for p in pairs:
+        for g in grans:
+            overall_len += one_run_len
+    return {'inputs': overall_len, 'outputs': len(pairs)}
+
+
+
 def save_neat_json(s_date, s_balance, mult_p, generations, neat_type):
     path = os.getcwd() + '/data/neat/saved_run.json'
     json_data = {'date': s_date, 'balance': s_balance, 'multi': mult_p,

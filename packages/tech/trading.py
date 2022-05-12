@@ -409,7 +409,7 @@ class PastTrader(Trader):
 
 class NeatRawPastTrader(PastTrader, NeatRaw):
     def __init__(self, live, currency_pairs, gran, max_risk, max_use_day,
-                 margin_rate, weights, step_str, ind_len):
+                 margin_rate, weights, step_str, ind_len=False):
         super().__init__(live, currency_pairs, gran, max_risk, max_use_day,
                                                 margin_rate, weights, step_str)
         self.last_pass_balance = self.active_data['balance']
@@ -447,7 +447,7 @@ class NeatRawPastTrader(PastTrader, NeatRaw):
                 trade_results[pair] = {'execute': False}
         return trade_results
 
-    def NEAT_raw_indicators(self, track_year):
+    def trade_check_controller(self, track_year):
         indicator_results = []
         # get indicators for all pairs
         for pair in self.currency_pairs:
@@ -480,7 +480,7 @@ class NeatRawPastTrader(PastTrader, NeatRaw):
         self.active_trade_check(track_year, price_data)
 
         # return inputs for neat, raw indicator data
-        return self.NEAT_raw_indicators(track_year)
+        return self.trade_check_controller(track_year)
 
     def tradeoutput(self, track_year, neat_outputs):
         balance = self.active_data['balance']
@@ -505,3 +505,39 @@ class NeatRawPastTrader(PastTrader, NeatRaw):
                  'pair': pair,
                  'stop_loss': run_info['stop_loss'], 'take_profit': run_info['take_profit']})
             self.active_pairs.append(pair)
+
+
+class NeatStratPastTrader(NeatRawPastTrader):
+
+    def format_strat_results(self, trades):
+        output_lst = []
+        for t in trades:
+            score = t['score']
+            if score == 0:
+                output_lst.append(score)
+                continue
+            direction = t['direction']
+            if direction == 0:
+                # short
+                score = score * -1
+            output_lst.append(score)
+        return output_lst
+
+    def trade_check_controller(self, track_year):
+        formatted_outputs = []
+        # get indicators for all pairs
+        for pair in self.currency_pairs:
+            for g in self.grans:
+                trades = self.trade_check_ob[pair][g].back_candles(self.market_reader_obs, track_year)
+                if trades is None:
+                    # temporary fix may mess up outputs from neat
+                    # indicator_results = indicator_results + [0 for i in range(per_gran_num)]
+                    # skip all inputs instead
+                    return False
+                else:
+                    if g == self.grans[-1]:
+                        self.range_dict[pair] = float(trades[-1]['stop_distance'])
+                    # format results
+                    formatted = self.format_strat_results(trades)
+                    formatted_outputs = formatted_outputs + formatted
+        return formatted_outputs

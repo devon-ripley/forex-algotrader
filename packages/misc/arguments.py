@@ -23,7 +23,7 @@ def controller(arg):
         print('(ms) To reset mysql tables')
         print('(con) To setup general config.json file')
         print('(neat) To start neat training')
-        print('(neatrawio) To return number of inputs and outputs for neat raw indicator')
+        print('(neatio) To return number of inputs and outputs for neat')
         print('(b) To run backtest')
         print('(h), Help menu')
         arg = input('Enter (x) to exit or any other letter to run')
@@ -41,8 +41,8 @@ def controller(arg):
         cur_path = str(os.getcwd())
         config_path = cur_path + config_path
         ai_neat.main()
-
-    elif arg == 'neatrawio':
+        exit()
+    elif arg == 'neatio':
         try:
             f = open('data/config.json', 'r')
             profile = json.load(f)
@@ -51,9 +51,15 @@ def controller(arg):
             print('config file not found')
             exit()
         pairs = profile['currencypairs']
+        pairs = list(pairs.split(','))
         grans = profile['gran']
-        print(helpers.num_nodes_rawneat(pairs, grans, 5))
-
+        grans = list(grans.split(','))
+        ur_in = int(input('Enter (0) for raw indicator neat, (1) for strategy neat'))
+        if ur_in == 0:
+            print(helpers.num_nodes_rawneat(pairs, grans, 5))
+        if ur_in == 1:
+            print(helpers.num_nodes_stratneat(pairs, grans))
+        exit()
     elif arg == 'ms':
         a = input('Are you sure you want to delete all trading mysql tables (y/n) ')
         a = str(a).lower()
