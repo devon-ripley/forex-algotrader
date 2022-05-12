@@ -40,8 +40,7 @@ def controller(arg):
         config_path = '/data/neat_raw_config.txt'
         cur_path = str(os.getcwd())
         config_path = cur_path + config_path
-        ai_neat.setup()
-        ai_neat.raw_indicator_training(config_path)
+        ai_neat.main()
 
     elif arg == 'neatrawio':
         try:
