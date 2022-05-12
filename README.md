@@ -23,6 +23,24 @@ I am still working out some bugs and making it fully functional
 
 I am also working on setting up neat to use custom trading strategies.
 
+# Arguments for main.py
+
+you@yourpc:~$ python3 main.py r
+
+(r) or ()To run normally
+
+(ms) To reset mysql tables
+
+(con) To setup general config.json file
+
+(neat) To start neat training
+
+(neatio) To return number of inputs and outputs for neat
+
+(b) To run backtest
+
+(h), Help menu
+
 
 # GET STARTED
 
