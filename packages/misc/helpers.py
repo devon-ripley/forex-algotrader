@@ -223,3 +223,21 @@ def num_nodes_rawneat(pairs, grans, len_ind):
     inputs = input_count * len_ind * len(pairs) * len(grans)
 
     return {'outputs': outputs, 'inputs': inputs, 'inputs_per_gran': input_count * len_ind}
+
+
+def save_neat_json(s_date, s_balance, mult_p, generations, neat_type):
+    path = os.getcwd() + '/data/neat/saved_run.json'
+    json_data = {'date': s_date, 'balance': s_balance, 'multi': mult_p,
+                 'generations': generations, 'neat_type': neat_type}
+    with open(path, 'w') as f:
+        json.dump(json_data, f, indent=2)
+
+
+def load_neat_json():
+    path = os.getcwd() + '/data/neat/saved_run.json'
+    try:
+        with open(path, 'r') as f:
+            json_data = json.load(f)
+        return json_data
+    except FileNotFoundError:
+        return False

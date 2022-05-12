@@ -22,7 +22,7 @@ def controller(arg):
         print('(r) or ()To run normally')
         print('(ms) To reset mysql tables')
         print('(con) To setup general config.json file')
-        print('(neatraw) To start neat raw indicator data training')
+        print('(neat) To start neat training')
         print('(neatrawio) To return number of inputs and outputs for neat raw indicator')
         print('(b) To run backtest')
         print('(h), Help menu')
@@ -36,7 +36,7 @@ def controller(arg):
         else:
             pass
 
-    elif arg == 'neatraw':
+    elif arg == 'neat':
         config_path = '/data/neat_raw_config.txt'
         cur_path = str(os.getcwd())
         config_path = cur_path + config_path

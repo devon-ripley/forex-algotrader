@@ -237,7 +237,7 @@ def runner(genomes, config):
             # next generation
 
 
-def neat_training(config_path):
+def neat_training(config_path, generations):
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet,
                                 neat.DefaultStagnation, config_path)
     p = neat.Population(config)
@@ -249,9 +249,9 @@ def neat_training(config_path):
     # neat multiprocessing
     if mult_pros:
         mp_run = neat.ParallelEvaluator(multiprocessing.cpu_count(), runner_multi)
-        winner = p.run(mp_run.evaluate, 20)
+        winner = p.run(mp_run.evaluate, generations)
     else:
-        winner = p.run(runner, 6)
+        winner = p.run(runner, generations)
     print(winner)
     with open('data/neat/winner_raw.pkl', 'wb') as f:
         pickle.dump(winner, f)
@@ -259,19 +259,37 @@ def neat_training(config_path):
 
 
 def main():
-    f = open('data/config.json', 'r')
-    profile = json.load(f)
-    f.close()
-    earliest_year = int(profile['csvstart'])
-    earliest_year += 1
-    print(f'Earliest year allowed: {earliest_year}')
-    s_date = input('Enter start date for back test (YYYY-MM-DD): ')
-    s_balance = int(input('Enter starting balance, no decimals: '))
-    mult_p = int(input('Multiprocessing (0) for no, (1) for yes: '))
-    neat_type = int(input('Enter (0) for neat raw indicator training, or (1) for neat strategy training'))
+    json_data = helpers.load_neat_json()
+    if json_data is False:
+        print('No saved neat config')
+    else:
+        use_json = input('Last used neat run settings(y) or use new settings(n): ').lower()
+        if use_json == 'n':
+            json_data = False
+        else:
+            s_date = json_data['date']
+            s_balance = json_data['balance']
+            mult_p = json_data['multi']
+            generations = json_data['generations']
+            neat_type = json_data['neat_type']
+    if json_data is False:
+        f = open('data/config.json', 'r')
+        profile = json.load(f)
+        f.close()
+        earliest_year = int(profile['csvstart'])
+        earliest_year += 1
+        print(f'Earliest year allowed: {earliest_year}')
+        s_date = input('Enter start date for back test (YYYY-MM-DD): ')
+        s_balance = int(input('Enter starting balance, no decimals: '))
+        mult_p = int(input('Multiprocessing (0) for no, (1) for yes: '))
+        generations = int(input('Enter number of generations to run: '))
+        neat_type = int(input('Enter (0) for neat raw indicator training, or (1) for neat strategy training: '))
+        helpers.save_neat_json(s_date, s_balance, mult_p, generations, neat_type)
+
     setup(s_date, s_balance, mult_p, neat_type)
-    config_path = '/home/devon/Desktop/forex-algotrader/data/neat_raw_config.txt'
-    neat_training(config_path)
+    config_path = '/data/neat_raw_config.txt'
+    config_path_abs = str(os.getcwd()) + config_path
+    neat_training(config_path_abs, generations)
 
 
 if __name__ == '__main__':

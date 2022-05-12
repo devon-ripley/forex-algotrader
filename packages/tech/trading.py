@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 import pickle
 
 import neat
@@ -280,9 +281,12 @@ class LiveTraderNeatRaw(LiveTrader, NeatRaw):
                  margin_rate, periods, apikey, account_id)
         self.range_dict = {}
         self.ind_len = ind_len
+        cur_path = str(os.getcwd())
+        config_path = cur_path + '/data/neat_raw_config.txt'
+        pickle_load = cur_path + '/data/neat/winner_raw.pkl'
         config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet,
-                                    neat.DefaultStagnation, '/home/devon/Desktop/forex-algotrader/data/neat_raw_config.txt')
-        with open('/home/devon/Desktop/forex-algotrader/data/neat/winner_raw.pkl', "rb") as f:
+                                    neat.DefaultStagnation, config_path)
+        with open(pickle_load, "rb") as f:
             genome = pickle.load(f)
         self.raw_net = neat.nn.FeedForwardNetwork.create(genome, config)
 
