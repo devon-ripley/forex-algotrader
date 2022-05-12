@@ -13,7 +13,16 @@ Mysql required to run. Set up database for program to use. Set up user with all 
 
 Notifications use yagmail python package, gmail account is required to send notifications .
 
-I plan on adding report generation, and NEAT machine learning for for fine tuning strategies.
+I plan on adding report generation.
+
+TA-lib required. Install info here https://github.com/mrjbq7/ta-lib
+
+NEAT is set up to use raw indicator data to make trading decisions.
+
+I am still working out some bugs and making it fully functional
+
+I am also working on setting up neat to use custom trading strategies.
+
 
 # GET STARTED
 
