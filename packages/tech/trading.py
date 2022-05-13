@@ -107,7 +107,7 @@ class Trader:
         return False
 
 
-class NeatRaw(Trader):
+class Neat(Trader):
 
     def calc_stop_take_neat(self, pair, price, output, direction):
         range = self.range_dict[pair]
@@ -128,7 +128,7 @@ class NeatRaw(Trader):
 
         return stop_loss, take_profit
 
-    def format_results(self, data, ind_len):
+    def format_results_raw(self, data, ind_len):
         indicator_res = []
         for k in data.keys():
             if type(data[k]) == dict:
@@ -141,6 +141,20 @@ class NeatRaw(Trader):
                 cut = list(temp_data[-ind_len:])
                 indicator_res = indicator_res + cut
         return indicator_res
+
+    def format_results_strat(self, trades):
+        output_lst = []
+        for t in trades:
+            score = t['score']
+            if score == 0:
+                output_lst.append(score)
+                continue
+            direction = t['direction']
+            if direction == 0:
+                # short
+                score = score * -1
+            output_lst.append(score)
+        return output_lst
 
     def format_neat_outputs(self, outputs, prices):
         trade_results = {}
@@ -274,7 +288,7 @@ class LiveTrader(Trader):
             return True
 
 
-class LiveTraderNeatRaw(LiveTrader, NeatRaw):
+class LiveTraderNeatRaw(LiveTrader, Neat):
     def __init__(self, live, currency_pairs, gran, max_risk, max_use_day,
                  margin_rate, periods, apikey, account_id, ind_len):
         super(LiveTraderNeatRaw, self).__init__(live, currency_pairs, gran, max_risk, max_use_day,
@@ -311,10 +325,59 @@ class LiveTraderNeatRaw(LiveTrader, NeatRaw):
                     if g == self.grans[-1]:
                         self.range_dict[pair] = float(indicator_data['atr'][-1])
                     # format results
-                    formatted = self.format_results(indicator_data, self.ind_len)
+                    formatted = self.format_results_raw(indicator_data, self.ind_len)
                     indicator_results = indicator_results + formatted
         # run indicator_results through saved neat_raw network
         neat_outputs = self.raw_net.activate(indicator_results)
+        trade_results = self.format_neat_outputs(neat_outputs, price_data)
+        for x, pair in enumerate(self.currency_pairs):
+            if trade_results[pair]['execute'] is False or pair in active_pairs:
+                continue
+            run_info = trade_results[pair]
+            # add in trade order scoring?
+            return run_info
+
+
+class LiveTraderNeatStrat(LiveTrader, Neat):
+
+    def __init__(self, live, currency_pairs, gran, max_risk, max_use_day,
+                 margin_rate, periods, apikey, account_id):
+        super(LiveTraderNeatStrat, self).__init__(live, currency_pairs, gran, max_risk, max_use_day,
+                 margin_rate, periods, apikey, account_id)
+        self.range_dict = {}
+        cur_path = str(os.getcwd())
+        config_path = cur_path + '/data/neat_strat_config.txt'
+        pickle_load = cur_path + '/data/neat/winner_strat.pkl'
+        config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet,
+                                    neat.DefaultStagnation, config_path)
+        with open(pickle_load, "rb") as f:
+            genome = pickle.load(f)
+        self.strat_net = neat.nn.FeedForwardNetwork.create(genome, config)
+
+    def regular(self, price_data, active_pairs, market_reader_obs=None, track_year=None):
+        # check for possible trades
+        # trade ob check and run
+        formatted_outputs = []
+        logger = logging.getLogger('forex_logger')
+        for pair in self.currency_pairs:
+            #if pair in active_pairs:
+            #    continue
+            for g in self.grans:
+                trades = self.trade_check_ob[pair][g].live_candles()
+                if trades is None:
+                    # temporary fix may mess up outputs from neat
+                    # indicator_results = indicator_results + [0 for i in range(per_gran_num)]
+
+                    # skip all inputs instead
+                    return False
+                else:
+                    if g == self.grans[-1]:
+                        self.range_dict[pair] = float(trades[-1]['stop_distance'])
+                    # format results
+                    formatted = self.format_results_strat(trades)
+                    formatted_outputs = formatted_outputs + formatted
+        # run indicator_results through saved neat_raw network
+        neat_outputs = self.strat_net.activate(formatted_outputs)
         trade_results = self.format_neat_outputs(neat_outputs, price_data)
         for x, pair in enumerate(self.currency_pairs):
             if trade_results[pair]['execute'] is False or pair in active_pairs:
@@ -407,7 +470,7 @@ class PastTrader(Trader):
         self.active_pairs.append(run_info['top_trade']['pair'])
 
 
-class NeatRawPastTrader(PastTrader, NeatRaw):
+class NeatRawPastTrader(PastTrader, Neat):
     def __init__(self, live, currency_pairs, gran, max_risk, max_use_day,
                  margin_rate, weights, step_str, ind_len=False):
         super().__init__(live, currency_pairs, gran, max_risk, max_use_day,
@@ -464,7 +527,7 @@ class NeatRawPastTrader(PastTrader, NeatRaw):
                     if g == self.grans[-1]:
                         self.range_dict[pair] = float(ind['atr'][-1])
                     # format results
-                    formatted = self.format_results(ind, self.ind_len)
+                    formatted = self.format_results_raw(ind, self.ind_len)
                     indicator_results = indicator_results + formatted
         return indicator_results
 
@@ -509,20 +572,6 @@ class NeatRawPastTrader(PastTrader, NeatRaw):
 
 class NeatStratPastTrader(NeatRawPastTrader):
 
-    def format_strat_results(self, trades):
-        output_lst = []
-        for t in trades:
-            score = t['score']
-            if score == 0:
-                output_lst.append(score)
-                continue
-            direction = t['direction']
-            if direction == 0:
-                # short
-                score = score * -1
-            output_lst.append(score)
-        return output_lst
-
     def trade_check_controller(self, track_year):
         formatted_outputs = []
         # get indicators for all pairs
@@ -538,6 +587,6 @@ class NeatStratPastTrader(NeatRawPastTrader):
                     if g == self.grans[-1]:
                         self.range_dict[pair] = float(trades[-1]['stop_distance'])
                     # format results
-                    formatted = self.format_strat_results(trades)
+                    formatted = self.format_results_strat(trades)
                     formatted_outputs = formatted_outputs + formatted
         return formatted_outputs
