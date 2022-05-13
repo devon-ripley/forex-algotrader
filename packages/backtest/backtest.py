@@ -71,7 +71,7 @@ def runner(track_datetime, track_year, currency_pairs, gran,
             # end of run
 
 
-def setup(start_date_str='2018-05-15', start_balance=10000, neat_training_run=False, number_traders=1):
+def setup(start_date_str='2018-05-15', start_balance=10000):
     # setup backtest logger
     helpers.set_logger_backtest()
     logger = logging.getLogger('backtest')
@@ -123,19 +123,10 @@ def setup(start_date_str='2018-05-15', start_balance=10000, neat_training_run=Fa
             min_step_lst.append(datetime.timedelta(hours=temp_g))
     min_step = min(min_step_lst)
     min_step_str = minstr(min_step)
-    if neat_training_run:
-        traders = []
-        for x in range(number_traders):
-            trader = trading.NeatRawPastTrader(False, currency_pairs, gran, max_risk, max_use_day,
-                                           margin_rate, periods, step_str=min_step_str)
-            trader.active_data['balance'] = start_balance
-            trader.add_market_readers(market_reader_obs)
-            traders.append(trader)
-    else:
-        trader = trading.PastTrader(False, currency_pairs, gran, max_risk, max_use_day,
-                                    margin_rate, periods, step_str=min_step_str)
-        trader.active_data['balance'] = start_balance
-        trader.add_market_readers(market_reader_obs)
+    trader = trading.PastTrader(False, currency_pairs, gran, max_risk, max_use_day,
+                                margin_rate, periods, step_str=min_step_str)
+    trader.active_data['balance'] = start_balance
+    trader.add_market_readers(market_reader_obs)
     track_datetime = start_date
     track_year = track_datetime.year
 
@@ -143,19 +134,35 @@ def setup(start_date_str='2018-05-15', start_balance=10000, neat_training_run=Fa
            trader, min_step, min_step_str, end_date)
 
 
+def main():
+    # check past run config file
+    json_data = helpers.load_backtest_json()
+    if json_data is False:
+        print('No saved backtest config')
+    else:
+        use_json = input('Last used backtest settings(y) or use new settings(n): ').lower()
+        if use_json == 'n':
+            json_data = False
+        else:
+            start_date = json_data['date']
+            start_balance = json_data['balance']
+    if json_data is False:
+        # system profile load
+        f = open('data/config.json', 'r')
+        profile = json.load(f)
+        f.close()
+        earliest_year = int(profile['csvstart'])
+        earliest_year += 1
+        print(f'Earliest year allowed: {earliest_year}')
+        start_date = input('Enter start date for back test (YYYY-MM-DD): ')
+        start_balance = int(input('Enter starting balance, no decimals: '))
+        helpers.save_backtest_json(start_date, start_balance)
+        setup(start_date, start_balance)
+
+
 if __name__ == '__main__':
-    # change path out one
     path_parent = os.path.dirname(os.getcwd())
     os.chdir(path_parent)
     path_parent = os.path.dirname(os.getcwd())
     os.chdir(path_parent)
-    # system profile load
-    f = open('data/config.json', 'r')
-    profile = json.load(f)
-    f.close()
-    earliest_year = int(profile['csvstart'])
-    earliest_year += 1
-    print(f'Earliest year allowed: {earliest_year}')
-    start_date = input('Enter start date for back test (YYYY-MM-DD): ')
-    start_balance = int(input('Enter starting balance, no decimals: '))
-    setup(start_date, start_balance)
+    main()

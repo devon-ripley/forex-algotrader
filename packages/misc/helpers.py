@@ -27,6 +27,10 @@ def folder_setup(currency_pairs, grans):
     except FileExistsError:
         pass
     try:
+        os.makedirs('data/backtest')
+    except FileExistsError:
+        pass
+    try:
         os.makedirs('data/trade_logic')
     except FileExistsError:
         pass
@@ -249,6 +253,23 @@ def save_neat_json(s_date, s_balance, mult_p, generations, neat_type):
 
 def load_neat_json():
     path = os.getcwd() + '/data/neat/saved_run.json'
+    try:
+        with open(path, 'r') as f:
+            json_data = json.load(f)
+        return json_data
+    except FileNotFoundError:
+        return False
+
+
+def save_backtest_json(s_date, s_balance):
+    path = os.getcwd() + '/data/backtest/saved_run.json'
+    json_data = {'date': s_date, 'balance': s_balance}
+    with open(path, 'w') as f:
+        json.dump(json_data, f, indent=2)
+
+
+def load_backtest_json():
+    path = os.getcwd() + '/data/backtest/saved_run.json'
     try:
         with open(path, 'r') as f:
             json_data = json.load(f)

@@ -236,10 +236,10 @@ def runner(genomes, config):
 
 
 def neat_training(config_path, generations):
+    logger = logging.getLogger('neat')
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet,
                                 neat.DefaultStagnation, config_path)
     p = neat.Population(config)
-
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
@@ -250,7 +250,7 @@ def neat_training(config_path, generations):
         winner = p.run(mp_run.evaluate, generations)
     else:
         winner = p.run(runner, generations)
-    print(winner)
+    logger.info(winner)
     if training_type == 0:
         path = 'data/neat/winner_raw.pkl'
     if training_type == 1:
