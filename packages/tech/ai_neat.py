@@ -99,7 +99,7 @@ def runner_multi(genome, config):
                                            ind_len=ind_len)
     else:
         trader = trading.NeatStratPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
-                                           profile['marginrate'], profile['periods'], step_str=min_step_str)
+                                             profile['marginrate'], profile['periods'], step_str=min_step_str)
     trader.set_balance(start_balance)
     trader.add_market_readers(market_reader_obs)
     genome.fitness = 0
@@ -250,7 +250,7 @@ def neat_training(config_path, generations):
         winner = p.run(mp_run.evaluate, generations)
     else:
         winner = p.run(runner, generations)
-    logger.info(winner)
+    logger.info(winner.fitness)
     if training_type == 0:
         path = 'data/neat/winner_raw.pkl'
     if training_type == 1:
