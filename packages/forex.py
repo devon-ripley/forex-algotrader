@@ -53,14 +53,15 @@ def setup():
     ###### MARKET DATA CSV FILE SET UP
     now_year = datetime.datetime.now().year
     # Daily chart setup
-    for num_cur in range(len(currency_pairs)):
-        for x in range((now_year + 1) - csv_start):
-            result = market_csv.daily_check(currency_pairs[num_cur], csv_start + x)
-            if not result:
-                logger.info(f'Creating csv file for D1, {currency_pairs[num_cur]}, {csv_start + x}')
-                market_csv.daily_setup(apikey, currency_pairs[num_cur], csv_start + x)
-            if result:
-                market_csv.daily_current(apikey, currency_pairs[num_cur], csv_start + x)
+    if 'D' in gran:
+        for num_cur in range(len(currency_pairs)):
+            for x in range((now_year + 1) - csv_start):
+                result = market_csv.daily_check(currency_pairs[num_cur], csv_start + x)
+                if not result:
+                    logger.info(f'Creating csv file for D1, {currency_pairs[num_cur]}, {csv_start + x}')
+                    market_csv.daily_setup(apikey, currency_pairs[num_cur], csv_start + x)
+                if result:
+                    market_csv.daily_current(apikey, currency_pairs[num_cur], csv_start + x)
 
     # set up csv files starting at csv start year
 
@@ -115,7 +116,6 @@ def trading_loop(profile):
     apikey = profile['apikey']
     max_risk = profile['maxrisk']
     max_use_day = profile['maxuseday']
-    wknd_shut = profile['wkndshut']
     currency_pairs = profile['currencypairs']
     currency_pairs = list(currency_pairs.split(','))
     gran = profile['gran']
@@ -150,10 +150,11 @@ def trading_loop(profile):
     while loop:
         count += 1
         # update market csv
+        current_yr = int(system_time.strftime("%Y"))
+        market_csv.daily_current(apikey, currency_pairs, current_yr)
         for x in range(len(currency_pairs)):
             for x_gran in range(len(gran)):
                 market_csv.current_year_complete(apikey, currency_pairs[x], gran[x_gran])
-
         res = trader.trade(first_run)
 
         first_run = False

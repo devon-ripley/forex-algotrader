@@ -25,6 +25,8 @@ class BacktestMarketReader:
         elif self.gran[0] == 'H':
             temp_g = self.gran.strip('H')
             step = datetime.timedelta(hours=int(temp_g))
+        elif self.gran == 'D':
+            step = datetime.timedelta(days=1)
         self.step = step
         # total length
         self.total_length = len(self.data['date']) - 1

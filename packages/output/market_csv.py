@@ -444,60 +444,6 @@ def daily_current(apikey, currency_pair, year):
             f.close()
     return
 # read
-# change for new system
-
-
-def csv_read(frame, currency_pair, gran, week_back):
-    current_unix = time.time()
-    current_week = time.strftime('%U', time.localtime(current_unix))
-    if gran[0] == 'M':
-        gran_num = int(gran.replace('M', ''))
-        gran_time = datetime.timedelta(minutes=gran_num)
-    elif gran[0] == 'H':
-        gran_num = int(gran.replace('H', ''))
-        gran_time = datetime.timedelta(hours=gran_num)
-    elif gran[0] == 'D':
-        gran_num = 1
-        gran_time = datetime.timedelta(days=1)
-    if week_back > 0:
-        current_week = int(current_week)
-        current_week -= week_back
-        current_week = str(current_week)
-    today = datetime.datetime.now()
-    year = today.year
-    year_str = str(year)
-    csv_file_path = 'data/csv/' + currency_pair + '/' + gran + '/' + currency_pair + gran + '_' + current_week + '.csv'
-    if gran == 'D':
-        csv_file_path = 'data/csv/' + currency_pair + '/' + gran + '/' + currency_pair + gran + '_' + year_str + '.csv'
-    file = open(csv_file_path, 'r')
-    line_count = 0
-    for line in file:
-        if line != "\n":
-            line_count += 1
-    file.close()
-    if not frame:
-        frame = line_count
-    data = []
-    file = open(csv_file_path, 'r')
-    lines = file.readlines()
-    for index, line in enumerate(lines):
-        data.append(line.strip())
-
-    file.close()
-    frame_time = gran_time * frame
-    # if time frame is more then one week, load more then one file and combine the needed data
-    # if frame_time > datetime.timedelta(days=7):
-        # how many weeks back?
-        # weeks = frame_time / 7
-    #        rem = frame_time
-    _data = []
-    data_final = []
-    line_start = line_count - frame
-    for t in range(line_start, line_count):
-        _data = data[t].split(',')
-        data_final.append(_data)
-    return data_final
-
 
 def csv_read_full(currency_pair, gran, year):
 
