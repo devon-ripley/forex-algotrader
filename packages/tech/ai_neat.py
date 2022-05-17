@@ -9,6 +9,7 @@ from packages.backtest import backtest, backtest_csv
 from packages.misc import helpers
 from packages.tech import trading
 
+# add in sale at end of week!!!
 
 def setup(s_date, s_balance, mult_p, neat_type):
     # global declarations
@@ -244,10 +245,11 @@ def neat_training(config_path, generations):
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
 
-    # neat multiprocessing
+    # multiprocessing
     if mult_pros:
         mp_run = neat.ParallelEvaluator(multiprocessing.cpu_count(), runner_multi)
         winner = p.run(mp_run.evaluate, generations)
+    # single process
     else:
         winner = p.run(runner, generations)
     logger.info(winner.fitness)

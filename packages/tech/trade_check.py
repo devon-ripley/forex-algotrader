@@ -4,7 +4,35 @@ import numpy
 import talib
 
 
-def indicators(currency_pair, gran, data):
+def all_indicators(currency_pair, gran, data):
+    m_dict = {}
+    macd, macdsignal, macdhist = talib.MACD(data['close'], fastperiod=12, slowperiod=26, signalperiod=9)
+    m_dict['macd'] = {'line': macd, 'signal': macdsignal, 'hist': macdhist}
+
+    rsi = talib.RSI(data['close'])
+    m_dict['rsi'] = rsi
+
+    # Price point indicators
+    bband_upper, bband_middle, bband_lower = talib.BBANDS(data['close'], timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
+    m_dict['bband'] = {'upper': bband_upper, 'middle': bband_middle, 'lower': bband_lower}
+
+    ema = talib.EMA(data['close'], timeperiod=30)
+    m_dict['ema'] = ema
+
+
+    # range indicators
+    atr = talib.ATR(data['high'], data['low'], data['close'], timeperiod=14)
+    m_dict['atr'] = atr
+
+    # volume indicators
+     #obv = talib.OBV(data['close'], data['volume'])
+     #m_dict['obv'] = obv
+
+    return {'indicators': m_dict,
+            'pair': currency_pair, 'gran': gran}
+
+
+def neat_raw_indicators(currency_pair, gran, data):
     # Momentum indicators
     m_dict = {}
     macd, macdsignal, macdhist = talib.MACD(data['close'], fastperiod=12, slowperiod=26, signalperiod=9)
@@ -46,7 +74,7 @@ class Live(TradeCheck):
         # load most recent candles from csv
         data = market_csv.csv_read_recent(currency_pair=self.currency_pair, gran=self.gran, periods=self.data_periods)
         if neat_raw:
-            return indicators(self.currency_pair, self.gran, data)
+            return neat_raw_indicators(self.currency_pair, self.gran, data)
         else:
             return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
 
@@ -71,12 +99,12 @@ class Past(TradeCheck):
             data_dict['volume'] = numpy.concatenate((past_year_data['volume'], current_year_data['volume']))
             data = data_dict
             if neat_raw:
-                return indicators(self.currency_pair, self.gran, data)
+                return neat_raw_indicators(self.currency_pair, self.gran, data)
             else:
                 return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
         else:
             data = mr_data['data']
             if neat_raw:
-                return indicators(self.currency_pair, self.gran, data)
+                return neat_raw_indicators(self.currency_pair, self.gran, data)
             else:
                 return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)

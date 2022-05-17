@@ -11,6 +11,7 @@ from packages.backtest import backtest_csv
 from packages.misc import helpers
 import json
 
+# add in sale at end of week!!!
 
 def minstr(min_step):
     days = min_step.days
