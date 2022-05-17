@@ -96,7 +96,7 @@ def runner_multi(genome, config):
     if training_type == 0:
         trader = trading.NeatRawPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
                                            profile['marginrate'], profile['periods'], step_str=min_step_str,
-                                           ind_len=ind_len)
+                                           ind_len=ind_len, per_gran_num=per_gran_num)
     else:
         trader = trading.NeatStratPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
                                              profile['marginrate'], profile['periods'], step_str=min_step_str)
@@ -177,7 +177,7 @@ def runner(genomes, config):
         if training_type == 0:
             trader = trading.NeatRawPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
                                                profile['marginrate'], profile['periods'], step_str=min_step_str,
-                                               ind_len=ind_len)
+                                               ind_len=ind_len, per_gran_num=per_gran_num)
         else:
             trader = trading.NeatStratPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
                                                  profile['marginrate'], profile['periods'], step_str=min_step_str)

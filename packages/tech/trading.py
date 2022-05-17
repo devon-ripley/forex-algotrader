@@ -6,6 +6,7 @@ import pickle
 import neat
 from packages.oanda_api import oanda_api
 from packages.tech import trade_check
+from packages.misc import helpers
 import time
 from datetime import datetime as now
 from packages.output import trade_sql, notification, market_csv, reports
@@ -157,28 +158,29 @@ class Neat(Trader):
         return output_lst
 
     def format_neat_outputs(self, outputs, prices):
-        trade_results = {}
-        for x, pair in enumerate(self.currency_pairs):
-            for pa in prices:
-                if pa['instrument'] == pair:
-                    price = float(pa['closeoutAsk'])
-            if outputs[x] > 0.5:
-                # long
-                stop, take = self.calc_stop_take_neat(pair, price, outputs[x], direction=1)
-                trade_results[pair] = {'execute': True, 'current_price': price, 'unit_mult': 1,
-                                       'stop_loss': stop, 'take_profit': take,
-                                       'top_trade': {'pair': pair, 'date': datetime.datetime.now()}}
-            elif outputs[x] < -0.5:
-                # short
-                stop, take = self.calc_stop_take_neat(pair, price, outputs[x], direction=0)
-                trade_results[pair] = {'execute': True, 'current_price': price, 'unit_mult': -1,
-                                       'stop_loss': stop, 'take_profit': take,
-                                       'top_trade': {'pair': pair, 'date': datetime.datetime.now()}}
-            else:
-                # No trade
-                trade_results[pair] = {'execute': False}
+        abs_out = []
+        for out in outputs:
+            abs_out.append(abs(out))
+        top_index = abs_out.index(max(abs_out))
+        top_output = outputs[top_index]
+        pair = self.currency_pairs[top_index]
+        for pa in prices:
+            if pa['instrument'] == pair:
+                price = float(pa['closeoutAsk'])
+        if top_output > 0.5:
+            # long
+            stop, take = self.calc_stop_take_neat(pair, price, top_output, direction=1)
+            trade_results = {'execute': True, 'price': price, 'pair': pair, 'unit_mult': 1,
+                             'stop_loss': stop, 'take_profit': take, 'top_trade': {'pair': pair, 'date': datetime.datetime.now()}}
+        elif top_output < -0.5:
+            # short
+            stop, take = self.calc_stop_take_neat(pair, price,  top_output, direction=0)
+            trade_results = {'execute': True, 'price': price, 'pair': pair, 'unit_mult': -1,
+                             'stop_loss': stop, 'take_profit': take, 'top_trade': {'pair': pair, 'date': datetime.datetime.now()}}
+        else:
+            # No trade
+            trade_results = {'execute': False}
         return trade_results
-
 
 class LiveTrader(Trader):
 
@@ -295,6 +297,8 @@ class LiveTraderNeatRaw(LiveTrader, Neat):
                  margin_rate, periods, apikey, account_id)
         self.range_dict = {}
         self.ind_len = ind_len
+        num_in_out = helpers.num_nodes_rawneat(currency_pairs, gran, ind_len)
+        self.per_gran_num = num_in_out['inputs_per_gran']
         cur_path = str(os.getcwd())
         config_path = cur_path + '/data/neat_raw_config.txt'
         pickle_load = cur_path + '/data/neat/winner_raw.pkl'
@@ -309,16 +313,14 @@ class LiveTraderNeatRaw(LiveTrader, Neat):
         # trade ob check and run
         indicator_results = []
         logger = logging.getLogger('forex_logger')
+        if self.currency_pairs == active_pairs:
+            return False
         for pair in self.currency_pairs:
-            #if pair in active_pairs:
-            #    continue
+            if pair in active_pairs:
+                indicator_results = indicator_results + [0 for x in range(self.per_gran_num * len(self.grans))]
             for g in self.grans:
                 indicator_data = self.trade_check_ob[pair][g].live_candles(neat_raw=True)
                 if indicator_data is None:
-                    # temporary fix may mess up outputs from neat
-                    # indicator_results = indicator_results + [0 for i in range(per_gran_num)]
-
-                    # skip all inputs instead
                     return False
                 else:
                     indicator_data = indicator_data['indicators']
@@ -330,12 +332,9 @@ class LiveTraderNeatRaw(LiveTrader, Neat):
         # run indicator_results through saved neat_raw network
         neat_outputs = self.raw_net.activate(indicator_results)
         trade_results = self.format_neat_outputs(neat_outputs, price_data)
-        for x, pair in enumerate(self.currency_pairs):
-            if trade_results[pair]['execute'] is False or pair in active_pairs:
-                continue
-            run_info = trade_results[pair]
-            # add in trade order scoring?
-            return run_info
+        if trade_results['execute'] is False or trade_results['top_trade']['pair'] in active_pairs:
+            return False
+        return trade_results
 
 
 class LiveTraderNeatStrat(LiveTrader, Neat):
@@ -376,7 +375,7 @@ class LiveTraderNeatStrat(LiveTrader, Neat):
                     # format results
                     formatted = self.format_results_strat(trades)
                     formatted_outputs = formatted_outputs + formatted
-        # run indicator_results through saved neat_raw network
+        # run strat results through saved neat_strat network
         neat_outputs = self.strat_net.activate(formatted_outputs)
         trade_results = self.format_neat_outputs(neat_outputs, price_data)
         for x, pair in enumerate(self.currency_pairs):
@@ -472,12 +471,13 @@ class PastTrader(Trader):
 
 class NeatRawPastTrader(PastTrader, Neat):
     def __init__(self, live, currency_pairs, gran, max_risk, max_use_day,
-                 margin_rate, weights, step_str, ind_len=False):
+                 margin_rate, weights, step_str, ind_len=False, per_gran_num=False):
         super().__init__(live, currency_pairs, gran, max_risk, max_use_day,
                                                 margin_rate, weights, step_str)
         self.last_pass_balance = self.active_data['balance']
         self.range_dict = {}
         self.ind_len = ind_len
+        self.per_gran_num = per_gran_num
 
     def set_balance(self, balance):
         self.active_data = {'balance': balance, 'margin_used': 0, 'total_trades': 0}
@@ -493,34 +493,40 @@ class NeatRawPastTrader(PastTrader, Neat):
         return price_data
 
     def format_neat_outputs(self, outputs, track_year):
-        trade_results = {}
-        for x, pair in enumerate(self.currency_pairs):
-            price = self.market_reader_obs[track_year][pair][self.step_str].current_price
-            price = (price[0] + price[1]) / 2
-            if outputs[x] > 0.5:
-                # long
-                stop, take = self.calc_stop_take_neat(pair, price, outputs[x], direction=1)
-                trade_results[pair] = {'execute': True, 'price': price, 'unit_mult': 1, 'stop_loss': stop, 'take_profit': take}
-            elif outputs[x] < -0.5:
-                # short
-                stop, take = self.calc_stop_take_neat(pair, price, outputs[x], direction=0)
-                trade_results[pair] = {'execute': True, 'price': price, 'unit_mult': -1, 'stop_loss': stop, 'take_profit': take}
-            else:
-                # No trade
-                trade_results[pair] = {'execute': False}
+        abs_out = []
+        for out in outputs:
+            abs_out.append(abs(out))
+        top_index = abs_out.index(max(abs_out))
+        top_output = outputs[top_index]
+        pair = self.currency_pairs[top_index]
+        price = self.market_reader_obs[track_year][pair][self.step_str].current_price
+        price = (price[0] + price[1]) / 2
+        if top_output > 0.5:
+            # long
+            stop, take = self.calc_stop_take_neat(pair, price, top_output, direction=1)
+            trade_results = {'execute': True, 'price': price, 'pair': pair, 'unit_mult': 1, 'stop_loss': stop, 'take_profit': take}
+        elif top_output < -0.5:
+            # short
+            stop, take = self.calc_stop_take_neat(pair, price,  top_output, direction=0)
+            trade_results = {'execute': True, 'price': price, 'pair': pair, 'unit_mult': -1, 'stop_loss': stop, 'take_profit': take}
+        else:
+            # No trade
+            trade_results = {'execute': False}
         return trade_results
 
     def trade_check_controller(self, track_year):
         indicator_results = []
         # get indicators for all pairs
+        if self.currency_pairs == self.active_pairs:
+            return False
         for pair in self.currency_pairs:
+            if pair in self.active_pairs:
+                zero_list = [0 for x in range(self.per_gran_num * len(self.grans))]
+                indicator_results = indicator_results + zero_list
+                continue
             for g in self.grans:
                 res = self.trade_check_ob[pair][g].back_candles(self.market_reader_obs, track_year, True)
                 if res is None:
-                    # temporary fix may mess up outputs from neat
-                    # indicator_results = indicator_results + [0 for i in range(per_gran_num)]
-
-                    # skip all inputs instead
                     return False
                 else:
                     ind = res['indicators']
@@ -551,23 +557,21 @@ class NeatRawPastTrader(PastTrader, Neat):
         max_use_day = float(self.max_use_day) * balance
         max_units = float(self.margin_rate) * max_use_day
         # Turn neat_outputs into run_info
-        runs_info = self.format_neat_outputs(neat_outputs, track_year)
-        for x, pair in enumerate(self.currency_pairs):
-            if runs_info[pair]['execute'] is False or pair in self.active_pairs:
-                continue
-            run_info = runs_info[pair]
+        run_info = self.format_neat_outputs(neat_outputs, track_year)
+        if run_info['execute'] is False:
+            return
 
-            units = self.unit_calc(run_info['price'], run_info['stop_loss'],
-                                   run_info['unit_mult'], risk_amount, max_units, self.active_data['margin_used'],
-                                   self.margin_rate, max_use_day)
-            # execute trade
-            margin_used_trade = units / self.margin_rate
-            self.active_data['margin_used'] += margin_used_trade
-            self.active_trades.append(
-                {'price': run_info['price'], 'units': units, 'margin_used': margin_used_trade,
-                 'pair': pair,
-                 'stop_loss': run_info['stop_loss'], 'take_profit': run_info['take_profit']})
-            self.active_pairs.append(pair)
+        units = self.unit_calc(run_info['price'], run_info['stop_loss'],
+                               run_info['unit_mult'], risk_amount, max_units, self.active_data['margin_used'],
+                               self.margin_rate, max_use_day)
+        # execute trade
+        margin_used_trade = units / self.margin_rate
+        self.active_data['margin_used'] += margin_used_trade
+        self.active_trades.append(
+            {'price': run_info['price'], 'units': units, 'margin_used': margin_used_trade,
+             'pair': run_info['pair'],
+             'stop_loss': run_info['stop_loss'], 'take_profit': run_info['take_profit']})
+        self.active_pairs.append(run_info['pair'])
 
 
 class NeatStratPastTrader(NeatRawPastTrader):
