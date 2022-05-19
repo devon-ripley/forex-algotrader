@@ -24,6 +24,11 @@ def all_indicators(currency_pair, gran, data):
     atr = talib.ATR(data['high'], data['low'], data['close'], timeperiod=14)
     m_dict['atr'] = atr
 
+    # local min, max
+    # smooth data
+
+
+
     # volume indicators
      #obv = talib.OBV(data['close'], data['volume'])
      #m_dict['obv'] = obv
@@ -63,16 +68,26 @@ def neat_raw_indicators(currency_pair, gran, data):
 
 class TradeCheck:
     def __init__(self, currency_pair, gran, periods):
-        self.trend_list = None
+        self.trend = None
         self.currency_pair = currency_pair
         self.gran = gran
         self.data_periods = periods
+
+    def trend_set(self, data):
+        if self.gran == 'D':
+            start = data['close'][0]
+            end = data['close'][-1]
+            if end >= start:
+                self.trend = 'UP'
+            else:
+                self.trend = 'DOWN'
 
 
 class Live(TradeCheck):
     def live_candles(self, neat_raw=False):
         # load most recent candles from csv
         data = market_csv.csv_read_recent(currency_pair=self.currency_pair, gran=self.gran, periods=self.data_periods)
+        self.trend_set(data)
         if neat_raw:
             return neat_raw_indicators(self.currency_pair, self.gran, data)
         else:
@@ -92,18 +107,21 @@ class Past(TradeCheck):
             current_year_data = market_read.new_year(self.data_periods - mr_data['back'])
             # add together dicts
             data_dict['date'] = past_year_data['date'] + current_year_data['date']
+            # axis = None?
             data_dict['open'] = numpy.concatenate((past_year_data['open'], current_year_data['open']))
             data_dict['high'] = numpy.concatenate((past_year_data['high'], current_year_data['high']))
             data_dict['low'] = numpy.concatenate((past_year_data['low'], current_year_data['low']))
             data_dict['close'] = numpy.concatenate((past_year_data['close'], current_year_data['close']))
             data_dict['volume'] = numpy.concatenate((past_year_data['volume'], current_year_data['volume']))
             data = data_dict
+            self.trend_set(data)
             if neat_raw:
                 return neat_raw_indicators(self.currency_pair, self.gran, data)
             else:
                 return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
         else:
             data = mr_data['data']
+            self.trend_set(data)
             if neat_raw:
                 return neat_raw_indicators(self.currency_pair, self.gran, data)
             else:
