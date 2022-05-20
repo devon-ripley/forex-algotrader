@@ -48,6 +48,7 @@ def setup(s_date, s_balance, mult_p, neat_type):
     while year <= current_year:
         year_lst.append(year)
         year += 1
+    print(year_lst)
     for x in year_lst:
         market_reader_obs[x] = {}
         for pair in currency_pairs:
