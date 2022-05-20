@@ -117,6 +117,8 @@ class Neat(Trader):
             stop_loss = price + range
             tp_mult = 1
             if output < -1.0:
+                if output < -3.0:
+                    output = -3.0
                 tp_mult = abs(output)
             take_profit = price - (range * tp_mult)
         else:
@@ -124,6 +126,8 @@ class Neat(Trader):
             stop_loss = price - range
             tp_mult = 1
             if output > 1.0:
+                if output > 3.0:
+                    output = 3.0
                 tp_mult = abs(output)
             take_profit = price + (range * tp_mult)
 
