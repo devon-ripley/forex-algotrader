@@ -322,6 +322,7 @@ class LiveTraderNeatRaw(LiveTrader, Neat):
         for pair in self.currency_pairs:
             if pair in active_pairs:
                 indicator_results = indicator_results + [0 for x in range(self.per_gran_num * len(self.grans))]
+                continue
             for g in self.grans:
                 indicator_data = self.trade_check_ob[pair][g].live_candles(neat_raw=True)
                 if indicator_data is None:
