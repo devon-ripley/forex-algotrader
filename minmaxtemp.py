@@ -1,6 +1,5 @@
 from packages.output import market_csv
 import numpy as np
-from scipy.signal import savgol_filter
 import matplotlib.pyplot as plt
 from packages.tech.trade_check import all_indicators
 
@@ -14,8 +13,8 @@ def minmax(data):
 # local min, max
 periods = 100
 # smooth data
-data = market_csv.csv_read_recent('USD_JPY', 'M30', periods)
-indicators = all_indicators('USD_JPY', 'M30', data)['indicators']
+data = market_csv.csv_read_recent('USD_JPY', 'H1', periods)
+indicators = all_indicators('USD_JPY', 'H1', data)['indicators']
 close = data['close']
 open_data = data['open']
 x_axis = np.array([x for x in range(periods)])

@@ -10,7 +10,7 @@ def end_of_week():
     start_date = date - datetime.timedelta(days=7)
     start_date_str = str(start_date)
     year_str = str(year)
-    path_to_output = 'data/reports/report_' + year_str + '.csv'
+    path_to_output = 'data/reports/report_' + str(date) + '.csv'
     # get all trade info from mysql for this week
     data = trade_sql.all_complete_trades_from(start_date_str)
 

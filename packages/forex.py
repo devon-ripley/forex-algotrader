@@ -182,7 +182,7 @@ def end_week(profile):
     # generate reports
     reports.end_of_week()
     notification.send_att('End of week report',
-                          'data/reports/report_' + str(datetime.datetime.now().date().year) + '.csv')
+                          'data/reports/report_' + str(datetime.datetime.now().date()) + '.csv')
     # sleep program
     logging.info('End of week, system sleeping')
     notification.send(message='End of week, system sleep', subject='End of week')
