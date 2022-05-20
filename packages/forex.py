@@ -151,8 +151,8 @@ def trading_loop(profile):
         count += 1
         # update market csv
         current_yr = int(system_time.strftime("%Y"))
-        market_csv.daily_current(apikey, currency_pairs, current_yr)
         for x in range(len(currency_pairs)):
+            market_csv.daily_current(apikey, currency_pairs[x], current_yr)
             for x_gran in range(len(gran)):
                 market_csv.current_year_complete(apikey, currency_pairs[x], gran[x_gran])
         res = trader.trade(first_run)
