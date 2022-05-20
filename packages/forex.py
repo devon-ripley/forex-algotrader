@@ -154,6 +154,8 @@ def trading_loop(profile):
         for x in range(len(currency_pairs)):
             market_csv.daily_current(apikey, currency_pairs[x], current_yr)
             for x_gran in range(len(gran)):
+                if gran[x_gran] == 'D':
+                    continue
                 market_csv.current_year_complete(apikey, currency_pairs[x], gran[x_gran])
         res = trader.trade(first_run)
 
