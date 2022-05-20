@@ -410,6 +410,25 @@ class PastTrader(Trader):
         profit = profit * abs(units)
         return profit
 
+    def sell_all(self, track_year):
+        for x in self.active_trades:
+            price_current = self.market_reader_obs[track_year][x['pair']][self.step_str].current_price
+            price_current = (price_current[0] + price_current[1]) / 2
+            profit = 0
+            if x['units'] > 0:
+                # long
+                profit = price_current - x['price']
+            elif x['units'] < 0:
+                # short
+                profit = x['price'] - price_current
+
+            self.active_data['margin_used'] -= x['margin_used']
+            apply_profit = self.calc_profit(profit, x['units'])
+            self.active_data['balance'] = round(self.active_data['balance'] + apply_profit)
+            self.active_pairs.remove(x['pair'])
+            self.active_trades.remove(x)
+            self.active_data['total_trades'] += 1
+
     def active_trade_check(self, track_year, price_data):
         for x in self.active_trades:
             price_current = self.market_reader_obs[track_year][x['pair']][self.step_str].current_price

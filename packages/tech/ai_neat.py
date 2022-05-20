@@ -124,6 +124,9 @@ def runner_multi(genome, config):
                         new_year_once = False
                     m_ob = market_reader_obs[track_year][p][g]
                 m_ob.go_check(track_datetime)
+        # sell trades end of week??
+        if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go is False:
+            trader.sell_all(track_year)
         if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go:
             # trade if times match with market reader and track_datetime
             inputs = trader.tradeinput(track_year)
@@ -206,6 +209,9 @@ def runner(genomes, config):
                         new_year_once = False
                     m_ob = market_reader_obs[track_year][p][g]
                 m_ob.go_check(track_datetime)
+        if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go is False:
+            for t in traders:
+                t.sell_all(track_year)
         if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go:
             # trade if times match with market reader and track_datetime
             for i, t in enumerate(traders):
