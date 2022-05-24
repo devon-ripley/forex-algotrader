@@ -21,6 +21,8 @@ x_axis = np.array([x for x in range(periods)])
 # min max
 # average data minmax
 avr_data = (close + open_data) / 2
+avr_data = indicators['rsi']
+print(len(avr_data))
 b, c = minmax(avr_data)
 price_point_min = []
 for point in b:
@@ -36,8 +38,7 @@ pp_min = np.array(norm_pp)
 combined_min_norm = np.vstack((b, pp_min)).T
 # get slopes
 for x in range(len(pp_min) - 1):
-    pass
-    #print((combined_min_norm[x][1]-combined_min_norm[x + 1][1]) / (combined_min_norm[x][0] - combined_min_norm[x + 1][0]))
+    print((combined_min_norm[x][1]-combined_min_norm[x + 1][1]) / (combined_min_norm[x][0] - combined_min_norm[x + 1][0]))
 
 price_point_max = []
 for point in c:
@@ -51,14 +52,17 @@ for x in price_point_max:
 pp_max = np.array(norm_pp)
 combined_max_norm = np.vstack((c, pp_max)).T
 for x in range(len(pp_min) - 1):
-    pass
-    #print((combined_max_norm[x][1]-combined_max_norm[x + 1][1]) / (combined_max_norm[x][0] - combined_max_norm[x + 1][0]))
+    print((combined_max_norm[x][1]-combined_max_norm[x + 1][1]) / (combined_max_norm[x][0] - combined_max_norm[x + 1][0]))
 
 
 # find support and resistance levels
 # support
 combined_min = np.vstack((b, price_point_min)).T
-
+overall_sup = min(price_point_min)
+overall_sup_loc = b[price_point_min.index(overall_sup)]
+#print(combined_min)
+#print('overal sup', overall_sup)
+#print('overall_sup_loc', overall_sup_loc)
 # print basic graph
 plt.plot(x_axis, avr_data)
 b, c = minmax(avr_data)
