@@ -5,6 +5,7 @@ import logging
 import json
 
 # set up folder org if not setup
+import neat_trade_strategy
 
 
 def folder_setup(currency_pairs, grans):
@@ -234,12 +235,13 @@ def num_nodes_stratneat(pairs, grans):
     from packages.output import market_csv
     last_year = (datetime.datetime.now() - datetime.timedelta(days=365)).year
     data = market_csv.csv_read_full(pairs[0], grans[0], last_year)
-    one_run_len = len(trade_strategy.trade_strategy(currency_pair=pairs[0], gran=grans[0], data=data))
+    ts = neat_trade_strategy.TradeStrategy(pairs[0], grans[0])
+    one_run_len = len(ts.run_trade_strategy(data))
     overall_len = 0
     for p in pairs:
         for g in grans:
             overall_len += one_run_len
-    return {'inputs': overall_len, 'outputs': len(pairs)}
+    return {'inputs': overall_len, 'outputs': len(pairs), 'inputs_per_gran': one_run_len}
 
 
 

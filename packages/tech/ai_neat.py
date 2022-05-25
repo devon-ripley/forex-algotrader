@@ -163,10 +163,6 @@ def runner(genomes, config):
         for p in currency_pairs:
             for g in gran:
                 market_reader_obs[year][p][g].reset()
-    # temp length of indicators to pass to neat as inputs
-    ind_len = 5
-    num_in_out = helpers.num_nodes_rawneat(currency_pairs, gran, ind_len)
-    per_gran_num = num_in_out['inputs_per_gran']
 
     # set up neat vars
     nets = []
@@ -180,12 +176,19 @@ def runner(genomes, config):
         ge.append(g)
         # trader setup
         if training_type == 0:
+            # temp length of indicators to pass to neat as inputs
+            ind_len = 5
+            num_in_out = helpers.num_nodes_rawneat(currency_pairs, gran, ind_len)
+            per_gran_num = num_in_out['inputs_per_gran']
             trader = trading.NeatRawPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
                                                profile['marginrate'], profile['periods'], step_str=min_step_str,
                                                ind_len=ind_len, per_gran_num=per_gran_num)
         else:
+            nums = helpers.num_nodes_stratneat(currency_pairs, gran)
+            per_gran_num = nums['inputs_per_gran']
             trader = trading.NeatStratPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
-                                                 profile['marginrate'], profile['periods'], step_str=min_step_str)
+                                                 profile['marginrate'], profile['periods'],
+                                                 step_str=min_step_str, per_gran_num=per_gran_num)
         trader.set_balance(start_balance)
         trader.add_market_readers(market_reader_obs)
         traders.append(trader)

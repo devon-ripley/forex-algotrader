@@ -1,3 +1,4 @@
+import neat_trade_strategy
 from packages.output import market_csv
 import trade_strategy
 import numpy
@@ -33,8 +34,7 @@ def all_indicators(currency_pair, gran, data):
      #obv = talib.OBV(data['close'], data['volume'])
      #m_dict['obv'] = obv
 
-    return {'indicators': m_dict,
-            'pair': currency_pair, 'gran': gran}
+    return m_dict
 
 
 def neat_raw_indicators(currency_pair, gran, data):
@@ -84,18 +84,22 @@ class TradeCheck:
 
 
 class Live(TradeCheck):
-    def live_candles(self, neat_raw=False):
+    def live_candles(self, neat_raw=False, neat_strat=False):
         # load most recent candles from csv
         data = market_csv.csv_read_recent(currency_pair=self.currency_pair, gran=self.gran, periods=self.data_periods)
         self.trend_set(data)
         if neat_raw:
             return neat_raw_indicators(self.currency_pair, self.gran, data)
+        if neat_strat:
+            strat = neat_trade_strategy.TradeStrategy(self.currency_pair, self.gran)
+            results = strat.run_trade_strategy(data)
+            return {'inputs': results, 'range': strat.last_range}
         else:
             return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
 
 
 class Past(TradeCheck):
-    def back_candles(self, market_reader_obs, track_year, neat_raw=False):
+    def back_candles(self, market_reader_obs, track_year, neat_raw=False, neat_strat=False):
         market_read = market_reader_obs[track_year][self.currency_pair][self.gran]
         if not market_read.go:
             return None
@@ -117,6 +121,10 @@ class Past(TradeCheck):
             self.trend_set(data)
             if neat_raw:
                 return neat_raw_indicators(self.currency_pair, self.gran, data)
+            if neat_strat:
+                strat = neat_trade_strategy.TradeStrategy(self.currency_pair, self.gran)
+                results = strat.run_trade_strategy(data)
+                return {'inputs': results, 'range': strat.last_range}
             else:
                 return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
         else:
@@ -124,5 +132,9 @@ class Past(TradeCheck):
             self.trend_set(data)
             if neat_raw:
                 return neat_raw_indicators(self.currency_pair, self.gran, data)
+            if neat_strat:
+                strat = neat_trade_strategy.TradeStrategy(self.currency_pair, self.gran)
+                results = strat.run_trade_strategy(data)
+                return {'inputs': results, 'range': strat.last_range}
             else:
                 return trade_strategy.trade_strategy(self.currency_pair, self.gran, data)
