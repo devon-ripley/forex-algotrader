@@ -71,16 +71,7 @@ def controller(arg):
             exit()
 
     elif arg == 'b':
-        # system profile load
-        f = open('data/config.json', 'r')
-        profile = json.load(f)
-        f.close()
-        earliest_year = int(profile['csvstart'])
-        earliest_year += 1
-        print(f'Earliest year allowed: {earliest_year}')
-        start_date = input('Enter start date for back test (YYYY-MM-DD): ')
-        start_balance = int(input('Enter starting balance, no decimals: $'))
-        backtest.setup(start_date, start_balance)
+        backtest.main()
         exit()
 
     elif arg == 'con':

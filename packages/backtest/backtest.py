@@ -225,7 +225,7 @@ def main():
         else:
             use_neat = False
         helpers.save_backtest_json(start_date, start_balance, use_neat)
-        setup(start_date, start_balance, use_neat)
+    setup(start_date, start_balance, use_neat)
 
 
 if __name__ == '__main__':
