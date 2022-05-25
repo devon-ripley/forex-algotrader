@@ -263,9 +263,9 @@ def load_neat_json():
         return False
 
 
-def save_backtest_json(s_date, s_balance):
+def save_backtest_json(s_date, s_balance, use_neat):
     path = os.getcwd() + '/data/backtest/saved_run.json'
-    json_data = {'date': s_date, 'balance': s_balance}
+    json_data = {'date': s_date, 'balance': s_balance, 'use_neat': use_neat}
     with open(path, 'w') as f:
         json.dump(json_data, f, indent=2)
 

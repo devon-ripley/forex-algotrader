@@ -10,6 +10,9 @@ from packages.tech import trading
 from packages.backtest import backtest_csv
 from packages.misc import helpers
 import json
+import neat
+import pickle
+
 
 # add in sale at end of week!!!
 
@@ -35,13 +38,35 @@ def get_last_date(pairs, grans):
 
 
 def runner(track_datetime, track_year, currency_pairs, gran,
-           market_reader_obs, trader, min_step, min_step_str, end_date):
+           market_reader_obs, trader, min_step, min_step_str, end_date, use_neat):
+    # set up neat net if needed
+    if use_neat == 'raw':
+        cur_path = str(os.getcwd())
+        config_path = cur_path + '/data/neat_raw_config.txt'
+        pickle_load = cur_path + '/data/neat/winner_raw.pkl'
+        config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet,
+                                    neat.DefaultStagnation, config_path)
+        with open(pickle_load, "rb") as f:
+            genome = pickle.load(f)
+        net = neat.nn.FeedForwardNetwork.create(genome, config)
+    elif use_neat == 'strat':
+        cur_path = str(os.getcwd())
+        config_path = cur_path + '/data/neat_strat_config.txt'
+        pickle_load = cur_path + '/data/neat/winner_strat.pkl'
+        config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet,
+                                    neat.DefaultStagnation, config_path)
+        with open(pickle_load, "rb") as f:
+            genome = pickle.load(f)
+        net = neat.nn.FeedForwardNetwork.create(genome, config)
+    else:
+        net = False
     logger = logging.getLogger('backtest')
     starting_balance = trader.active_data['balance']
 
     logger.info(f'Running backtest, start: {track_datetime}, end: {end_date}...')
     running = True
     iteration = 0
+    top_balance = starting_balance
     while running:
         iteration += 1
         new_year_once = True
@@ -56,12 +81,30 @@ def runner(track_datetime, track_year, currency_pairs, gran,
                     m_ob = market_reader_obs[track_year][p][g]
                 m_ob.go_check(track_datetime)
         if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go:
-            trader.trade_past(track_year, track_datetime)
+            if use_neat == 'raw' or use_neat == 'strat':
+                if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go:
+                    # trade if times match with market reader and track_datetime
+                    inputs = trader.tradeinput(track_year)
+                    if inputs is False:
+                        pass
+                    else:
+                        # neat
+                        outputs = net.activate(inputs)
+                        trader.tradeoutput(track_year, outputs)
+            else:
+                trader.trade_past(track_year, track_datetime)
+        # sell trades end of week
+        if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go is False:
+            trader.sell_all(track_year)
         # next step
         track_datetime = track_datetime + min_step
+        if trader.active_data['balance'] > top_balance:
+            top_balance = trader.active_data['balance']
         if trader.active_data['balance'] <= 0.05 * starting_balance:
-            logger.warning('Backtest ended early!')
             logger.warning('Balance at or under 5% of start amount')
+            logger.warning(f'Backtest ended early! {track_datetime}')
+            logger.info(f'Total number of trades: {trader.active_data["total_trades"]}')
+            logger.info(f'Highest balance during backtest: {top_balance}')
             running = False
         if track_datetime >= end_date:
             logger.info('Backtest complete!')
@@ -69,13 +112,15 @@ def runner(track_datetime, track_year, currency_pairs, gran,
             logger.info(f'Balance: {trader.active_data["balance"]}')
             logger.info(f'Total profit: {trader.active_data["balance"] - starting_balance}')
             logger.info(f'Total number of trades: {trader.active_data["total_trades"]}')
+            logger.info(f'Highest balance during backtest: {top_balance}')
             # end of run
 
 
-def setup(start_date_str='2018-05-15', start_balance=10000):
+def setup(start_date_str, start_balance, use_neat):
     # setup backtest logger
     helpers.set_logger_backtest()
     logger = logging.getLogger('backtest')
+    logger.info(f'Start balance: {start_balance}, Use_neat: {use_neat}')
     # system profile load
     f = open('data/config.json', 'r')
     profile = json.load(f)
@@ -124,15 +169,29 @@ def setup(start_date_str='2018-05-15', start_balance=10000):
             min_step_lst.append(datetime.timedelta(hours=temp_g))
     min_step = min(min_step_lst)
     min_step_str = minstr(min_step)
-    trader = trading.PastTrader(False, currency_pairs, gran, max_risk, max_use_day,
-                                margin_rate, periods, step_str=min_step_str)
+    if use_neat == 'raw':
+        # temp length of indicators to pass to neat as inputs
+        ind_len = 5
+        num_in_out = helpers.num_nodes_rawneat(currency_pairs, gran, ind_len)
+        per_gran_num = num_in_out['inputs_per_gran']
+        trader = trading.NeatRawPastTrader(False, currency_pairs, gran, max_risk, max_use_day,
+                                    margin_rate, periods, step_str=min_step_str, ind_len=ind_len, per_gran_num=per_gran_num)
+    if use_neat == 'strat':
+        num = helpers.num_nodes_stratneat(currency_pairs, gran)
+        per_gran = num['inputs_per_gran']
+        trader = trading.NeatStratPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
+                                             profile['marginrate'], profile['periods'],
+                                             step_str=min_step_str, per_gran_num=per_gran)
+    else:
+        trader = trading.PastTrader(False, currency_pairs, gran, max_risk, max_use_day,
+                                    margin_rate, periods, step_str=min_step_str)
     trader.active_data['balance'] = start_balance
     trader.add_market_readers(market_reader_obs)
     track_datetime = start_date
     track_year = track_datetime.year
 
     runner(track_datetime, track_year, currency_pairs, gran, market_reader_obs,
-           trader, min_step, min_step_str, end_date)
+           trader, min_step, min_step_str, end_date, use_neat)
 
 
 def main():
@@ -147,6 +206,7 @@ def main():
         else:
             start_date = json_data['date']
             start_balance = json_data['balance']
+            use_neat = json_data['use_neat']
     if json_data is False:
         # system profile load
         f = open('data/config.json', 'r')
@@ -157,8 +217,15 @@ def main():
         print(f'Earliest year allowed: {earliest_year}')
         start_date = input('Enter start date for back test (YYYY-MM-DD): ')
         start_balance = int(input('Enter starting balance, no decimals: '))
-        helpers.save_backtest_json(start_date, start_balance)
-        setup(start_date, start_balance)
+        use_neat = input('Run backtest with saved neat winner? (r), Raw indicators. (s), Strategy. (n), No neat: ').lower()
+        if use_neat == 'r':
+            use_neat = 'raw'
+        elif use_neat == 's':
+            use_neat = 'strat'
+        else:
+            use_neat = False
+        helpers.save_backtest_json(start_date, start_balance, use_neat)
+        setup(start_date, start_balance, use_neat)
 
 
 if __name__ == '__main__':

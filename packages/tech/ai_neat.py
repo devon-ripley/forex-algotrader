@@ -58,7 +58,6 @@ def setup(s_date, s_balance, mult_p, neat_type):
                 market_reader_obs[x][pair][g] = (backtest_csv.BacktestMarketReader(x, pair, g, start_date, False))
                 if x == start_date.year:
                     market_reader_obs[x][pair][g] = (backtest_csv.BacktestMarketReader(x, pair, g, start_date, True))
-
     end_date = backtest.get_last_date(currency_pairs, gran)
     logger.info(f'Test from {start_date} to {end_date}')
     logger.info(f'Starting Balance of {start_balance}')
@@ -86,9 +85,9 @@ def runner_multi(genome, config):
         for p in currency_pairs:
             for g in gran:
                 market_reader_obs[year][p][g].reset()
-
     # set up neat vars
     # neat vars multiproccesing, one genome
+    genome.fitness = 0
     net = neat.nn.FeedForwardNetwork.create(genome, config)
     # trader setup
     if training_type == 0:
@@ -107,7 +106,6 @@ def runner_multi(genome, config):
                                              step_str=min_step_str, per_gran_num=per_gran)
     trader.set_balance(start_balance)
     trader.add_market_readers(market_reader_obs)
-    genome.fitness = 0
 
     # trading loop
     running = True
@@ -127,7 +125,7 @@ def runner_multi(genome, config):
                         new_year_once = False
                     m_ob = market_reader_obs[track_year][p][g]
                 m_ob.go_check(track_datetime)
-        # sell trades end of week??
+        # sell trades end of week
         if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go is False:
             trader.sell_all(track_year)
         if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go:
@@ -173,9 +171,9 @@ def runner(genomes, config):
     traders = []
     for _, g in genomes:
         # nets setup
+        g.fitness = 0
         net = neat.nn.FeedForwardNetwork.create(g, config)
         nets.append(net)
-        g.fitness = 0
         ge.append(g)
         # trader setup
         if training_type == 0:
@@ -257,7 +255,6 @@ def neat_training(config_path, generations):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-
     # multiprocessing
     if mult_pros:
         mp_run = neat.ParallelEvaluator(multiprocessing.cpu_count(), runner_multi)
@@ -298,7 +295,7 @@ def main():
         print(f'Earliest year allowed: {earliest_year}')
         s_date = input('Enter start date for back test (YYYY-MM-DD): ')
         s_balance = int(input('Enter starting balance, no decimals: '))
-        mult_p = int(input('Multiprocessing (0) for no, (1) for yes: '))
+        mult_p = int(input('Multiprocessing (1) for yes, (0) for no: '))
         generations = int(input('Enter number of generations to run: '))
         neat_type = int(input('Enter (0) for neat raw indicator training, or (1) for neat strategy training: '))
         helpers.save_neat_json(s_date, s_balance, mult_p, generations, neat_type)
