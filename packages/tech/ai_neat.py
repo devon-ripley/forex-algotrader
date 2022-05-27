@@ -177,7 +177,7 @@ def runner(genomes, config):
         ge.append(g)
         # trader setup
         if training_type == 0:
-            # temp length of indicators to pass to neat as inputs
+            # temp length of indicators to pass to neat as inputs, add as var in data/config.json
             ind_len = 5
             num_in_out = helpers.num_nodes_rawneat(currency_pairs, gran, ind_len)
             per_gran_num = num_in_out['inputs_per_gran']
@@ -213,8 +213,7 @@ def runner(genomes, config):
                         new_year_once = False
                     m_ob = market_reader_obs[track_year][p][g]
                 m_ob.go_check(track_datetime)
-        # only execute t.sell_all if weekend. market_reader.go False does not always work for weekends!!!!!!!!!!
-        # setup a different weekend check! If day == Friday at propertime??
+        # only execute t.sell_all if weekend. market_reader.go False
         if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go is False:
             for t in traders:
                 t.sell_all(track_year)
@@ -301,6 +300,11 @@ def main():
         generations = int(input('Enter number of generations to run: '))
         neat_type = int(input('Enter (0) for neat raw indicator training, or (1) for neat strategy training: '))
         helpers.save_neat_json(s_date, s_balance, mult_p, generations, neat_type)
+    # setup global vars. global vars used because neat does not allow passing variables to fitness function
+    # market readers are set up outside of fitness function to save time and memory.
+    # IS THERE A DATETIME MISSMATCH IN MARKET_READER OBS WITH MULTIPROCESSING???
+    # Have individual market readers for each process if true.
+    # Does not add too much processing time if long run per generation
 
     setup(s_date, s_balance, mult_p, neat_type)
     if neat_type == 0:

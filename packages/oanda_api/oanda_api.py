@@ -4,9 +4,8 @@ import time
 from datetime import datetime
 from datetime import timedelta
 from decimal import *
-
 logger = logging.getLogger('forexlogger')
-
+# add in better data verification
 
 def account_get_init(apikey):
     logger.info('Running OandaApi initial connection')

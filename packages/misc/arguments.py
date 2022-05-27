@@ -17,32 +17,16 @@ def controller(arg):
         return
 
     arg = str(arg[-1]).lower()
-    if arg == 'h':
-        print('Help')
-        print('(r) or ()To run normally')
-        print('(ms) To reset mysql tables')
-        print('(con) To setup general config.json file')
-        print('(neat) To start neat training')
-        print('(neatio) To return number of inputs and outputs for neat')
-        print('(b) To run backtest')
-        print('(h), Help menu')
-        arg = input('Enter (x) to exit or any other letter to run')
-        arg = str(arg).lower()
-        if arg == 'x':
-            exit()
 
-        elif arg == 'r':
-            return
-        else:
-            pass
-
-    elif arg == 'neat':
+    if arg in ('-n', '--neat'):
         config_path = '/data/neat_raw_config.txt'
         cur_path = str(os.getcwd())
         config_path = cur_path + config_path
         ai_neat.main()
         exit()
-    elif arg == 'neatio':
+    elif arg in ('-r', '--run'):
+        return
+    elif arg in ('-i', '--neat_inout'):
         try:
             f = open('data/config.json', 'r')
             profile = json.load(f)
@@ -60,7 +44,7 @@ def controller(arg):
         if ur_in == 1:
             print(helpers.num_nodes_stratneat(pairs, grans))
         exit()
-    elif arg == 'ms':
+    elif arg in ('-m', '--reset_ms'):
         a = input('Are you sure you want to delete all trading mysql tables (y/n) ')
         a = str(a).lower()
         if a == 'y':
@@ -70,11 +54,11 @@ def controller(arg):
         else:
             exit()
 
-    elif arg == 'b':
+    elif arg in ('-b', '--backtest'):
         backtest.main()
         exit()
 
-    elif arg == 'con':
+    elif arg in ('-c', '--setup_gc'):
         name = input('Enter name of config file you would like to setup'
                      ' (Hit enter with no input to save as general config,'
                      ' this is the config file the program will run off of): ')
@@ -82,3 +66,21 @@ def controller(arg):
             helpers.setup_config()
         else:
             helpers.setup_config(name)
+
+    else:
+        print('Forex-Algotrader')
+        print('Help')
+        print('(-r) or (--run) or (): To run normally')
+        print('(-m) or (--reset_ms): To reset mysql tables')
+        print('(-c) or (--setup_gc): To setup general config.json file')
+        print('(-n) or (--neat): To start neat training')
+        print('(-i) or (--neat_inout): To return number of inputs and outputs for neat')
+        print('(-b) or (--backtest): To run backtest')
+        print('(-h) or (--help): Help menu')
+        arg = input('Enter (r) to run normally, any other input to exit')
+        arg = str(arg).lower()
+        if arg == 'r':
+            return
+        else:
+            exit()
+

@@ -21,11 +21,10 @@ NEAT is set up to use raw indicator data to make trading decisions.
 
 I am still working out some bugs and making it fully functional
 
-I am also working on setting up neat to use custom trading strategies.
 
 # Arguments for main.py
 
-you@yourpc:~$ python3 main.py r
+you@yourpc:~$ python3 forexat.py --help
 
 (r) or ()To run normally
 
@@ -48,9 +47,9 @@ REMOVE TEMPLATE FROM TEMPLATE_TRADE_STRATEGY.PY BEFORE STARTING
 
 REMOVE SAMPLE FROM DATA/SAMPLE_CONFIG.JSON BEFORE STARTING
 
-Run main.py to start trading loop
+Run forexat.py to start trading loop
 
-Run main.py b to backtest
+Run forexat.py -b or --backtest to backtest
 
 
 Put trading strategy in trade_strategy.py, format is:

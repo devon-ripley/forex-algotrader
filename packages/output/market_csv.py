@@ -12,7 +12,7 @@ from packages.misc import helpers
 import logging
 import time
 from pathlib import Path
-# New file organization
+# Add in data verification
 
 
 def current_year_check(currency_pair, gran):
