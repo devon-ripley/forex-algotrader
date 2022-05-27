@@ -2,26 +2,31 @@ import datetime
 import csv
 from packages.output import trade_sql
 from pathlib import Path
+from packages.oanda_api import oanda_api
 
 
-def end_of_week():
+def end_of_week(apikey, account_id):
     date = datetime.datetime.now().date()
     year = date.year
     start_date = date - datetime.timedelta(days=7)
     start_date_str = str(start_date)
     year_str = str(year)
-    path_to_output = 'data/reports/report_' + str(date) + '.csv'
+    path_to_output = 'data/reports/report_' + year_str + '.csv'
     # get all trade info from mysql for this week
     data = trade_sql.all_complete_trades_from(start_date_str)
-
+    #get current balance from oanda_api
+    balance = float(oanda_api.account_summary(apikey, account_id)['account']['balance'])
     path = Path(path_to_output)
-    headers = ['date', 'profit_week', 'trades_week', 'profit_year', 'trades_year']
+    headers = ['date', 'profit_week', 'trades_week', 'profit_year', 'trades_year', 'balance']
 
     # calculate total profit for week
     profit_week = 0.0
-    trades_week = len(data)
+    trades_week = 0
     for x in data:
+        if x[11] == 'N/A':
+            continue
         profit_week += float(x[11])
+        trades_week += 1
     # calculate year profit and number of trades
     total_profit = 0.0
     total_trades = 0
@@ -44,7 +49,8 @@ def end_of_week():
             'profit_week': profit_week,
             'trades_week': trades_week,
             'profit_year': total_profit,
-            'trades_year': total_trades
+            'trades_year': total_trades,
+            'balance': balance
         }
         # add data to file
         with open(path_to_output, 'a', newline='') as f:
@@ -55,8 +61,8 @@ def end_of_week():
         total_profit = profit_week
         total_trades = total_trades
         file = open(path_to_output, 'w')
-        file.writelines(['date,profit_week,trades_week,profit_year,trades_year\n',
-                         f'{str(date)},{profit_week},{trades_week},{total_profit},{total_trades}\n'])
+        file.writelines(['date,profit_week,trades_week,profit_year,trades_year,balance\n',
+                         f'{str(date)},{profit_week},{trades_week},{total_profit},{total_trades},{balance}\n'])
         file.close()
 
 

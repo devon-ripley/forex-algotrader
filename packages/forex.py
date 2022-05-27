@@ -91,6 +91,8 @@ def setup():
 
     # check and setup trade sql
     trade_sql.setup()
+    # check if last week's report info is in report csv
+    # Do it yuh
     notification.send('System start complete')
     return profile
 
@@ -180,7 +182,7 @@ def trading_loop(profile):
 
 def end_week(profile):
     # generate reports
-    reports.end_of_week()
+    reports.end_of_week(profile['apikey'], profile['account_id'])
     notification.send_att('End of week report',
                           'data/reports/report_' + str(datetime.datetime.now().date()) + '.csv')
     # sleep program
