@@ -69,6 +69,7 @@ def runner(track_datetime, track_year, currency_pairs, gran,
     top_balance = starting_balance
     while running:
         iteration += 1
+        # print(track_datetime)
         new_year_once = True
         # market reader index check
         for p in currency_pairs:
