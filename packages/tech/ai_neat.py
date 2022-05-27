@@ -213,6 +213,8 @@ def runner(genomes, config):
                         new_year_once = False
                     m_ob = market_reader_obs[track_year][p][g]
                 m_ob.go_check(track_datetime)
+        # only execute t.sell_all if weekend. market_reader.go False does not always work for weekends!!!!!!!!!!
+        # setup a different weekend check! If day == Friday at propertime??
         if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go is False:
             for t in traders:
                 t.sell_all(track_year)

@@ -410,7 +410,7 @@ class PastTrader(Trader):
 
     def sell_all(self, track_year):
         for x in self.active_trades:
-            price_current = self.market_reader_obs[track_year][x['pair']][self.step_str].current_price
+            price_current = self.market_reader_obs[track_year][x['pair']][self.step_str].get_current_price()
             price_current = (price_current[0] + price_current[1]) / 2
             profit = 0
             if x['units'] > 0:

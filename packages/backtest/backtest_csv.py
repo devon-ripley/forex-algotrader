@@ -52,6 +52,10 @@ class BacktestMarketReader:
         self.first = False
         self.start_index = self.initial_index
 
+    def get_current_price(self):
+        self.current_price = [self.data['high'][self.start_index], self.data['low'][self.start_index]]  # high, low
+        return self.current_price
+
     def output_backchunk(self, periods):
         track_index = self.start_index
         if self.start_index < periods:
@@ -80,7 +84,8 @@ class BacktestMarketReader:
 
         if track_date + self.step <= backtest_datetime:
             if self.data['date'][self.start_index] > backtest_datetime + datetime.timedelta(days=1):
-                # end of week
+                # end of week, change to own if statment, non nested???
+                print('go=False!!!!!')
                 self.go = False
             self.last_index = self.start_index
             self.start_index = self.start_index + 1
