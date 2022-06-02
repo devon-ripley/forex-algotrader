@@ -317,7 +317,7 @@ class LiveTraderNeatRaw(LiveTrader, Neat):
         # trade ob check and run
         indicator_results = []
         logger = logging.getLogger('forex_logger')
-        if self.currency_pairs == active_pairs:
+        if all(p in active_pairs for p in self.currency_pairs):
             return False
         for pair in self.currency_pairs:
             if pair in active_pairs:
@@ -365,7 +365,7 @@ class LiveTraderNeatStrat(LiveTrader, Neat):
         # trade ob check and run
         formatted_outputs = []
         logger = logging.getLogger('forex_logger')
-        if active_pairs == self.currency_pairs:
+        if all(p in active_pairs for p in self.currency_pairs):
             return False
         for pair in self.currency_pairs:
             if pair in active_pairs:
@@ -411,6 +411,7 @@ class PastTrader(Trader):
     def sell_all(self, track_year):
         if self.active_trades is False:
             return
+        items_to_remove = []
         for x in self.active_trades:
             price_current = self.market_reader_obs[track_year][x['pair']][self.step_str].get_current_price()
             price_current = (price_current[0] + price_current[1]) / 2
@@ -426,10 +427,20 @@ class PastTrader(Trader):
             apply_profit = self.calc_profit(profit, x['units'])
             self.active_data['balance'] = round(self.active_data['balance'] + apply_profit)
             self.active_pairs.remove(x['pair'])
-            self.active_trades.remove(x)
+            items_to_remove.append(x)
             self.active_data['total_trades'] += 1
 
+        for i in items_to_remove:
+            self.active_trades.remove(i)
+
     def active_trade_check(self, track_year, price_data):
+        items_to_remove = []
+        pairs_to_remove = []
+        if len(self.active_trades) > 3:
+            print('Fuck')
+            print(self.active_trades)
+            print(self.active_pairs)
+            input()
         for x in self.active_trades:
             price_current = self.market_reader_obs[track_year][x['pair']][self.step_str].current_price
             profit = None
@@ -453,9 +464,13 @@ class PastTrader(Trader):
                 self.active_data['margin_used'] -= x['margin_used']
                 apply_profit = self.calc_profit(profit, x['units'])
                 self.active_data['balance'] = round(self.active_data['balance'] + apply_profit)
-                self.active_pairs.remove(x['pair'])
-                self.active_trades.remove(x)
+                pairs_to_remove.append(x['pair'])
+                items_to_remove.append(x)
                 self.active_data['total_trades'] += 1
+        for i in items_to_remove:
+            self.active_trades.remove(i)
+        for i in pairs_to_remove:
+            self.active_pairs.remove(i)
 
     def trade_past(self, track_year, track_datetime):
         # logger = logging.getLogger('backtestlogger')
@@ -484,7 +499,7 @@ class PastTrader(Trader):
         # execute trade
         top_trade_price = self.market_reader_obs[track_year][run_info['top_trade']['pair']][self.step_str].current_price
         top_trade_price = (top_trade_price[0] + top_trade_price[1]) / 2
-        margin_used_trade = units / self.margin_rate
+        margin_used_trade = abs(units) / self.margin_rate
         self.active_data['margin_used'] += margin_used_trade
         self.active_trades.append(
             {'price': top_trade_price, 'units': units, 'margin_used': margin_used_trade,
@@ -518,13 +533,28 @@ class NeatRawPastTrader(PastTrader, Neat):
 
     def format_neat_outputs(self, outputs, track_year):
         abs_out = []
-        for out in outputs:
-            abs_out.append(abs(out))
-        top_index = abs_out.index(max(abs_out))
-        top_output = outputs[top_index]
-        pair = self.currency_pairs[top_index]
-        price = self.market_reader_obs[track_year][pair][self.step_str].current_price
-        price = (price[0] + price[1]) / 2
+        pairs_temp = list(self.currency_pairs)
+        check = True
+        top_output = 0
+        while check:
+            if pairs_temp is False:
+                break
+            for out in outputs:
+                abs_out.append(abs(out))
+            top_index = abs_out.index(max(abs_out))
+            if pairs_temp[top_index] in self.active_pairs:
+                outputs.pop(top_index)
+                pairs_temp.pop(top_index)
+                abs_out = []
+                continue
+            else:
+                check = False
+            top_output = outputs[top_index]
+            pair = pairs_temp[top_index]
+            price = self.market_reader_obs[track_year][pair][self.step_str].current_price
+            price = (price[0] + price[1]) / 2
+
+
         if top_output > 0.5:
             # long
             stop, take = self.calc_stop_take_neat(pair, price, top_output, direction=1)
@@ -541,7 +571,7 @@ class NeatRawPastTrader(PastTrader, Neat):
     def trade_check_controller(self, track_year):
         indicator_results = []
         # get indicators for all pairs
-        if self.currency_pairs == self.active_pairs:
+        if all(p in self.active_pairs for p in self.currency_pairs):
             return False
         for pair in self.currency_pairs:
             if pair in self.active_pairs:
@@ -603,7 +633,7 @@ class NeatStratPastTrader(NeatRawPastTrader):
     def trade_check_controller(self, track_year):
         formatted_outputs = []
         # get indicators for all pairs
-        if self.currency_pairs == self.active_pairs:
+        if all(p in self.active_pairs for p in self.currency_pairs):
             return False
         for pair in self.currency_pairs:
             if pair in self.active_pairs:
