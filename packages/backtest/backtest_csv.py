@@ -82,6 +82,10 @@ class BacktestMarketReader:
         if track_date <= backtest_datetime:
             self.go = True
 
+        if self.data['date'][self.start_index] > backtest_datetime + datetime.timedelta(days=1):
+            # end of week, change to own if statment, non nested???
+            self.go = False
+
         if track_date + self.step <= backtest_datetime:
             #if self.data['date'][self.start_index] > backtest_datetime + datetime.timedelta(days=1):
                 # end of week, change to own if statment, non nested???
@@ -89,9 +93,7 @@ class BacktestMarketReader:
                 #self.go = False
             self.last_index = self.start_index
             self.start_index = self.start_index + 1
-        if self.data['date'][self.start_index] > backtest_datetime + datetime.timedelta(days=1):
-            # end of week, change to own if statment, non nested???
-            self.go = False
+
 
     def split_year(self, periods_back):
         cut_data_dict = {}
