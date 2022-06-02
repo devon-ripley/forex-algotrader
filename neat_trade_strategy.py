@@ -89,7 +89,7 @@ class TradeStrategy:
                 # price over upper bband
                 points -= 1
             if rsi_slopes['max_slopes'][-1][1] < 0 < price_slopes['max_slopes'][-1][1]:
-                points += 1
+                points -= 1
         return points
 
     def _strat2(self):
