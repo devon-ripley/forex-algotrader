@@ -436,11 +436,6 @@ class PastTrader(Trader):
     def active_trade_check(self, track_year, price_data):
         items_to_remove = []
         pairs_to_remove = []
-        if len(self.active_trades) > 3:
-            print('Fuck')
-            print(self.active_trades)
-            print(self.active_pairs)
-            input()
         for x in self.active_trades:
             price_current = self.market_reader_obs[track_year][x['pair']][self.step_str].current_price
             profit = None
