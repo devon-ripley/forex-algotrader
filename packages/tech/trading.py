@@ -266,15 +266,16 @@ class LiveTrader(Trader):
                 trade_info = oanda_api.market_order(self.apikey, self.account_id, units,
                                                     run_info['top_trade']['pair'],
                                                     run_info['stop_loss'], run_info['take_profit'])
+                info_sent = str([units, run_info['top_trade']['pair'], run_info['stop_loss'], run_info['take_profit']])
                 if 'orderCancelTransaction' in trade_info:
                     reason = trade_info['orderCancelTransaction']['reason']
-                    logger.error('Error market order, ' + reason)
+                    logger.error(f'Error market order, {reason}, info: {info_sent}')
                     notification.send('Error market order, ' + reason)
 
                 elif 'orderRejectTransaction' in trade_info:
                     reason = trade_info['orderRejectTransaction']['rejectReason']
-                    logger.error('Error market order, ' + reason)
-                    notification.send('Error market order, ' + reason)
+                    logger.error(f'Error market order, {reason}, info: {info_sent}')
+                    notification.send(f'Error market order, ' + reason)
 
                 else:
                     trade_id = trade_info['orderFillTransaction']['id']
