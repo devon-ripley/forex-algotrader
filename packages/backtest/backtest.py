@@ -181,7 +181,7 @@ def setup(start_date_str, start_balance, use_neat, chart):
         trader = trading.NeatRawPastTrader(False, currency_pairs, gran, max_risk, max_use_day,
                                            margin_rate, periods, step_str=min_step_str, ind_len=ind_len,
                                            per_gran_num=per_gran_num)
-    if use_neat == 'strat':
+    elif use_neat == 'strat':
         num = helpers.num_nodes_stratneat(currency_pairs, gran)
         per_gran = num['inputs_per_gran']
         trader = trading.NeatStratPastTrader(False, currency_pairs, gran, profile['maxrisk'], profile['maxuseday'],
