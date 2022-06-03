@@ -231,7 +231,6 @@ def num_nodes_rawneat(pairs, grans, len_ind):
 
 
 def num_nodes_stratneat(pairs, grans):
-    import trade_strategy
     from packages.output import market_csv
     last_year = (datetime.datetime.now() - datetime.timedelta(days=365)).year
     data = market_csv.csv_read_full(pairs[0], grans[0], last_year)
@@ -263,9 +262,9 @@ def load_neat_json():
         return False
 
 
-def save_backtest_json(s_date, s_balance, use_neat):
+def save_backtest_json(s_date, s_balance, use_neat, chart):
     path = os.getcwd() + '/data/backtest/saved_run.json'
-    json_data = {'date': s_date, 'balance': s_balance, 'use_neat': use_neat}
+    json_data = {'date': s_date, 'balance': s_balance, 'use_neat': use_neat, 'chart': chart}
     with open(path, 'w') as f:
         json.dump(json_data, f, indent=2)
 

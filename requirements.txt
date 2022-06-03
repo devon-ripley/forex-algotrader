@@ -1,6 +1,9 @@
 numpy~=1.22.2
 mysql-connector-python~=8.0.28
-yagmail~=0.14.261
 requests~=2.25.1
 neat-python~=0.92
 TA-Lib~=0.4.24
+# required for sending notifications
+yagmail~=0.14.261
+# required if producing graphs is needed
+matplotlib~=3.5.1
