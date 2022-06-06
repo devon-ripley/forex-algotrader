@@ -59,7 +59,6 @@ class TradeStrategy:
         points = 0
         BBannd = self.indicator_dict['bband']
         b_up = BBannd['upper']
-        b_mid = BBannd['middle']
         b_low = BBannd['lower']
         rsi = self.indicator_dict['rsi']
         periods = len(rsi)

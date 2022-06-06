@@ -52,7 +52,7 @@ class Trader:
         # test fixing USD_JPY low units bug
         if current_price > 90.0 or current_price < -90.0:
             # USD_JPY check temp!!!!!
-            units = units * 4
+            units = units * 10
         if trade_margin_used + margin_used >= max_use_day:
             return False
         if units > max_units / 2:
