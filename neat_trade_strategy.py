@@ -65,7 +65,7 @@ class TradeStrategy:
         rsi_slopes = self.pt_analysis(rsi)
         avr_market_data = (self.market_data['open'] + self.market_data['close']) / 2
         price_slopes = self.pt_analysis(avr_market_data)
-        min_start = rsi_slopes['min_slopes'][-1][0]
+        min_start = rsi_slopes['min_slopes'][-1][0] ##### WHICH ONE????
         max_start = (periods - rsi_slopes['max_slopes'][-1][0]) + 1
         scope_min = rsi[min_start:]
         buy_go = map(lambda x: True if (x <= 30) else False, scope_min)
@@ -92,15 +92,19 @@ class TradeStrategy:
         return points
 
     def _strat2(self):
+        # figuring out whether the market in range bound or trending
         return self.indicator_dict
 
     def _strat3(self):
+        # determine placement of stoploss. ADD EXTRA OUTPUT FOR STOPLOSS CONTROL
         return self.indicator_dict
 
     def _strat4(self):
+        # Pass the current day of week and time as digit??
         return self.indicator_dict
 
     def _strat5(self):
+        # some other trading strat. hopefully a few more
         return self.indicator_dict
 
     def run_trade_strategy(self, data):

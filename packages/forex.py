@@ -1,10 +1,6 @@
-# forex trading bot
+# forex-algotrader
 # By Devon Ripley
 # v0.6
-# add in long term trades, change system shut down to always running
-# add in saving of trade decision making data???
-# trend daily adjustment features
-# add in report generation???
 # system time must be UTC
 # imports
 from datetime import datetime as now
