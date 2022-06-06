@@ -130,9 +130,6 @@ def trading_loop(profile):
     if 'neat' in profile:
         neat_run = bool(profile['neat'])
     # check hr and day
-    system_time = now.now()
-    current_hr = int(system_time.strftime("%H"))
-    current_day = int(system_time.strftime("%w"))
     loop = True
     logger.info('Running trading loop')
 
@@ -152,7 +149,10 @@ def trading_loop(profile):
     while loop:
         count += 1
         # update market csv
+        system_time = now.now()
         current_yr = int(system_time.strftime("%Y"))
+        current_hr = int(system_time.strftime("%H"))
+        current_day = int(system_time.strftime("%D"))
         for x in range(len(currency_pairs)):
             market_csv.daily_current(apikey, currency_pairs[x], current_yr)
             for x_gran in range(len(gran)):
@@ -184,7 +184,7 @@ def end_week(profile):
     # generate reports
     reports.end_of_week(profile['apikey'], profile['account_id'])
     notification.send_att('End of week report',
-                          'data/reports/report_' + str(datetime.datetime.now().date()) + '.csv')
+                          'data/reports/report_' + str(datetime.datetime.now().year) + '.csv')
     # sleep program
     logging.info('End of week, system sleeping')
     notification.send(message='End of week, system sleep', subject='End of week')
