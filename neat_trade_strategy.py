@@ -1,3 +1,5 @@
+import datetime
+
 import numpy as np
 from packages.tech import trade_check
 
@@ -101,7 +103,7 @@ class TradeStrategy:
 
     def _strat4(self):
         # Pass the current day of week and time as digit??
-        return self.indicator_dict
+        return int(datetime.datetime.now().hour)
 
     def _strat5(self):
         # some other trading strat. hopefully a few more
@@ -113,4 +115,4 @@ class TradeStrategy:
         self.pt_analysis((data['close'] + data['high']) / 2)
         self.last_range = self.indicator_dict['atr'][-1]
 
-        return [self._strat1()]
+        return [self._strat1(), self._strat4()]

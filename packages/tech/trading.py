@@ -50,9 +50,9 @@ class Trader:
         units = risk_amount / abs(current_price - stop_loss)
         trade_margin_used = units / margin_rate
         # test fixing USD_JPY low units bug
-        if current_price > 90.0 or current_price < -90.0:
+        # if current_price > 90.0 or current_price < -90.0:
             # USD_JPY check temp!!!!!
-            units = units * 10
+            # units = units * 10
         if trade_margin_used + margin_used >= max_use_day:
             return False
         if units > max_units / 2:
@@ -114,8 +114,9 @@ class Trader:
 
 class Neat(Trader):
 
-    def calc_stop_take_neat(self, pair, price, output, direction):
+    def calc_stop_take_neat(self, pair, price, output, direction, range_mult):
         range = self.range_dict[pair]
+        range = range * range_mult
         if direction == 0:
             # short
             stop_loss = price + range
@@ -167,6 +168,11 @@ class Neat(Trader):
 
     def format_neat_outputs(self, outputs, prices):
         abs_out = []
+        # 4th output as range mult test
+        range_mult = abs(outputs[-1])
+        if range_mult > 3.0:
+            range_mult = 3.0
+        outputs = outputs[:-1]
         for out in outputs:
             abs_out.append(abs(out))
         top_index = abs_out.index(max(abs_out))
@@ -177,12 +183,12 @@ class Neat(Trader):
                 price = float(pa['closeoutAsk'])
         if top_output > 0.5:
             # long
-            stop, take = self.calc_stop_take_neat(pair, price, top_output, direction=1)
+            stop, take = self.calc_stop_take_neat(pair, price, top_output, direction=1, range_mult=range_mult)
             trade_results = {'execute': True, 'current_price': price, 'pair': pair, 'unit_mult': 1,
                              'stop_loss': stop, 'take_profit': take, 'top_trade': {'pair': pair, 'date': datetime.datetime.now()}}
         elif top_output < -0.5:
             # short
-            stop, take = self.calc_stop_take_neat(pair, price,  top_output, direction=0)
+            stop, take = self.calc_stop_take_neat(pair, price,  top_output, direction=0, range_mult=range_mult)
             trade_results = {'execute': True, 'current_price': price, 'pair': pair, 'unit_mult': -1,
                              'stop_loss': stop, 'take_profit': take, 'top_trade': {'pair': pair, 'date': datetime.datetime.now()}}
         else:
@@ -533,6 +539,11 @@ class NeatRawPastTrader(PastTrader, Neat):
 
     def format_neat_outputs(self, outputs, track_year):
         abs_out = []
+        # 4th output as range mult test
+        range_mult = abs(outputs[-1])
+        if range_mult > 3.0:
+            range_mult = 3.0
+        outputs = outputs[:-1]
         pairs_temp = list(self.currency_pairs)
         check = True
         top_output = 0
@@ -557,11 +568,11 @@ class NeatRawPastTrader(PastTrader, Neat):
 
         if top_output > 0.5:
             # long
-            stop, take = self.calc_stop_take_neat(pair, price, top_output, direction=1)
+            stop, take = self.calc_stop_take_neat(pair, price, top_output, direction=1, range_mult=range_mult)
             trade_results = {'execute': True, 'price': price, 'pair': pair, 'unit_mult': 1, 'stop_loss': stop, 'take_profit': take}
         elif top_output < -0.5:
             # short
-            stop, take = self.calc_stop_take_neat(pair, price,  top_output, direction=0)
+            stop, take = self.calc_stop_take_neat(pair, price,  top_output, direction=0, range_mult=range_mult)
             trade_results = {'execute': True, 'price': price, 'pair': pair, 'unit_mult': -1, 'stop_loss': stop, 'take_profit': take}
         else:
             # No trade
