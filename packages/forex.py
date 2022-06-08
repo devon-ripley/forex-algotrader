@@ -151,7 +151,7 @@ def trading_loop(profile):
         system_time = now.now()
         current_yr = int(system_time.strftime("%Y"))
         current_hr = int(system_time.strftime("%H"))
-        current_day = int(system_time.strftime("%d"))
+        current_day = int(system_time.strftime("%w"))
         for x in range(len(currency_pairs)):
             market_csv.daily_current(apikey, currency_pairs[x], current_yr)
             for x_gran in range(len(gran)):

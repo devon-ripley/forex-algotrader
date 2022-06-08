@@ -393,11 +393,9 @@ class LiveTraderNeatStrat(LiveTrader, Neat):
         # run strat results through saved neat_strat network
         neat_outputs = self.strat_net.activate(formatted_outputs)
         trade_results = self.format_neat_outputs(neat_outputs, price_data)
-        for x, pair in enumerate(self.currency_pairs):
-            if trade_results[pair]['execute'] is False or pair in active_pairs:
-                continue
-            run_info = trade_results[pair]
-            return run_info
+        if trade_results['execute'] is False or trade_results['pair'] in active_pairs:
+            return False
+        return trade_results
 
 
 class PastTrader(Trader):
