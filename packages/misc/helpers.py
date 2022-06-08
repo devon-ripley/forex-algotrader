@@ -151,7 +151,11 @@ def setup_config(name='config.json'):
         print(f'{num}/{final_num}')
         out = input('Use saved neat network with live trading, (y) for yes, (n) for no: ').lower()
         if out == 'y':
-            shut = True
+            shut = input('Use saved raw indicator (r) or strategy network (s): ').lower()
+            if shut == 'r':
+                shut = 'raw'
+            else:
+                shut = 'strat'
         else:
             shut = False
         config_final['neat'] = shut

@@ -124,7 +124,7 @@ def trading_loop(profile):
     account_id = profile['account_id']
     neat_run = False
     if 'neat' in profile:
-        neat_run = bool(profile['neat'])
+        neat_run = profile['neat']
     # check hr and day
     loop = True
     logger.info('Running trading loop')
@@ -132,9 +132,12 @@ def trading_loop(profile):
     first_run = True
     trade_wait = 300
     # setup trader object
-    if neat_run:
+    if neat_run == 'raw':
         trader = trading.LiveTraderNeatRaw(True, currency_pairs, gran, max_risk, max_use_day,
                                            margin_rate, periods, apikey, account_id, 5)
+    elif neat_run == 'strat':
+        trader = trading.LiveTraderNeatStrat(True, currency_pairs, gran, max_risk, max_use_day,
+                                           margin_rate, periods, apikey, account_id)
     else:
         trader = trading.LiveTrader(True, currency_pairs, gran, max_risk, max_use_day,
                                     margin_rate, periods, apikey, account_id)
