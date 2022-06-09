@@ -1,3 +1,4 @@
+import copy
 import multiprocessing
 import os.path
 import datetime
@@ -81,10 +82,11 @@ def runner_multi(genome, config):
     track_datetime = start_date
     track_year = track_datetime.year
     # reset market readers to start
+    market_reader_obs_sig = copy.deepcopy(market_reader_obs)
     for year in year_lst:
         for p in currency_pairs:
             for g in gran:
-                market_reader_obs[year][p][g].reset()
+                market_reader_obs_sig[year][p][g].reset()
     # set up neat vars
     # neat vars multiproccesing, one genome
     genome.fitness = 0
@@ -105,7 +107,7 @@ def runner_multi(genome, config):
                                              profile['marginrate'], profile['periods'],
                                              step_str=min_step_str, per_gran_num=per_gran)
     trader.set_balance(start_balance)
-    trader.add_market_readers(market_reader_obs)
+    trader.add_market_readers(market_reader_obs_sig)
 
     # trading loop
     running = True
@@ -118,17 +120,17 @@ def runner_multi(genome, config):
         # market reader index check
         for p in currency_pairs:
             for g in gran:
-                m_ob = market_reader_obs[track_year][p][g]
+                m_ob = market_reader_obs_sig[track_year][p][g]
                 if m_ob.start_index > m_ob.total_length:
                     if new_year_once:
                         track_year += 1
                         new_year_once = False
-                    m_ob = market_reader_obs[track_year][p][g]
+                    m_ob = market_reader_obs_sig[track_year][p][g]
                 m_ob.go_check(track_datetime)
         # sell trades end of week
-        if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go is False:
+        if market_reader_obs_sig[track_year][currency_pairs[0]][min_step_str].go is False:
             trader.sell_all(track_year)
-        if market_reader_obs[track_year][currency_pairs[0]][min_step_str].go:
+        if market_reader_obs_sig[track_year][currency_pairs[0]][min_step_str].go:
             # trade if times match with market reader and track_datetime
             inputs = trader.tradeinput(track_year)
             if inputs is False:
