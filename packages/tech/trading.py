@@ -395,8 +395,7 @@ class LiveTraderNeatStrat(LiveTrader, Neat):
         trade_results = self.format_neat_outputs(neat_outputs, price_data)
         if trade_results['execute'] is False or trade_results['pair'] in active_pairs:
             return False
-        run_info = trade_results
-        return run_info
+        return trade_results
 
 
 class PastTrader(Trader):
