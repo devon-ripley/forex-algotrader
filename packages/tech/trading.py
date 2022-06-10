@@ -128,26 +128,26 @@ class Neat(Trader):
         if out_gran > range_out0ran:
             out_gran = range_out0ran
         gran = self.grans[out_gran]
-        range = self.range_dict[pair][gran]
-        range = range * range_mult
+        og_range = self.range_dict[pair][gran]
+        range = og_range * range_mult
         if direction == 0:
             # short
             stop_loss = price + range
             tp_mult = 1
-            if output < -1.0:
+            if output <= -1.0:
                 if output < -3.0:
                     output = -3.0
                 tp_mult = abs(output)
-            take_profit = price - (range * tp_mult)
+            take_profit = price - (og_range * tp_mult)
         else:
             # long
             stop_loss = price - range
             tp_mult = 1
-            if output > 1.0:
+            if output >= 1.0:
                 if output > 3.0:
                     output = 3.0
                 tp_mult = abs(output)
-            take_profit = price + (range * tp_mult)
+            take_profit = price + (og_range * tp_mult)
 
         return stop_loss, take_profit
 
@@ -205,12 +205,12 @@ class Neat(Trader):
             for pa in prices:
                 if pa['instrument'] == pair:
                     price = float(pa['closeoutAsk'])
-        if top_output > 0.5:
+        if top_output >= 1.0:
             # long
             stop, take = self.calc_stop_take_neat(pair, price, top_output, direction=1, range_out=range_out)
             trade_results = {'execute': True, 'price': price, 'pair': pair, 'unit_mult': 1, 'stop_loss': stop,
                              'take_profit': take, 'top_trade': {'pair': pair, 'date': datetime.datetime.now()}}
-        elif top_output < -0.5:
+        elif top_output <= -1.0:
             # short
             stop, take = self.calc_stop_take_neat(pair, price,  top_output, direction=0, range_out=range_out)
             trade_results = {'execute': True, 'price': price, 'pair': pair, 'unit_mult': -1, 'stop_loss': stop,
@@ -335,7 +335,6 @@ class LiveTraderNeatRaw(LiveTrader, Neat):
                  margin_rate, periods, apikey, account_id, ind_len):
         super(LiveTraderNeatRaw, self).__init__(live, currency_pairs, gran, max_risk, max_use_day,
                  margin_rate, periods, apikey, account_id)
-        self.range_dict = {}
         self.ind_len = ind_len
         num_in_out = helpers.num_nodes_rawneat(currency_pairs, gran, ind_len)
         self.per_gran_num = num_in_out['inputs_per_gran']
@@ -383,7 +382,6 @@ class LiveTraderNeatStrat(LiveTrader, Neat):
                  margin_rate, periods, apikey, account_id):
         super(LiveTraderNeatStrat, self).__init__(live, currency_pairs, gran, max_risk, max_use_day,
                  margin_rate, periods, apikey, account_id)
-        self.range_dict = {}
         num_in_out = helpers.num_nodes_stratneat(currency_pairs, gran)
         self.per_gran_num = num_in_out['inputs_per_gran']
         cur_path = str(os.getcwd())
@@ -490,7 +488,7 @@ class PastTrader(Trader):
             if profit is not None:
                 self.active_data['margin_used'] -= x['margin_used']
                 apply_profit = self.calc_profit(profit, x['units'])
-                self.active_data['balance'] = round(self.active_data['balance'] + apply_profit)
+                self.active_data['balance'] = self.active_data['balance'] + apply_profit
                 pairs_to_remove.append(x['pair'])
                 items_to_remove.append(x)
                 self.active_data['total_trades'] += 1

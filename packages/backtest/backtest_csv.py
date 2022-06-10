@@ -107,7 +107,7 @@ class BacktestMarketReader:
         return cut_data_dict
 
     def new_year(self, periods):
-        cut_data_dict = {}#### only pass new line if track index goes up!!!
+        cut_data_dict = {}
         periods += 1
 
         cut_data_dict['date'] = self.data['date'][:periods]

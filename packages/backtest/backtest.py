@@ -147,7 +147,8 @@ def setup(start_date_str, start_balance, use_neat, chart):
     start_year = year + 1
     market_reader_obs = {}
     year_lst = []
-    current_year = datetime.datetime.now().year
+    end_date = get_last_date(currency_pairs, gran)
+    current_year = end_date.year
     while year <= current_year:
         year_lst.append(year)
         year += 1
@@ -160,8 +161,6 @@ def setup(start_date_str, start_balance, use_neat, chart):
                 market_reader_obs[x][pair][g] = (backtest_csv.BacktestMarketReader(x, pair, g, start_date, False))
                 if x == start_date.year:
                     market_reader_obs[x][pair][g] = (backtest_csv.BacktestMarketReader(x, pair, g, start_date, True))
-
-    end_date = get_last_date(currency_pairs, gran)
 
     min_step_lst = []
     for x in gran:

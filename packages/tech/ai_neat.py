@@ -45,7 +45,8 @@ def setup(s_date, s_balance, mult_p, neat_type):
     start_year = year + 1
     market_reader_obs = {}
     year_lst = []
-    current_year = datetime.datetime.now().year
+    end_date = backtest.get_last_date(currency_pairs, gran)
+    current_year = end_date.year
     while year <= current_year:
         year_lst.append(year)
         year += 1
@@ -59,7 +60,6 @@ def setup(s_date, s_balance, mult_p, neat_type):
                 market_reader_obs[x][pair][g] = (backtest_csv.BacktestMarketReader(x, pair, g, start_date, False))
                 if x == start_date.year:
                     market_reader_obs[x][pair][g] = (backtest_csv.BacktestMarketReader(x, pair, g, start_date, True))
-    end_date = backtest.get_last_date(currency_pairs, gran)
     logger.info(f'Test from {start_date} to {end_date}')
     logger.info(f'Starting Balance of {start_balance}')
     min_step_lst = []
