@@ -231,7 +231,7 @@ def num_nodes_rawneat(pairs, grans, len_ind):
 
     inputs = input_count * len_ind * len(pairs) * len(grans)
 
-    return {'outputs': outputs, 'inputs': inputs, 'inputs_per_gran': input_count * len_ind}
+    return {'outputs': outputs+2, 'inputs': inputs, 'inputs_per_gran': input_count * len_ind}
 
 
 def num_nodes_stratneat(pairs, grans):
@@ -244,7 +244,7 @@ def num_nodes_stratneat(pairs, grans):
     for p in pairs:
         for g in grans:
             overall_len += one_run_len
-    return {'inputs': overall_len, 'outputs': len(pairs), 'inputs_per_gran': one_run_len}
+    return {'inputs': overall_len, 'outputs': len(pairs)+2, 'inputs_per_gran': one_run_len}
 
 
 
