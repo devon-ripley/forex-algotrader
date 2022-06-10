@@ -208,12 +208,12 @@ class Neat(Trader):
         if top_output >= 1.0:
             # long
             stop, take = self.calc_stop_take_neat(pair, price, top_output, direction=1, range_out=range_out)
-            trade_results = {'execute': True, 'price': price, 'pair': pair, 'unit_mult': 1, 'stop_loss': stop,
+            trade_results = {'execute': True, 'current_price': price, 'pair': pair, 'unit_mult': 1, 'stop_loss': stop,
                              'take_profit': take, 'top_trade': {'pair': pair, 'date': datetime.datetime.now()}}
         elif top_output <= -1.0:
             # short
             stop, take = self.calc_stop_take_neat(pair, price,  top_output, direction=0, range_out=range_out)
-            trade_results = {'execute': True, 'price': price, 'pair': pair, 'unit_mult': -1, 'stop_loss': stop,
+            trade_results = {'execute': True, 'current_price': price, 'pair': pair, 'unit_mult': -1, 'stop_loss': stop,
                              'take_profit': take, 'top_trade': {'pair': pair, 'date': datetime.datetime.now()}}
         else:
             # No trade

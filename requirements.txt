@@ -4,6 +4,6 @@ requests~=2.25.1
 neat-python~=0.92
 TA-Lib~=0.4.24
 # required for sending notifications
-yagmail~=0.14.261
+yagmail==0.15.277
 # required if producing graphs is needed
 matplotlib~=3.5.1
