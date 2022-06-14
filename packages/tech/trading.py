@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import pickle
-
+import copy
 import neat
 from packages.oanda_api import oanda_api
 from packages.tech import trade_check
@@ -48,11 +48,15 @@ class Trader:
         self.max_use_day = max_use_day
         self.margin_rate = margin_rate
 
-
     def unit_calc(self, current_price, stop_loss, unit_mult, risk_amount, max_units, margin_used, margin_rate,
-                  max_use_day):
+                  max_use_day, pair):
         # calculate units
-        units = risk_amount / abs(current_price - stop_loss)
+        s_range = abs(current_price - stop_loss)
+        if s_range == 0:
+            return False
+        units = risk_amount / s_range
+        if pair == 'USD_JPY':
+            units = units * current_price
         trade_margin_used = units / margin_rate
         # test fixing USD_JPY low units bug
         # if current_price > 90.0 or current_price < -90.0:
@@ -125,6 +129,8 @@ class Neat(Trader):
         range_mult = abs(range_out[1])
         if range_mult > 3.0:
             range_mult = 3.0
+        if range_mult < 0.5:
+            range_mult = 0.5
         if out_gran > range_out0ran:
             out_gran = range_out0ran
         gran = self.grans[out_gran]
@@ -184,12 +190,12 @@ class Neat(Trader):
         # 4th output as range mult test
         range_out = outputs[-2:]
         outputs = outputs[:-2]
-        pairs_temp = list(self.currency_pairs)
+        pairs_temp = self.currency_pairs.copy()
         check = True
         top_output = 0
         while check:
-            if pairs_temp is False:
-                break
+            if not pairs_temp:
+                return {'execute': False}
             for out in outputs:
                 abs_out.append(abs(out))
             top_index = abs_out.index(max(abs_out))
@@ -295,7 +301,7 @@ class LiveTrader(Trader):
             # calculate units
 
             units = self.unit_calc(run_info['current_price'], run_info['stop_loss'],
-                                   run_info['unit_mult'], risk_amount, max_units, margin_used, margin_rate, max_use_day)
+                                   run_info['unit_mult'], risk_amount, max_units, margin_used, margin_rate, max_use_day, run_info['top_trade']['pair'])
             if units is not False:
                 # execute trade
                 trade_info = oanda_api.market_order(self.apikey, self.account_id, units,
@@ -430,6 +436,7 @@ class PastTrader(Trader):
         self.active_pairs = []
         self.active_data = {'balance': 0, 'margin_used': 0, 'total_trades': 0}
         self.step_str = step_str
+        self.all_trades_info = []
 
     def add_market_readers(self, market_reader_obs):
         self.market_reader_obs = market_reader_obs
@@ -453,45 +460,63 @@ class PastTrader(Trader):
                 # short
                 profit = x['price'] - price_current
 
+            if x['pair'] == 'USD_JPY':
+                profit = profit / price_current
+
             self.active_data['margin_used'] -= x['margin_used']
             apply_profit = self.calc_profit(profit, x['units'])
             self.active_data['balance'] = round(self.active_data['balance'] + apply_profit)
             self.active_pairs.remove(x['pair'])
             items_to_remove.append(x)
             self.active_data['total_trades'] += 1
+            save = x.copy()
+            save['current_price'] = price_current
+            save['profit'] = apply_profit
+            save['end_week'] = True
+            self.all_trades_info.append(save)
 
         for i in items_to_remove:
             self.active_trades.remove(i)
 
     def active_trade_check(self, track_year, price_data):
+        #print(self.active_pairs)
+        #print(len(self.active_trades))
         items_to_remove = []
         pairs_to_remove = []
         for x in self.active_trades:
             price_current = self.market_reader_obs[track_year][x['pair']][self.step_str].current_price
+            price_current = (price_current[0] + price_current[1]) / 2
             profit = None
             if x['units'] > 0:
                 # long
-                if price_current[0] >= x['take_profit']:
+                if price_current >= x['take_profit']:
                     # profit
                     profit = x['take_profit'] - x['price']
-                elif price_current[1] <= x['stop_loss']:
+                elif price_current <= x['stop_loss']:
                     # loss
                     profit = x['stop_loss'] - x['price']
             elif x['units'] < 0:
                 # short
-                if price_current[1] <= x['take_profit']:
+                if price_current <= x['take_profit']:
                     # profit
                     profit = x['price'] - x['take_profit']
-                elif price_current[0] >= x['stop_loss']:
+                elif price_current >= x['stop_loss']:
                     # loss
                     profit = x['price'] - x['stop_loss']
             if profit is not None:
+                if x['pair'] == 'USD_JPY':
+                    profit = profit / price_current
                 self.active_data['margin_used'] -= x['margin_used']
                 apply_profit = self.calc_profit(profit, x['units'])
                 self.active_data['balance'] = self.active_data['balance'] + apply_profit
                 pairs_to_remove.append(x['pair'])
                 items_to_remove.append(x)
                 self.active_data['total_trades'] += 1
+                save = x.copy()
+                save['current_price'] = price_current
+                save['profit'] = apply_profit
+                save['end_week'] = False
+                self.all_trades_info.append(save)
         for i in items_to_remove:
             self.active_trades.remove(i)
         for i in pairs_to_remove:
@@ -520,7 +545,9 @@ class PastTrader(Trader):
         # calculate units
         units = self.unit_calc(run_info['current_price'], run_info['stop_loss'],
                                run_info['unit_mult'], risk_amount, max_units, self.active_data['margin_used'],
-                               self.margin_rate, max_use_day)
+                               self.margin_rate, max_use_day, run_info['top_trade']['pair'])
+        if units is False:
+            return True
         # execute trade
         top_trade_price = self.market_reader_obs[track_year][run_info['top_trade']['pair']][self.step_str].current_price
         top_trade_price = (top_trade_price[0] + top_trade_price[1]) / 2
@@ -607,14 +634,16 @@ class NeatRawPastTrader(PastTrader, Neat):
         if run_info['execute'] is False:
             return
 
-        units = self.unit_calc(run_info['price'], run_info['stop_loss'],
+        units = self.unit_calc(run_info['current_price'], run_info['stop_loss'],
                                run_info['unit_mult'], risk_amount, max_units, self.active_data['margin_used'],
-                               self.margin_rate, max_use_day)
+                               self.margin_rate, max_use_day, run_info['pair'])
+        if units is False:
+            return
         # execute trade
-        margin_used_trade = units / self.margin_rate
+        margin_used_trade = abs(units) / self.margin_rate
         self.active_data['margin_used'] += margin_used_trade
         self.active_trades.append(
-            {'price': run_info['price'], 'units': units, 'margin_used': margin_used_trade,
+            {'price': run_info['current_price'], 'units': units, 'margin_used': margin_used_trade,
              'pair': run_info['pair'],
              'stop_loss': run_info['stop_loss'], 'take_profit': run_info['take_profit']})
         self.active_pairs.append(run_info['pair'])

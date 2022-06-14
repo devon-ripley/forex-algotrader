@@ -117,7 +117,7 @@ def runner(track_datetime, track_year, currency_pairs, gran,
             logger.info(f'Total number of trades: {trader.active_data["total_trades"]}')
             logger.info(f'Highest balance during backtest: {top_balance}')
             # end of run
-    return balance_list, dates_list
+    return balance_list, dates_list, trader.all_trades_info
 
 
 def setup(start_date_str, start_balance, use_neat, chart):
@@ -194,8 +194,11 @@ def setup(start_date_str, start_balance, use_neat, chart):
     track_datetime = start_date
     track_year = track_datetime.year
 
-    balance_list, dates = runner(track_datetime, track_year, currency_pairs, gran, market_reader_obs,
+    balance_list, dates, all_trades = runner(track_datetime, track_year, currency_pairs, gran, market_reader_obs,
                           trader, min_step, min_step_str, end_date, use_neat)
+
+    print(all_trades)
+
     if chart:
         inter = round(len(dates) * 0.1)
         plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
