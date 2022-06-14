@@ -6,6 +6,7 @@ trade_logic/
 *.pyc
 *.prof
 config.json
+*config.txt
 saved_data.json
 temp_test*
 trade_strategy.py
