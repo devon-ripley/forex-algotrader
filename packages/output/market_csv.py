@@ -461,7 +461,7 @@ def csv_read_full(currency_pair, gran, year):
     low_lst = []
     close_lst = []
     volume_lst = []
-    for idx, x in enumerate(data):
+    for idx, x in enumerate(data):# add in type checking
         open_lst.append(float(x[3]))
         high_lst.append(float(x[4]))
         low_lst.append(float(x[5]))
@@ -498,7 +498,7 @@ def csv_read_recent(currency_pair, gran, periods):
             'close': numpy.array([]),
             'volume': numpy.array([])
         }
-    for x in current:
+    for x in current: # add in type checking
         result_dict['open'] = numpy.append(result_dict['open'], float(x[3]))
         result_dict['high'] = numpy.append(result_dict['high'], float(x[4]))
         result_dict['low'] = numpy.append(result_dict['low'], float(x[5]))
