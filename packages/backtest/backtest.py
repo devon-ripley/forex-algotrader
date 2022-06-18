@@ -197,7 +197,7 @@ def setup(start_date_str, start_balance, use_neat, chart):
     balance_list, dates, all_trades = runner(track_datetime, track_year, currency_pairs, gran, market_reader_obs,
                           trader, min_step, min_step_str, end_date, use_neat)
 
-    print(all_trades)
+    backtest_csv.save_trade_data(all_trades)
 
     if chart:
         inter = round(len(dates) * 0.1)

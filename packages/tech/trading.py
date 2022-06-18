@@ -377,7 +377,7 @@ class LiveTraderNeatRaw(LiveTrader, Neat):
         # run indicator_results through saved neat_raw network
         neat_outputs = self.raw_net.activate(indicator_results)
         trade_results = self.format_neat_outputs(neat_outputs, price_data, active_pairs)
-        if trade_results['execute'] is False or trade_results['top_trade']['pair'] in active_pairs:
+        if trade_results['execute'] is False or trade_results['pair'] in active_pairs:
             return False
         return trade_results
 
@@ -445,6 +445,14 @@ class PastTrader(Trader):
         profit = profit * abs(units)
         return profit
 
+    def save_trade(self, trade, price_current, apply_profit, date, end_week=False):
+        save = trade.copy()
+        save['current_price'] = price_current
+        save['profit'] = apply_profit
+        save['end_week'] = end_week
+        #save['date'] = date
+        self.all_trades_info.append(save)
+
     def sell_all(self, track_year):
         if self.active_trades is False:
             return
@@ -469,11 +477,7 @@ class PastTrader(Trader):
             self.active_pairs.remove(x['pair'])
             items_to_remove.append(x)
             self.active_data['total_trades'] += 1
-            save = x.copy()
-            save['current_price'] = price_current
-            save['profit'] = apply_profit
-            save['end_week'] = True
-            self.all_trades_info.append(save)
+            self.save_trade(x, price_current, apply_profit, x['date'], end_week=True)
 
         for i in items_to_remove:
             self.active_trades.remove(i)
@@ -512,11 +516,7 @@ class PastTrader(Trader):
                 pairs_to_remove.append(x['pair'])
                 items_to_remove.append(x)
                 self.active_data['total_trades'] += 1
-                save = x.copy()
-                save['current_price'] = price_current
-                save['profit'] = apply_profit
-                save['end_week'] = False
-                self.all_trades_info.append(save)
+                self.save_trade(x, price_current, apply_profit, x['date'])
         for i in items_to_remove:
             self.active_trades.remove(i)
         for i in pairs_to_remove:
@@ -645,7 +645,8 @@ class NeatRawPastTrader(PastTrader, Neat):
         self.active_trades.append(
             {'price': run_info['current_price'], 'units': units, 'margin_used': margin_used_trade,
              'pair': run_info['pair'],
-             'stop_loss': run_info['stop_loss'], 'take_profit': run_info['take_profit']})
+             'stop_loss': run_info['stop_loss'], 'take_profit': run_info['take_profit'],
+             'date': run_info['top_trade']['date']})
         self.active_pairs.append(run_info['pair'])
 
 

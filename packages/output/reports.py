@@ -66,6 +66,7 @@ def end_of_week(apikey, account_id):
         file.close()
 
 
+# not in use
 def trade_logic_csv(data):
     date = datetime.datetime.now().date()
     start_of_week = date - datetime.timedelta(days=date.isoweekday())

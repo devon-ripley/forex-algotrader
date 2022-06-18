@@ -1,9 +1,19 @@
 import datetime
-from packages.backtest import backtest
-import numpy
-
 from packages.output import market_csv
-import json
+import csv
+
+
+def save_trade_data(data):
+    headers = ['price', 'units', 'margin_used', 'pair', 'stop_loss',
+               'take_profit', 'current_price', 'profit', 'end_week']
+    with open('data/backtest/backtest_trades.csv', 'w') as f:
+        writer_object = csv.writer(f)
+        writer_object.writerow(headers)
+        for line in data:
+            writer_object.writerow([line['price'], line['units'], line['margin_used'],
+                                    line['pair'], line['stop_loss'], line['take_profit'],
+                                    line['current_price'], line['profit'], line['end_week']])
+        f.close()
 
 
 class BacktestMarketReader:
