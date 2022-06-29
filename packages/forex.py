@@ -48,6 +48,7 @@ def setup():
     oanda_api.account_get_init(apikey)
     ###### MARKET DATA CSV FILE SET UP
     now_year = datetime.datetime.now().year
+    logger.info('Downloading market price data...')
     # Daily chart setup
     if 'D' in gran:
         for num_cur in range(len(currency_pairs)):
