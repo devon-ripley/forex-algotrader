@@ -174,7 +174,7 @@ def trading_loop(profile):
         logger.info(f'sleep {trade_wait} seconds')
         time.sleep(trade_wait)
         # check if week is over
-        if current_day == 5 and current_hr == 20:
+        if current_day == 5 and current_hr >= 20:
             loop = False
             trade_sql.close_all_short_term(apikey, account_id)
             logger.info('All short term trades closed, end of week')
