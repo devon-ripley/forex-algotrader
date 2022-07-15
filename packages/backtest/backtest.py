@@ -198,6 +198,7 @@ def setup(start_date_str, start_balance, use_neat, chart):
                           trader, min_step, min_step_str, end_date, use_neat)
 
     backtest_csv.save_trade_data(all_trades)
+    logger.info('Saved backtest trade info as backtest_trades.csv')
 
     if chart:
         inter = round(len(dates) * 0.1)
@@ -205,6 +206,8 @@ def setup(start_date_str, start_balance, use_neat, chart):
         plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=inter))
         plt.plot(dates, balance_list)
         plt.gcf().autofmt_xdate()
+        logger.info(f'Saved chart as backtest_chart.pdf')
+        plt.savefig('backtest_chart.pdf')
         plt.show()
 
 
