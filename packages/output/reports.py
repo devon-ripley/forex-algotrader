@@ -2,7 +2,7 @@ import datetime
 import csv
 from packages.output import trade_sql
 from pathlib import Path
-from packages.oanda_api import oanda_api
+
 
 class WeeklyReport:
 
@@ -11,34 +11,36 @@ class WeeklyReport:
         self.account_id = account_id
         self.year = datetime.datetime.now().year
 
-    def find_last_week(self):
+    def __file_last_date(self):
         path = 'data/reports/report_' + str(self.year) + '.csv'
         with open(path, 'r') as file:
             data = csv.reader(file)
             data = list(data)
         last_line = data[-1]
-        # check date if before last friday
+        return 0
 
-    def end_of_week(self, apikey, account_id):
-        date = datetime.datetime.now().date()
-        start_date = date - datetime.timedelta(days=7)
+    def __week_save(self, start_date):
+        # find friday!!!!
         start_date_str = str(start_date)
+        end_date = start_date + datetime.timedelta(days=7)
         year_str = str(self.year)
         path_to_output = 'data/reports/report_' + year_str + '.csv'
         # get all trade info from mysql for this week
         data = trade_sql.all_complete_trades_from(start_date_str)
-        #get current balance from oanda_api
-        balance = float(oanda_api.account_summary(apikey, account_id)['account']['balance'])
+        # get current balance from oanda_api
         path = Path(path_to_output)
         headers = ['date', 'profit_week', 'trades_week', 'profit_year', 'trades_year', 'balance']
 
         # calculate total profit for week
         profit_week = 0.0
         trades_week = 0
+        # first staring balance off the first trade of the week
+        start_week_balance = data[-1][12]
         for x in data:
             if x[11] == 'N/A':
                 continue
             profit_week += float(x[11])
+
             trades_week += 1
         # calculate year profit and number of trades
         total_profit = 0.0
@@ -58,12 +60,12 @@ class WeeklyReport:
             total_profit = total_profit + profit_week
             total_trades = total_trades + trades_week
             report_data = {
-                'date': str(date),
+                'date': str(end_date),
                 'profit_week': profit_week,
                 'trades_week': trades_week,
                 'profit_year': total_profit,
                 'trades_year': total_trades,
-                'balance': balance
+                'balance': (start_week_balance + profit_week)
             }
             # add data to file
             with open(path_to_output, 'a', newline='') as f:
@@ -75,8 +77,14 @@ class WeeklyReport:
             total_trades = total_trades
             file = open(path_to_output, 'w')
             file.writelines(['date,profit_week,trades_week,profit_year,trades_year,balance\n',
-                             f'{str(date)},{profit_week},{trades_week},{total_profit},{total_trades},{balance}\n'])
+                             f'{str(end_date)},{profit_week},{trades_week},{total_profit},{total_trades},{(start_week_balance + profit_week)}\n'])
             file.close()
+
+    def update_report(self):
+        current_date = datetime.datetime.now().date()
+        last_date = self.__file_last_date()
+        self.__week_save(last_date)
+
 
 
 # not in use

@@ -25,6 +25,7 @@ def setup():
         direction VARCHAR(100),
         stop_loss VARCHAR(100),
         take_profit VARCHAR(100),
+        start_balance VARCHAR(100),
         status VARCHAR(100)
     )
     """
@@ -36,6 +37,7 @@ def setup():
         direction VARCHAR(100),
         stop_loss VARCHAR(100),
         take_profit VARCHAR(100),
+        start_balance VARCHAR(100),
         status VARCHAR(100)
     )
     """
@@ -54,25 +56,11 @@ def setup():
         stop_loss VARCHAR(100),
         take_profit VARCHAR(100),
         profit VARCHAR(100),
+        start_balance VARCHAR(100),
         status VARCHAR(100)
     )
     """
-    create_trade_decision_info = """
-        CREATE TABLE IF NOT EXISTS trade_decision_info (
-            id VARCHAR(100),
-            candle VARCHAR(100),
-            indicator VARCHAR(100),
-            date DATETIME(6),
-            convergence VARCHAR(100),
-            score VARCHAR(100),
-            price VARCHAR(100),
-            number VARCHAR(100),
-            top_band VARCHAR(100),
-            middle_band VARCHAR(100),
-            bottom_band VARCHAR(100)
-        )
-        """
-    query = [create_short_table, create_long_table, create_complete, create_trade_decision_info]
+    query = [create_short_table, create_long_table, create_complete]
     with mysql.connect(
             host='localhost',
             user=mysql_info['user'],
@@ -87,18 +75,18 @@ def setup():
                 connection.commit()
 
 
-def add_active_trade(trade_id, date, currency_pair, direction, stop_loss, take_profit, table):
+def add_active_trade(trade_id, date, currency_pair, direction, stop_loss, take_profit, table, start_balance):
     logger = logging.getLogger('forexlogger')
     mysql_info = get_config_info()
     insert_active = f"""
-    INSERT INTO {table}(trade_id, date, currency_pair, direction, stop_loss, take_profit, status)
+    INSERT INTO {table}(trade_id, date, currency_pair, direction, stop_loss, take_profit, start_balance ,status)
     VALUES
-        ("{trade_id}", "{date}", "{currency_pair}", "{direction}", "{stop_loss}", "{take_profit}", "OPEN")
+        ("{trade_id}", "{date}", "{currency_pair}", "{direction}", "{stop_loss}", "{take_profit}", "{start_balance}", "OPEN")
     """
     insert_complete = f"""
-    INSERT INTO complete(trade_id, date, currency_pair, direction, stop_loss, take_profit, status)
+    INSERT INTO complete(trade_id, date, currency_pair, direction, stop_loss, take_profit, start_balance, status)
     VALUES
-        ("{trade_id}", "{date}", "{currency_pair}", "{direction}", "{stop_loss}", "{take_profit}", "OPEN")
+        ("{trade_id}", "{date}", "{currency_pair}", "{direction}", "{stop_loss}", "{take_profit}", "{start_balance}" ,"OPEN")
     """
 
     with mysql.connect(
